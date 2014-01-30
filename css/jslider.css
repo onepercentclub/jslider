@@ -38,3 +38,13 @@
   .jslider-single .jslider-value-to,
   .jslider-single .jslider-bg .v,
   .jslider-limitless .jslider-label { display: none; }
+
+  .jslider.disabled {
+    .ie8 & * {
+      .opacity(0.3);
+    }
+    .opacity(0.3);
+    .jslider-pointer, .jslider-value {
+      display: none;
+    }
+  }  

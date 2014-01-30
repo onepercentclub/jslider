@@ -124,6 +124,13 @@
   		      };
   		      
   		      break;
+
+          case "disable":
+            self.disableSlider();
+
+            break;
+          case "enable":
+            self.enableSlider();
   		      
   		    case "skin":
 		        self.setSkin( args[1] );
@@ -319,6 +326,14 @@
       });
     })(this);
 
+  };
+
+  jSlider.prototype.disableSlider = function(){
+    this.domNode.addClass("disabled");
+  };
+
+  jSlider.prototype.enableSlider = function(){
+    this.domNode.removeClass("disabled");
   };
   
   jSlider.prototype.setSkin = function( skin ){
