@@ -540,7 +540,7 @@
   
   jSlider.prototype.setValue = function(){
     var value = this.getValue();
-    this.inputNode.attr( "value", value );
+    this.inputNode.val(value);
     this.onstatechange.call( this, value );
   };
 
