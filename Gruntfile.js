@@ -2,6 +2,21 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg : grunt.file.readJSON('package.json'),
+
+        concat: {
+            dist: {
+                src: [
+                    'js/jshashtable-2.1_src.js',
+                    'js/tmpl.js',
+                    'js/jquery.dependClass-0.1.js',
+                    'js/jquery.numberformatter-1.2.3.js',
+                    'js/draggable-0.2.js',
+                    'js/jquery.slider.js'
+                ],
+                dest: 'dist/jquery.slider.js'
+            }
+        },
+
         uglify : {
             options : {
                 mangle : {
@@ -35,7 +50,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
-    grunt.registerTask('default', ['uglify', 'cssmin']);
+    grunt.registerTask('default', ['concat','uglify', 'cssmin']);
 };

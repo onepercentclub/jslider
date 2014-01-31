@@ -1292,6 +1292,13 @@ var Hashtable = (function() {
   		      };
   		      
   		      break;
+
+          case "disable":
+            self.disableSlider();
+
+            break;
+          case "enable":
+            self.enableSlider();
   		      
   		    case "skin":
 		        self.setSkin( args[1] );
@@ -1397,7 +1404,7 @@ var Hashtable = (function() {
   };
   
   jSlider.prototype.onstatechange = function(){
-    
+     return true;
   };
   
   jSlider.prototype.create = function(){
@@ -1487,6 +1494,14 @@ var Hashtable = (function() {
       });
     })(this);
 
+  };
+
+  jSlider.prototype.disableSlider = function(){
+    this.domNode.addClass("disabled");
+  };
+
+  jSlider.prototype.enableSlider = function(){
+    this.domNode.removeClass("disabled");
   };
   
   jSlider.prototype.setSkin = function( skin ){
@@ -1708,8 +1723,10 @@ var Hashtable = (function() {
   
   jSlider.prototype.setValue = function(){
     var value = this.getValue();
-    this.inputNode.attr( "value", value );
-    this.onstatechange.call( this, value );
+    if(this.onstatechange.call( this, value ))
+    {
+        this.inputNode.val(value);
+    }
   };
 
   jSlider.prototype.getValue = function(){
