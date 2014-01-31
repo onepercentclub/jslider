@@ -236,7 +236,7 @@
   };
   
   jSlider.prototype.onstatechange = function(){
-    
+     return true;
   };
   
   jSlider.prototype.create = function(){
@@ -555,8 +555,10 @@
   
   jSlider.prototype.setValue = function(){
     var value = this.getValue();
-    this.inputNode.val(value);
-    this.onstatechange.call( this, value );
+    if(this.onstatechange.call( this, value ))
+    {
+        this.inputNode.val(value);
+    }
   };
 
   jSlider.prototype.getValue = function(){
