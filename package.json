@@ -1,16 +1,20 @@
 {
   "name": "jquery.slider",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Jquery slider",
-  "homepage": "http://egorkhmelev.github.com/jslider/",
+  "homepage": "http://abdavid.github.com/jslider/",
   "keywords": [
     "jquery",
     "dom",
     "slider"
   ],
   "devDependencies": {
-    "grunt": "~0.4.0",
-    "yuicompressor": "~2.4.7"
+      "grunt": "~0.4.1",
+      "grunt-contrib-cssmin": "~0.4.0",
+      "grunt-contrib-jshint": "~0.5.2",
+      "grunt-contrib-watch": "~0.4.3",
+      "grunt-contrib-qunit": "~0.2.1",
+      "grunt-contrib-uglify": "~0.2.0"
   },
   "jam": {
     "main": "dist/jquery.slider.amd.min.js",
@@ -28,16 +32,20 @@
     {
       "name": "Richard Mitchell",
       "email": "richard.mitchell@salesseek.co.uk"
-    } 
+    },
+    {
+      "name": "David A T Børresen",
+      "email": "davidb@warmsys.com"
+    }
   ],
   "contributors": [
     {
       "name": "Egor Khmelev",
       "email": "hmelyoff@gmail.com",
-      "web": "http://egorkhmelev.com/" 
-    } 
+      "web": "http://egorkhmelev.com/"
+    }
   ],
-  "bugs": "https://github.com/SalesSeek/jslider/issues",
+  "bugs": "https://github.com/abdavid/jslider/issues",
   "licenses": [
     {
       "type": "MIT",
@@ -46,9 +54,9 @@
   ],
   "repositories": [
     {
-      "type": "git", 
-      "url": "http://github.com/SalesSeek/jslider.git"
+      "type": "git",
+      "url": "http://github.com/abdavid/jslider.git"
     }
   ],
-  "github": "http://github.com/SalesSeek/jslider"
+  "github": "http://github.com/abdavid/jslider"
 }
