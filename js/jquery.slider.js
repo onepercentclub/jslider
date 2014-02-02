@@ -43,14 +43,6 @@ var Slider = (function () {
             this.nice = this.settings.calculate;
         }
 
-        if (this.settings.onStateChange && $.isFunction(this.settings.onStateChange)) {
-            this.onStateChange = this.settings.onStateChange;
-        } else {
-            this.onStateChange = function () {
-                return true;
-            };
-        }
-
         this.create();
     };
 
@@ -72,15 +64,15 @@ var Slider = (function () {
 
         if (this.settings.skin && this.settings.skin.length > 0) {
             this.setSkin(this.settings.skin);
-
-            this.sizes = {
-                domWidth: this.domNode.width(),
-                domOffset: this.domNode.offset()
-            };
         }
 
+        this.sizes = {
+            domWidth: this.domNode.width(),
+            domOffset: this.domNode.offset()
+        };
+
         $.extend(this.o, {
-            pointers: {},
+            pointers: [],
             labels: [
                 {
                     o: this.domNode.find(this.defaultOptions.selector + 'value').not(this.defaultOptions.selector + 'value-to')
@@ -100,11 +92,11 @@ var Slider = (function () {
         });
 
         $.extend(this.o.labels[0], {
-            value: this.labels[0].o.find('span')
+            value: this.o.labels[0].o.find('span')
         });
 
         $.extend(this.o.labels[1], {
-            value: this.labels[1].o.find('span')
+            value: this.o.labels[1].o.find('span')
         });
 
         if (!this.settings.value.split(';')[1]) {
@@ -116,14 +108,15 @@ var Slider = (function () {
             this.domNode.addDependClass('limitless');
         }
 
+        var values = this.settings.value.split(';');
         this.domNode.find(this.defaultOptions.selector + 'pointer').each(function (i, element) {
-            var values = _this.settings.value.split(';'), value = values[i];
+            var value = Number(values[i]);
 
             if (value) {
-                _this.o.pointers[i] = new JSliderPointer(element, i, _this);
-                var prev = value[i - 1];
+                _this.o.pointers[i] = new SliderPointer(element, i, _this);
+                var prev = Number(values[i - 1]);
 
-                if (prev && Number(value) < Number(prev)) {
+                if (prev && value < prev) {
                     value = prev;
                 }
 
@@ -144,6 +137,13 @@ var Slider = (function () {
         $(window).resize(function () {
             _this.onResize();
         });
+    };
+
+    Slider.prototype.onStateChange = function (value) {
+        if ($.isFunction(this.settings.onStateChange)) {
+            return this.settings.onStateChange.apply(this, value);
+        }
+        return true;
     };
 
     Slider.prototype.disableSlider = function () {
@@ -184,7 +184,7 @@ var Slider = (function () {
 
         var str = '', scale = this.settings.scale, prc = Math.min(Math.max(0, Math.round((100 / (scale.length - 1)) * 10000) / 10000), 100);
 
-        for (var i = 0; i < s.length; i++) {
+        for (var i = 0; i < scale.length; i++) {
             str += '<span style="left: ' + i * prc + '%">' + (scale[i] != '|' ? '<ins>' + scale[i] + '</ins>' : '') + '</span>';
         }
 
@@ -331,11 +331,11 @@ var Slider = (function () {
                 if (!this.settings.single || key == 0) {
                     var pointer = this.o.pointers[key], label = this.o.labels[pointer.uid], labelLeft = label.o.offset().left - this.sizes.domOffset.left;
 
-                    if (labelLeft < this.o.limits[0].outerWidth()) {
+                    if (labelLeft < this.o.limits[0].o.outerWidth()) {
                         limits[0] = false;
                     }
 
-                    if (labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].outerWidth()) {
+                    if (labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth()) {
                         limits[1] = false;
                     }
                 }
@@ -343,9 +343,9 @@ var Slider = (function () {
 
             for (var i = 0; i < limits.length; i++) {
                 if (limits[i]) {
-                    this.o.limits[i].fadeIn('fast');
+                    this.o.limits[i].o.fadeIn('fast');
                 } else {
-                    this.o.limits[i].fadeOut('fast');
+                    this.o.limits[i].o.fadeOut('fast');
                 }
             }
         }
@@ -354,12 +354,12 @@ var Slider = (function () {
     Slider.prototype.setPosition = function (label, sizes, prc) {
         sizes.margin = -sizes.label / 2;
 
-        var label_left = sizes.border + sizes.margin;
-        if (label_left < 0) {
-            sizes.margin -= label_left;
+        var labelLeft = sizes.border + sizes.margin;
+        if (labelLeft < 0) {
+            sizes.margin -= labelLeft;
         }
 
-        if (sizes.border + sizes.label / 2 > self.sizes.domWidth) {
+        if (sizes.border + sizes.label / 2 > this.sizes.domWidth) {
             sizes.margin = 0;
             sizes.right = true;
         } else {
@@ -422,8 +422,8 @@ var Slider = (function () {
     };
 
     Slider.prototype.prcToValue = function (prc) {
-        if (this.settings.hetrogeneity && this.settings.heterogeneity.length > 0) {
-            var heterogeneity = this.settings.heterogeneity, start = 0, from = this.settings.from, value;
+        if (this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0) {
+            var heterogeneity = this.settings.hetrogeneity, start = 0, from = this.settings.from, value;
 
             for (var i = 0; i <= heterogeneity.length; i++) {
                 var v;
@@ -444,7 +444,7 @@ var Slider = (function () {
                 from = v[1];
             }
         } else {
-            value = this.settings.from + (prc + this.settings.interval);
+            value = this.settings.from + (prc * this.settings.interval) / 100;
         }
 
         return this.round(value);

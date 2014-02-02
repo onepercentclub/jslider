@@ -3,6 +3,8 @@
  */
 
 /// <reference path="../definitions/jquery/jquery.d.ts" />
+/// <reference path="jquery.slider.ts" />
+
 interface ICoordinates {
     x:number;
     y:number;
@@ -28,7 +30,7 @@ class SliderDraggable {
     public static EVENT_MOVE:string = 'move';
     public static EVENT_DOWN:string = 'down';
 
-    private ptr:JQuery;
+    public pointer:JQuery;
     private outer:JQuery;
     private defaultIs:IInteractionType = {
         drag: false,
@@ -45,14 +47,14 @@ class SliderDraggable {
 
     constructor()
     {
-        this.init();
+        this.init.apply(this, arguments);
     }
 
     private init():void
     {
         if(arguments.length > 0)
         {
-            this.ptr = $(arguments[0]);
+            this.pointer = $(arguments[0]);
             this.outer = $('.draggable-outer');
         }
 
@@ -61,11 +63,11 @@ class SliderDraggable {
         this.is = $.extend(this.is, this.defaultIs);
 
         this.d = {
-            left:offset.left,
-            top:offset.top,
-            width:this.ptr.width(),
-            height:this.ptr.height()
-        }
+            left: offset.left,
+            top: offset.top,
+            width: this.pointer.width(),
+            height: this.pointer.height()
+        };
 
         this.supportTouches = ('ontouchend' in document);
 
@@ -76,26 +78,16 @@ class SliderDraggable {
             "up"  : this.supportTouches ? "touchend" : "mouseup"
         };
 
-        this.onInit(arguments);
+        this.onInit.apply(this, arguments);
 
         this.setupEvents();
     }
 
     private setupEvents():void
     {
-        this.bindEvent($(document),SliderDraggable.EVENT_MOVE,(event:MouseEvent)=>
-        {
-            if(this.is.drag)
-            {
-                event.preventDefault();
-                event.stopPropagation();
-
-                this.onMouseMove(event);
-            }
-        });
-
         this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:MouseEvent)=>
         {
+            console.log('mouse down, global');
             if(this.is.drag)
             {
                 event.preventDefault();
@@ -103,20 +95,40 @@ class SliderDraggable {
             }
         });
 
-        this.bindEvent($(document),SliderDraggable.EVENT_UP,this.onMouseUp);
-
-        this.bindEvent(this.ptr, SliderDraggable.EVENT_DOWN, (event:MouseEvent)=>
+        this.bindEvent($(document),SliderDraggable.EVENT_UP,(event:MouseEvent)=>
         {
-            this.onMouseDown(event);
+            this.mouseUp(event);
         });
 
-        this.bindEvent(this.ptr, SliderDraggable.EVENT_UP, (event:MouseEvent)=>
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE,(event:MouseEvent)=>
         {
-            this.onMouseUp(event);
+            if(this.is.drag)
+            {
+                console.log('mouse move, pointer .. drag');
+                event.preventDefault();
+                event.stopPropagation();
+
+                this.mouseMove(event);
+            }
         });
 
-        this.ptr.find('a')
-            .click(()=>
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, (event:MouseEvent)=>
+        {
+            console.log('mouse down, pointer',arguments);
+
+            this.mouseDown(event);
+            return false;
+        });
+
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, (event:MouseEvent)=>
+        {
+            console.log('mouse up, pointer');
+            this.mouseUp(event);
+        });
+
+        var $anchor = this.pointer.find('a');
+
+            $anchor.on('click',()=>
             {
                 this.is.clicked = true;
 
@@ -127,11 +139,11 @@ class SliderDraggable {
                 }
 
                 return true;
-            })
-            .mousedown((event:MouseEvent)=>
+            });
+
+            $anchor.on('mousedown',(event:Event)=>
             {
                 this.mouseDown(event);
-                return false;
             });
     }
 
@@ -155,7 +167,6 @@ class SliderDraggable {
                 y: event.pageY
             };
         }
-
     }
 
     /**
@@ -163,30 +174,30 @@ class SliderDraggable {
      */
     public getPointerOffset():IOffset
     {
-        return this.ptr.offset();
+        return this.pointer.offset();
     }
 
     /**
-     * @param ptr {JQuery
-     * @param eventType {string}
-     * @param callback {Function}
+     * @param element
+     * @param eventType
+     * @param callback
      */
-    private bindEvent(ptr:JQuery, eventType:string, callback:(event:MouseEvent)=>{}):void
+    private bindEvent(element:JQuery, eventType:string, callback:(event:MouseEvent)=>any):void
     {
         if(this.supportTouches)
         {
-            ptr.get(0).addEventListener(this.events[eventType], callback, false);
+            element.get(0).addEventListener(this.events[eventType], callback, false);
         }
         else
         {
-            ptr.on(this.events[eventType], callback);
+            element.on(this.events[eventType], callback);
         }
     }
 
     /**
-     * @param event {MouseEvent}
+     * @param event {Event}
      */
-    private mouseDown(event:MouseEvent):void
+    public mouseDown(event:Event):void
     {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;
@@ -200,8 +211,8 @@ class SliderDraggable {
         this.d = $.extend(this.d,{
             left:offset.left,
             top:offset.top,
-            width:this.ptr.width(),
-            height:this.ptr.height()
+            width:this.pointer.width(),
+            height:this.pointer.height()
         });
 
         if(this.outer.length > 0)
@@ -218,9 +229,10 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    private mouseMove(event:MouseEvent):void
+    public mouseMove(event:MouseEvent):void
     {
         this.is.toclick = false;
+
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     }
@@ -228,7 +240,7 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    private mouseUp(event:MouseEvent):void
+    public mouseUp(event:MouseEvent):void
     {
         if(!this.is.drag)
         {
@@ -254,7 +266,7 @@ class SliderDraggable {
      * @param id
      * @param constructor
      */
-    public onInit(pointer,id,constructor):void
+    public onInit(pointer:HTMLElement,id:number,constructor:Slider):void
     {
 
     }
@@ -262,9 +274,10 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    public onMouseDown(event:MouseEvent):void
+    public onMouseDown(event:Event):void
     {
-        this.ptr.css({ position: "absolute" });
+        console.log('mouse down..');
+        this.pointer.css({ position: "absolute" });
     }
 
     /**
@@ -272,16 +285,16 @@ class SliderDraggable {
      * @param x {number}
      * @param y {number}
      */
-    public onMouseMove(event:MouseEvent, x:number = null, y:number = null):void
+    public onMouseMove(event:Event, x:number = null, y:number = null):void
     {
-
+        console.log('mouse move..');
     }
 
     /**
      * @param event {MouseEvent}
      */
-    public onMouseUp(event:MouseEvent):void
+    public onMouseUp(event:Event):void
     {
-
+        console.log('mouse up..');
     }
 }

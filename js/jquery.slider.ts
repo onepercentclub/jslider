@@ -8,16 +8,18 @@ interface ISettings {
     to:number;
     from:number;
     interval:number;
-    value:number;
-    calculate:() => void;
+    value:string;
+    calculate:() => number;
     onStateChange:() => boolean;
     dimension:string;
     skin:string;
-    value:string;
     limits:string;
     single:boolean;
     scale:string;
-    hetrogeneity:any;
+    hetrogeneity:string;
+    step:number;
+    round:number;
+    smooth:boolean;
 }
 
 interface ISizes {
@@ -70,8 +72,6 @@ class Slider {
 
     };
     private inputNode:JQuery;
-    private nice:Function;
-    private onStateChange:Function;
     private sizes:ISizes;
 
     private is:Object = {
@@ -110,18 +110,6 @@ class Slider {
             this.nice = this.settings.calculate;
         }
 
-        if(this.settings.onStateChange && $.isFunction(this.settings.onStateChange))
-        {
-            this.onStateChange = this.settings.onStateChange;
-        }
-        else
-        {
-            this.onStateChange = function()
-            {
-                return true;
-            }
-        }
-
         this.create();
     }
 
@@ -130,11 +118,11 @@ class Slider {
         this.domNode = $(this.defaultOptions.template({
             className: this.defaultOptions.className,
             settings: {
-                from:this.nice(this.settings.from),
-                to:this.nice(this.settings.to),
-                dimension:this.settings.dimension
+                from: this.nice(this.settings.from),
+                to: this.nice(this.settings.to),
+                dimension: this.settings.dimension
             },
-            scale:this.generateScale()
+            scale: this.generateScale()
         }));
 
         this.inputNode.after(this.domNode);
@@ -144,15 +132,15 @@ class Slider {
         if(this.settings.skin && this.settings.skin.length > 0)
         {
             this.setSkin(this.settings.skin);
-
-            this.sizes = {
-                domWidth:this.domNode.width(),
-                domOffset:this.domNode.offset()
-            }
         }
 
+        this.sizes = {
+            domWidth:this.domNode.width(),
+            domOffset:this.domNode.offset()
+        };
+
         $.extend(this.o, {
-           pointers: {},
+           pointers: [],
            labels: [
                {
                    o:this.domNode.find(this.defaultOptions.selector + 'value').not(this.defaultOptions.selector + 'value-to')
@@ -172,11 +160,11 @@ class Slider {
         });
 
         $.extend(this.o.labels[0], {
-           value: this.labels[0].o.find('span')
+           value: this.o.labels[0].o.find('span')
         });
 
         $.extend(this.o.labels[1], {
-           value: this.labels[1].o.find('span')
+           value: this.o.labels[1].o.find('span')
         });
 
         if(!this.settings.value.split(';')[1])
@@ -190,17 +178,17 @@ class Slider {
             this.domNode.addDependClass('limitless');
         }
 
+        var values:string[] = this.settings.value.split(';');
         this.domNode.find(this.defaultOptions.selector + 'pointer').each((i:number, element:HTMLElement)=>
         {
-            var values:string[] = this.settings.value.split(';'),
-                value:string = values[i];
+            var value:number = Number(values[i]);
 
             if(value)
             {
-                this.o.pointers[i] = new JSliderPointer(element, i, this);
-                var prev = value[i-1];
+                this.o.pointers[i] = new SliderPointer(element, i, this);
+                var prev = Number(values[i-1]);
 
-                if(prev && Number(value) < Number(prev))
+                if(prev && value < prev)
                 {
                     value = prev;
                 }
@@ -226,6 +214,15 @@ class Slider {
         });
     }
 
+    public onStateChange(value:string):any
+    {
+        if($.isFunction(this.settings.onStateChange))
+        {
+            return this.settings.onStateChange.apply(this, value);
+        }
+        return true;
+    }
+
     public disableSlider():void
     {
         this.domNode.addClass('disabled');
@@ -242,6 +239,9 @@ class Slider {
         this.drawScale();
     }
 
+    /**
+     * @param skinName {string}
+     */
     private setSkin(skinName:string):void
     {
         if(this.skin)
@@ -266,9 +266,9 @@ class Slider {
     }
 
     /**
-     * @returns {JSliderPointers[]}
+     * @returns {SliderPointer[]}
      */
-    private getPointers():JSliderPointers[]
+    private getPointers():SliderPointer[]
     {
         return this.o.pointers;
     }
@@ -284,7 +284,7 @@ class Slider {
             scale = this.settings.scale,
             prc = Math.min(Math.max(0, Math.round((100 / (scale.length - 1)) * 10000) / 10000), 100);
 
-        for (var i = 0; i < s.length; i++)
+        for (var i = 0; i < scale.length; i++)
         {
             str += '<span style="left: ' + i * prc + '%">' + ( scale[i] != '|' ? '<ins>' + scale[i] + '</ins>' : '' ) + '</span>';
         }
@@ -307,15 +307,15 @@ class Slider {
             domOffset:this.domNode.offset()
         };
 
-        $.each(this.o.pointers, (i:number, pointer:JSliderPointer)=>
+        $.each(this.o.pointers, (i:number, pointer:SliderPointer)=>
         {
             this.redraw(pointer);
-        })
+        });
     }
 
     /**
      * @param x {number}
-     * @param pointer {JSliderPointer}
+     * @param pointer {SliderPointer}
      */
     public limits(x:number, pointer:SliderPointer):number
     {
@@ -387,9 +387,9 @@ class Slider {
         var label = this.o.labels[pointer.uid],
             prc = pointer.value.prc,
             sizes = {
-                label:label.o.outerWidth(),
-                right:false,
-                border:(prc * this.sizes.domWidth) / 100
+                label: label.o.outerWidth(),
+                right: false,
+                border: (prc * this.sizes.domWidth) / 100
             };
 
         //glue if near
@@ -493,12 +493,12 @@ class Slider {
                         label = this.o.labels[pointer.uid],
                         labelLeft = label.o.offset().left - this.sizes.domOffset.left;
 
-                    if(labelLeft < this.o.limits[0].outerWidth())
+                    if(labelLeft < this.o.limits[0].o.outerWidth())
                     {
                         limits[0] = false;
                     }
 
-                    if(labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].outerWidth())
+                    if(labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth())
                     {
                         limits[1] = false;
                     }
@@ -510,11 +510,11 @@ class Slider {
             {
                 if(limits[i])
                 {
-                    this.o.limits[i].fadeIn('fast');
+                    this.o.limits[i].o.fadeIn('fast');
                 }
                 else
                 {
-                    this.o.limits[i].fadeOut('fast');
+                    this.o.limits[i].o.fadeOut('fast');
                 }
             }
         }
@@ -531,14 +531,14 @@ class Slider {
         sizes.margin = -sizes.label / 2;
 
         // left limit
-        var label_left = sizes.border + sizes.margin;
-        if (label_left < 0)
+        var labelLeft = sizes.border + sizes.margin;
+        if (labelLeft < 0)
         {
-            sizes.margin -= label_left;
+            sizes.margin -= labelLeft;
         }
 
         // right limit
-        if (sizes.border + sizes.label / 2 > self.sizes.domWidth)
+        if (sizes.border + sizes.label / 2 > this.sizes.domWidth)
         {
             sizes.margin = 0;
             sizes.right = true;
@@ -620,18 +620,18 @@ class Slider {
 
     /**
      * @param prc
-     * @returns {*}
+     * @returns {number}
      */
-    public prcToValue(prc:number)
+    public prcToValue(prc:number):number
     {
-        if(this.settings.hetrogeneity && this.settings.heterogeneity.length > 0)
+        if(this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0)
         {
-            var heterogeneity = this.settings.heterogeneity,
+            var heterogeneity = this.settings.hetrogeneity,
                 start = 0,
                 from = this.settings.from,
                 value:any;
 
-            for(var i=0; i <= heterogeneity.length; i++)
+            for (var i = 0; i <= heterogeneity.length; i++)
             {
                 var v:any[];
                 if(heterogeneity[i])
@@ -657,7 +657,7 @@ class Slider {
         }
         else
         {
-            value = this.settings.from + (prc + this.settings.interval);
+            value = this.settings.from + (prc * this.settings.interval) / 100;
         }
 
         return this.round(value);
@@ -712,7 +712,7 @@ class Slider {
      * @param value
      * @returns {number}
      */
-    private round(value:number):number
+    public round(value:number):number
     {
         value = Math.round(value / this.settings.step) * this.settings.step;
 
@@ -732,7 +732,7 @@ class Slider {
      * @param value
      * @returns {*}
      */
-    private nice(value:number):number
+    public nice(value:any):number
     {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 

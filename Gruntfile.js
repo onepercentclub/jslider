@@ -11,7 +11,14 @@ module.exports = function(grunt)
         [
             'less:build',
             'typescript:build',
-            'uglify',
+            'concat',
+            'uglify'
+        ]
+    );
+
+    grunt.registerTask('watch',
+        'Copies resources, compiles LESS, minifies JS.',
+        [
             'watch'
         ]
     );

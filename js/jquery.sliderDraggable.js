@@ -7,11 +7,11 @@ var SliderDraggable = (function () {
             toclick: true,
             mouseup: false
         };
-        this.init();
+        this.init.apply(this, arguments);
     }
     SliderDraggable.prototype.init = function () {
         if (arguments.length > 0) {
-            this.ptr = $(arguments[0]);
+            this.pointer = $(arguments[0]);
             this.outer = $('.draggable-outer');
         }
 
@@ -22,8 +22,8 @@ var SliderDraggable = (function () {
         this.d = {
             left: offset.left,
             top: offset.top,
-            width: this.ptr.width(),
-            height: this.ptr.height()
+            width: this.pointer.width(),
+            height: this.pointer.height()
         };
 
         this.supportTouches = ('ontouchend' in document);
@@ -35,40 +35,50 @@ var SliderDraggable = (function () {
             "up": this.supportTouches ? "touchend" : "mouseup"
         };
 
-        this.onInit(arguments);
+        this.onInit.apply(this, arguments);
 
         this.setupEvents();
     };
 
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
-        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, function (event) {
-            if (_this.is.drag) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                _this.onMouseMove(event);
-            }
-        });
-
         this.bindEvent($(document), SliderDraggable.EVENT_DOWN, function (event) {
+            console.log('mouse down, global');
             if (_this.is.drag) {
                 event.preventDefault();
                 event.stopPropagation();
             }
         });
 
-        this.bindEvent($(document), SliderDraggable.EVENT_UP, this.onMouseUp);
-
-        this.bindEvent(this.ptr, SliderDraggable.EVENT_DOWN, function (event) {
-            _this.onMouseDown(event);
+        this.bindEvent($(document), SliderDraggable.EVENT_UP, function (event) {
+            _this.mouseUp(event);
         });
 
-        this.bindEvent(this.ptr, SliderDraggable.EVENT_UP, function (event) {
-            _this.onMouseUp(event);
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE, function (event) {
+            if (_this.is.drag) {
+                console.log('mouse move, pointer .. drag');
+                event.preventDefault();
+                event.stopPropagation();
+
+                _this.mouseMove(event);
+            }
         });
 
-        this.ptr.find('a').click(function () {
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, function (event) {
+            console.log('mouse down, pointer', arguments);
+
+            _this.mouseDown(event);
+            return false;
+        });
+
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, function (event) {
+            console.log('mouse up, pointer');
+            _this.mouseUp(event);
+        });
+
+        var $anchor = this.pointer.find('a');
+
+        $anchor.on('click', function () {
             _this.is.clicked = true;
 
             if (!_this.is.toclick) {
@@ -77,9 +87,10 @@ var SliderDraggable = (function () {
             }
 
             return true;
-        }).mousedown(function (event) {
+        });
+
+        $anchor.on('mousedown', function (event) {
             _this.mouseDown(event);
-            return false;
         });
     };
 
@@ -98,14 +109,14 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.getPointerOffset = function () {
-        return this.ptr.offset();
+        return this.pointer.offset();
     };
 
-    SliderDraggable.prototype.bindEvent = function (ptr, eventType, callback) {
+    SliderDraggable.prototype.bindEvent = function (element, eventType, callback) {
         if (this.supportTouches) {
-            ptr.get(0).addEventListener(this.events[eventType], callback, false);
+            element.get(0).addEventListener(this.events[eventType], callback, false);
         } else {
-            ptr.on(this.events[eventType], callback);
+            element.on(this.events[eventType], callback);
         }
     };
 
@@ -121,8 +132,8 @@ var SliderDraggable = (function () {
         this.d = $.extend(this.d, {
             left: offset.left,
             top: offset.top,
-            width: this.ptr.width(),
-            height: this.ptr.height()
+            width: this.pointer.width(),
+            height: this.pointer.height()
         });
 
         if (this.outer.length > 0) {
@@ -137,6 +148,7 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.mouseMove = function (event) {
         this.is.toclick = false;
+
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     };
@@ -161,15 +173,18 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.onMouseDown = function (event) {
-        this.ptr.css({ position: "absolute" });
+        console.log('mouse down..');
+        this.pointer.css({ position: "absolute" });
     };
 
     SliderDraggable.prototype.onMouseMove = function (event, x, y) {
         if (typeof x === "undefined") { x = null; }
         if (typeof y === "undefined") { y = null; }
+        console.log('mouse move..');
     };
 
     SliderDraggable.prototype.onMouseUp = function (event) {
+        console.log('mouse up..');
     };
     SliderDraggable.EVENT_UP = 'up';
     SliderDraggable.EVENT_MOVE = 'move';

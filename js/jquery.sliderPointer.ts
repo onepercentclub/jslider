@@ -1,30 +1,28 @@
 /**
  * Created by davidatborresen on 02.02.14.
  */
-
-    /// <reference path="../definitions/jquery/jquery.d.ts" />
+/// <reference path="../definitions/jquery/jquery.d.ts" />
 /// <reference path="../js/jquery.sliderDraggable.ts" />
 /// <reference path="../js/jquery.slider.ts" />
 
-
 class SliderPointer extends SliderDraggable {
 
-    public pointer:JQuery;
     public uid:any;
     public parent:Slider;
     public _parent:any;
     public value:any;
     public settings:any;
+    private ptr:JQuery;
 
     /**
      * @param pointer
      * @param id
-     * @param constructor
+     * @param slider
      */
-    public onInit(pointer:JQuery, id:any, constructor:Slider):void
+    public onInit(pointer:HTMLElement, id:any, slider:Slider):void
     {
         this.uid = id;
-        this.parent = constructor;
+        this.parent = slider;
         this.value = {};
         this.settings = this.parent.settings;
     }
@@ -45,8 +43,8 @@ class SliderPointer extends SliderDraggable {
      */
     public onMouseMove(event:MouseEvent):void
     {
-        var coords = this.getPageCoords(event);
-        this.set(this.calc(coords.x));
+        super.onMouseMove(event);
+        this._set(this.calc(this.getPageCoords(event).x));
     }
 
     public onMouseUp():void
@@ -88,26 +86,35 @@ class SliderPointer extends SliderDraggable {
      */
     public calc(coords):number
     {
-        return this.limits(((coords-this._parent.offset.left)*100)/this._parent.width);
+        return this.limits(((coords - this._parent.offset.left) * 100) / this._parent.width);
     }
 
     /**
      * @param value
      * @param optOrigin
      */
-    public set(value:number, optOrigin = null)
+    public set(value:number, optOrigin:boolean = false):void
     {
         this.value.origin = this.parent.round(value);
 
-        var prc = this.parent.valueToPrc(value, this);
+        this._set(this.parent.valueToPrc(value, this), optOrigin);
+    }
 
-        if(!optOrigin)
+    /**
+     * @param prc
+     * @param optOrigin
+     * @private
+     */
+    private _set(prc:number, optOrigin:boolean =  false):void
+    {
+        if( !optOrigin )
         {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
         this.value.prc = prc;
-        this.pointer.css({left:prc + '%'});
+        console.log('setting %O to %d persent', this.pointer, prc, this);
+        this.pointer.css({left: prc + '%'});
         this.parent.redraw(this);
     }
 }
