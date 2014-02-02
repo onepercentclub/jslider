@@ -1,8 +1,3 @@
-/**
-* Created by davidatborresen on 31.01.14.
-*/
-/// <reference path="../definitions/jquery/jquery.d.ts" />
-/// <reference path="jquery.slider.ts" />
 
 var SliderDraggable = (function () {
     function SliderDraggable() {
@@ -94,10 +89,6 @@ var SliderDraggable = (function () {
         });
     };
 
-    /**
-    * @param event
-    * @returns {{x: number, y: number}}
-    */
     SliderDraggable.prototype.getPageCoords = function (event) {
         if (event.targetTouches && event.targetTouches[0]) {
             return {
@@ -112,18 +103,10 @@ var SliderDraggable = (function () {
         }
     };
 
-    /**
-    * @returns {{left: number, top: number}}
-    */
     SliderDraggable.prototype.getPointerOffset = function () {
         return this.pointer.offset();
     };
 
-    /**
-    * @param element
-    * @param eventType
-    * @param callback
-    */
     SliderDraggable.prototype.bindEvent = function (element, eventType, callback) {
         if (this.supportTouches) {
             element.get(0).addEventListener(this.events[eventType], callback, false);
@@ -132,9 +115,6 @@ var SliderDraggable = (function () {
         }
     };
 
-    /**
-    * @param event {Event}
-    */
     SliderDraggable.prototype.mouseDown = function (event) {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;
@@ -161,18 +141,12 @@ var SliderDraggable = (function () {
         this.onMouseDown(event);
     };
 
-    /**
-    * @param event {MouseEvent}
-    */
     SliderDraggable.prototype.mouseMove = function (event) {
         this.is.toclick = false;
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     };
 
-    /**
-    * @param event {MouseEvent}
-    */
     SliderDraggable.prototype.mouseUp = function (event) {
         if (!this.is.drag) {
             return;
@@ -189,34 +163,18 @@ var SliderDraggable = (function () {
         this.onMouseUp(event);
     };
 
-    /**
-    * @param pointer
-    * @param id
-    * @param constructor
-    */
     SliderDraggable.prototype.onInit = function (pointer, id, constructor) {
     };
 
-    /**
-    * @param event {MouseEvent}
-    */
     SliderDraggable.prototype.onMouseDown = function (event) {
         this.pointer.css({ position: "absolute" });
     };
 
-    /**
-    * @param event {MouseEvent}
-    * @param x {number}
-    * @param y {number}
-    */
     SliderDraggable.prototype.onMouseMove = function (event, x, y) {
         if (typeof x === "undefined") { x = null; }
         if (typeof y === "undefined") { y = null; }
     };
 
-    /**
-    * @param event {MouseEvent}
-    */
     SliderDraggable.prototype.onMouseUp = function (event) {
     };
     SliderDraggable.EVENT_UP = 'up';
@@ -224,4 +182,3 @@ var SliderDraggable = (function () {
     SliderDraggable.EVENT_DOWN = 'down';
     return SliderDraggable;
 })();
-//# sourceMappingURL=jquery.sliderDraggable.js.map

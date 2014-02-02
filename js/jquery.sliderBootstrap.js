@@ -1,7 +1,3 @@
-/**
-* Created by davidatborresen on 02.02.14.
-*/
-/// <reference path="../js/jquery.slider.ts" />
 $.slider = function (node, settings) {
     var jNode = $(node);
     if (!jNode.data("jslider"))
@@ -24,7 +20,6 @@ $.fn.slider = function (action, optValue) {
     this.each(function () {
         var self = $.slider(this, action);
 
-        // do actions
         if (typeof action == "string") {
             switch (action) {
                 case "value":
@@ -102,11 +97,9 @@ $.fn.slider = function (action, optValue) {
         }
     });
 
-    // flatten array just with one slider
     if ($.isArray(returnValue) && returnValue.length == 1) {
         returnValue = returnValue[0];
     }
 
     return returnValue || this;
 };
-//# sourceMappingURL=jquery.sliderBootstrap.js.map

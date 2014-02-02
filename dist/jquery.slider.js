@@ -1512,13 +1512,13 @@ var Slider = (function () {
 
         switch (pointer.uid) {
             case 0:
-                if (pointer.value.origin + this.settings.minDistance == another.value.origin) {
+                if (pointer.value.origin + (this.settings.minDistance / this.settings.step) == another.value.origin) {
                     return true;
                 }
                 break;
 
             case 1:
-                if (pointer.value.origin - this.settings.minDistance == another.value.origin) {
+                if (pointer.value.origin - (this.settings.minDistance / this.settings.step) == another.value.origin) {
                     return true;
                 }
                 break;
@@ -1563,7 +1563,7 @@ var Slider = (function () {
                         anotherLabel.o.css({ visibility: 'hidden' });
                         anotherLabel.value.html(this.nice(another.value.origin));
 
-                        label.o.css({ visibility: 'visibility' });
+                        label.o.css({ visibility: 'visible' });
 
                         prc = (prc - another.value.prc) / 2 + another.value.prc;
 
