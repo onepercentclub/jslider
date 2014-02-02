@@ -12,7 +12,7 @@ $.slider = function( node, settings ){
     return jNode.data( "jslider" );
 };
 
-$.fn.jslider = function( action, optValue )
+$.fn.slider = function( action, optValue )
 {
     var returnValue, args = arguments;
 
