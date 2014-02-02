@@ -1010,7 +1010,6 @@ var SliderDraggable = (function () {
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
         this.bindEvent($(document), SliderDraggable.EVENT_DOWN, function (event) {
-            console.log('mouse down, global');
             if (_this.is.drag) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -1023,7 +1022,6 @@ var SliderDraggable = (function () {
 
         this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE, function (event) {
             if (_this.is.drag) {
-                console.log('mouse move, pointer .. drag');
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -1032,14 +1030,11 @@ var SliderDraggable = (function () {
         });
 
         this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, function (event) {
-            console.log('mouse down, pointer', arguments);
-
             _this.mouseDown(event);
             return false;
         });
 
         this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, function (event) {
-            console.log('mouse up, pointer');
             _this.mouseUp(event);
         });
 
@@ -1115,7 +1110,6 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.mouseMove = function (event) {
         this.is.toclick = false;
-
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     };
@@ -1140,18 +1134,15 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.onMouseDown = function (event) {
-        console.log('mouse down..');
         this.pointer.css({ position: "absolute" });
     };
 
     SliderDraggable.prototype.onMouseMove = function (event, x, y) {
         if (typeof x === "undefined") { x = null; }
         if (typeof y === "undefined") { y = null; }
-        console.log('mouse move..');
     };
 
     SliderDraggable.prototype.onMouseUp = function (event) {
-        console.log('mouse up..');
     };
     SliderDraggable.EVENT_UP = 'up';
     SliderDraggable.EVENT_MOVE = 'move';
@@ -1170,28 +1161,36 @@ var SliderPointer = (function (_super) {
         _super.apply(this, arguments);
     }
     SliderPointer.prototype.onInit = function (pointer, id, slider) {
+        _super.prototype.onInit.call(this, pointer, id, slider);
+
         this.uid = id;
         this.parent = slider;
         this.value = {};
         this.settings = this.parent.settings;
     };
 
-    SliderPointer.prototype.onMouseDown = function () {
+    SliderPointer.prototype.onMouseDown = function (event) {
+        _super.prototype.onMouseDown.call(this, event);
+
         this._parent = {
             offset: this.parent.domNode.offset(),
             width: this.parent.domNode.width()
         };
 
         this.pointer.addDependClass('hover');
+
         this.setIndexOver();
     };
 
     SliderPointer.prototype.onMouseMove = function (event) {
         _super.prototype.onMouseMove.call(this, event);
+
         this._set(this.calc(this.getPageCoords(event).x));
     };
 
-    SliderPointer.prototype.onMouseUp = function () {
+    SliderPointer.prototype.onMouseUp = function (event) {
+        _super.prototype.onMouseUp.call(this, event);
+
         if (this.settings.callback && $.isFunction(this.settings.callback)) {
             this.settings.callback.call(this.parent, this.parent.getValue());
         }
@@ -1225,12 +1224,19 @@ var SliderPointer = (function (_super) {
 
     SliderPointer.prototype._set = function (prc, optOrigin) {
         if (typeof optOrigin === "undefined") { optOrigin = false; }
+        if (this.settings.minDistance && this.parent.shouldPreventPositionUpdate(this)) {
+            if (this.uid === 0 && this.value.prc < prc) {
+                return;
+            } else if (this.uid === 1 && this.value.prc > prc) {
+                return;
+            }
+        }
+
         if (!optOrigin) {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
         this.value.prc = prc;
-        console.log('setting %O to %d persent', this.pointer, prc, this);
         this.pointer.css({ left: prc + '%' });
         this.parent.redraw(this);
     };
@@ -1478,6 +1484,10 @@ var Slider = (function () {
             return;
         }
 
+        if (this.settings.minDistance && this.shouldPreventPositionUpdate(pointer)) {
+            return;
+        }
+
         this.setValue();
 
         if (this.o.pointers.length == 2) {
@@ -1491,6 +1501,30 @@ var Slider = (function () {
         this.o.labels[pointer.uid].value.html(this.nice(pointer.value.origin));
 
         this.redrawLabels(pointer);
+    };
+
+    Slider.prototype.shouldPreventPositionUpdate = function (pointer) {
+        var another = this.o.pointers[1 - pointer.uid];
+
+        if (!another) {
+            return false;
+        }
+
+        switch (pointer.uid) {
+            case 0:
+                if (pointer.value.origin + this.settings.minDistance == another.value.origin) {
+                    return true;
+                }
+                break;
+
+            case 1:
+                if (pointer.value.origin - this.settings.minDistance == another.value.origin) {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
     };
 
     Slider.prototype.redrawLabels = function (pointer) {
@@ -1525,7 +1559,7 @@ var Slider = (function () {
                     break;
 
                 case 1:
-                    if (sizes.border - sizes.label / 2 < anotherLabel.o.offset().left - this.sizes.domOffset.left + anotherLabel.o.outerWidth()) {
+                    if (sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth()) {
                         anotherLabel.o.css({ visibility: 'hidden' });
                         anotherLabel.value.html(this.nice(another.value.origin));
 

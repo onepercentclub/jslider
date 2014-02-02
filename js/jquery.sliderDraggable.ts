@@ -87,7 +87,6 @@ class SliderDraggable {
     {
         this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:MouseEvent)=>
         {
-            console.log('mouse down, global');
             if(this.is.drag)
             {
                 event.preventDefault();
@@ -104,7 +103,6 @@ class SliderDraggable {
         {
             if(this.is.drag)
             {
-                console.log('mouse move, pointer .. drag');
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -114,15 +112,12 @@ class SliderDraggable {
 
         this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, (event:MouseEvent)=>
         {
-            console.log('mouse down, pointer',arguments);
-
             this.mouseDown(event);
             return false;
         });
 
         this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, (event:MouseEvent)=>
         {
-            console.log('mouse up, pointer');
             this.mouseUp(event);
         });
 
@@ -232,7 +227,6 @@ class SliderDraggable {
     public mouseMove(event:MouseEvent):void
     {
         this.is.toclick = false;
-
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     }
@@ -267,16 +261,13 @@ class SliderDraggable {
      * @param constructor
      */
     public onInit(pointer:HTMLElement,id:number,constructor:Slider):void
-    {
-
-    }
+    {}
 
     /**
      * @param event {MouseEvent}
      */
     public onMouseDown(event:Event):void
     {
-        console.log('mouse down..');
         this.pointer.css({ position: "absolute" });
     }
 
@@ -286,15 +277,11 @@ class SliderDraggable {
      * @param y {number}
      */
     public onMouseMove(event:Event, x:number = null, y:number = null):void
-    {
-        console.log('mouse move..');
-    }
+    {}
 
     /**
      * @param event {MouseEvent}
      */
     public onMouseUp(event:Event):void
-    {
-        console.log('mouse up..');
-    }
+    {}
 }

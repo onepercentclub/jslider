@@ -1,3 +1,8 @@
+/**
+* Created by davidatborresen on 31.01.14.
+*/
+/// <reference path="../definitions/jquery/jquery.d.ts" />
+/// <reference path="../js/jquery.sliderPointer.ts" />
 
 var Slider = (function () {
     function Slider() {
@@ -159,6 +164,9 @@ var Slider = (function () {
         this.drawScale();
     };
 
+    /**
+    * @param skinName {string}
+    */
     Slider.prototype.setSkin = function (skinName) {
         if (this.skin) {
             this.domNode.removeDependClass(this.skin, '_');
@@ -167,12 +175,18 @@ var Slider = (function () {
         }
     };
 
+    /**
+    * @param index {number}
+    */
     Slider.prototype.setPointerIndex = function (index) {
         $.each(this.getPointers(), function (i, pointer) {
             pointer.index(index);
         });
     };
 
+    /**
+    * @returns {SliderPointer[]}
+    */
     Slider.prototype.getPointers = function () {
         return this.o.pointers;
     };
@@ -209,6 +223,10 @@ var Slider = (function () {
         });
     };
 
+    /**
+    * @param x {number}
+    * @param pointer {SliderPointer}
+    */
     Slider.prototype.limits = function (x, pointer) {
         if (!this.settings.smooth) {
             var step = this.settings.step * 100 / (this.settings.interval);
@@ -235,8 +253,15 @@ var Slider = (function () {
         return Math.round(x * 10) / 10;
     };
 
+    /**
+    * @param pointer {SliderPointer}
+    */
     Slider.prototype.redraw = function (pointer) {
         if (!this.is.init) {
+            return;
+        }
+
+        if (this.settings.minDistance && this.shouldPreventPositionUpdate(pointer)) {
             return;
         }
 
@@ -255,6 +280,33 @@ var Slider = (function () {
         this.redrawLabels(pointer);
     };
 
+    Slider.prototype.shouldPreventPositionUpdate = function (pointer) {
+        var another = this.o.pointers[1 - pointer.uid];
+
+        if (!another) {
+            return false;
+        }
+
+        switch (pointer.uid) {
+            case 0:
+                if (pointer.value.origin + (this.settings.minDistance / this.settings.step) == another.value.origin) {
+                    return true;
+                }
+                break;
+
+            case 1:
+                if (pointer.value.origin - (this.settings.minDistance / this.settings.step) == another.value.origin) {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    };
+
+    /**
+    * @param pointer {SliderPointer}
+    */
     Slider.prototype.redrawLabels = function (pointer) {
         var label = this.o.labels[pointer.uid], prc = pointer.value.prc, sizes = {
             label: label.o.outerWidth(),
@@ -287,7 +339,7 @@ var Slider = (function () {
                     break;
 
                 case 1:
-                    if (sizes.border - sizes.label / 2 < anotherLabel.o.offset().left - this.sizes.domOffset.left + anotherLabel.o.outerWidth()) {
+                    if (sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth()) {
                         anotherLabel.o.css({ visibility: 'hidden' });
                         anotherLabel.value.html(this.nice(another.value.origin));
 
@@ -351,14 +403,22 @@ var Slider = (function () {
         }
     };
 
+    /**
+    * @param label
+    * @param sizes
+    * @param prc
+    * @returns {ISizes}
+    */
     Slider.prototype.setPosition = function (label, sizes, prc) {
         sizes.margin = -sizes.label / 2;
 
+        // left limit
         var labelLeft = sizes.border + sizes.margin;
         if (labelLeft < 0) {
             sizes.margin -= labelLeft;
         }
 
+        // right limit
         if (sizes.border + sizes.label / 2 > this.sizes.domWidth) {
             sizes.margin = 0;
             sizes.right = true;
@@ -389,6 +449,9 @@ var Slider = (function () {
         this.onStateChange(value);
     };
 
+    /**
+    * @returns {*}
+    */
     Slider.prototype.getValue = function () {
         var _this = this;
         if (!this.is.init) {
@@ -406,6 +469,9 @@ var Slider = (function () {
         return value;
     };
 
+    /**
+    * @returns {*}
+    */
     Slider.prototype.getPrcValue = function () {
         if (!this.is.init) {
             return false;
@@ -421,6 +487,10 @@ var Slider = (function () {
         return value;
     };
 
+    /**
+    * @param prc
+    * @returns {number}
+    */
     Slider.prototype.prcToValue = function (prc) {
         if (this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0) {
             var heterogeneity = this.settings.hetrogeneity, start = 0, from = this.settings.from, value;
@@ -450,6 +520,10 @@ var Slider = (function () {
         return this.round(value);
     };
 
+    /**
+    * @param value
+    * @param pointer
+    */
     Slider.prototype.valueToPrc = function (value, pointer) {
         var prc;
         if (this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0) {
@@ -479,6 +553,10 @@ var Slider = (function () {
         return prc;
     };
 
+    /**
+    * @param value
+    * @returns {number}
+    */
     Slider.prototype.round = function (value) {
         value = Math.round(value / this.settings.step) * this.settings.step;
 
@@ -491,6 +569,10 @@ var Slider = (function () {
         return value;
     };
 
+    /**
+    * @param value
+    * @returns {*}
+    */
     Slider.prototype.nice = function (value) {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
@@ -502,3 +584,4 @@ var Slider = (function () {
     };
     return Slider;
 })();
+//# sourceMappingURL=jquery.slider.js.map

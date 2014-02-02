@@ -32,7 +32,7 @@
       Slider <span style="display: inline-block; width: 400px; padding: 0 5px;"><input id="Slider1" type="slider" name="price" value="30000.5;60000" /></span>  in string
     </div>
     <script type="text/javascript" charset="utf-8">
-      jQuery("#Slider1").slider({ from: 1000, to: 100000, step: 500, smooth: true, round: 0, dimension: "&nbsp;$", skin: "plastic" });
+      jQuery("#Slider1").slider({ from: 1000, to: 100000, step: 500, smooth: true, round: 0, dimension: "&nbsp;$", skin: "plastic",minDistance:5000 });
     </script>
 
     <div class="layout-slider-settings">
@@ -102,7 +102,7 @@
       <input id="Slider4" type="slider" name="area" value="2;10" />
     </div>
     <script type="text/javascript" charset="utf-8">
-      jQuery("#Slider4").slider({ from: 1, to: 30, heterogeneity: ['50/5', '75/15'], scale: [1, '|', 3, '|', '5', '|', 15, '|', 30], limits: false, step: 1, dimension: '', skin: "blue", callback: function( value ){ console.dir( this ); } });
+      jQuery("#Slider4").slider({ minDistance:5,from: 1, to: 30, heterogeneity: ['50/5', '75/15'], scale: [1, '|', 3, '|', '5', '|', 15, '|', 30], limits: false, step: 1, dimension: '', skin: "blue", callback: function( value ){ console.dir( this ); } });
     </script>
 
 

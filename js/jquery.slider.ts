@@ -20,6 +20,8 @@ interface ISettings {
     step:number;
     round:number;
     smooth:boolean;
+    minDistance:number;
+    maxDistance:number;
 }
 
 interface ISizes {
@@ -359,6 +361,11 @@ class Slider {
             return;
         }
 
+        if (this.settings.minDistance && this.shouldPreventPositionUpdate(pointer))
+        {
+            return;
+        }
+
         this.setValue();
 
         if(this.o.pointers.length == 2)
@@ -379,6 +386,37 @@ class Slider {
         this.redrawLabels(pointer);
     }
 
+
+    public shouldPreventPositionUpdate(pointer:SliderPointer):boolean
+    {
+        var another:SliderPointer = this.o.pointers[1-pointer.uid];
+
+        if(!another)
+        {
+            return false;
+        }
+
+        switch(pointer.uid)
+        {
+            case 0:
+                if(pointer.value.origin + (this.settings.minDistance / this.settings.step) == another.value.origin)
+                {
+                    return true;
+                }
+                break;
+
+            case 1:
+                if(pointer.value.origin - (this.settings.minDistance / this.settings.step) == another.value.origin)
+                {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+
     /**
      * @param pointer {SliderPointer}
      */
@@ -392,8 +430,6 @@ class Slider {
                 border: (prc * this.sizes.domWidth) / 100
             };
 
-        //glue if near
-        //todo add min distance feature
         if(!this.settings.single)
         {
             var another:SliderPointer = this.o.pointers[1-pointer.uid],
@@ -434,20 +470,20 @@ class Slider {
                     break;
 
                 case 1:
-                    if(sizes.border - sizes.label / 2 < anotherLabel.o.offset().left - this.sizes.domOffset.left + anotherLabel.o.outerWidth())
+                    if(sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth())
                     {
-                        anotherLabel.o.css({visibility:'hidden'});
+                        anotherLabel.o.css({visibility: 'hidden'});
                         anotherLabel.value.html(this.nice(another.value.origin));
 
-                        label.o.css({visibility:'visibility'});
+                        label.o.css({visibility: 'visibility'});
 
                         prc = (prc - another.value.prc) / 2 + another.value.prc;
 
-                        if(another.value.prc != pointer.value.prc)
+                        if (another.value.prc != pointer.value.prc)
                         {
                             label.value.html(
                                 this.nice(another.value.origin)
-                                + "&nbsp;&ndash;&nbsp;" +
+                                    + "&nbsp;&ndash;&nbsp;" +
                                 this.nice(pointer.value.origin)
                             );
 
