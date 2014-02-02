@@ -1316,7 +1316,7 @@ var Slider = (function () {
                     o: this.domNode.find(this.defaultOptions.selector + 'value').not(this.defaultOptions.selector + 'value-to')
                 },
                 {
-                    o: this.domNode.find(this.defaultOptions.selector + 'value').not(this.defaultOptions.selector + 'value-to')
+                    o: this.domNode.find(this.defaultOptions.selector + 'value').filter(this.defaultOptions.selector + 'value-to')
                 }
             ],
             limits: [
@@ -1324,7 +1324,7 @@ var Slider = (function () {
                     o: this.domNode.find(this.defaultOptions.selector + 'label').not(this.defaultOptions.selector + 'label-to')
                 },
                 {
-                    o: this.domNode.find(this.defaultOptions.selector + 'label').not(this.defaultOptions.selector + 'label-to')
+                    o: this.domNode.find(this.defaultOptions.selector + 'label').filter(this.defaultOptions.selector + 'label-to')
                 }
             ]
         });
