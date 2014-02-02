@@ -19,7 +19,6 @@
       "grunt-typescript": "~0.2.7",
       "grunt-recess": "~0.5.0"
   },
-
   "maintainers": [
     {
       "name": "Richard Mitchell",
