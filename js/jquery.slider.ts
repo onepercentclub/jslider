@@ -88,6 +88,10 @@ class Slider {
         this.init.apply(this, arguments);
     }
 
+    /**
+     * @param node
+     * @param settings
+     */
     public init(node:HTMLElement, settings:ISettings):void
     {
         this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
@@ -386,7 +390,10 @@ class Slider {
         this.redrawLabels(pointer);
     }
 
-
+    /**
+     * @param pointer
+     * @returns {boolean}
+     */
     public shouldPreventPositionUpdate(pointer:SliderPointer):boolean
     {
         var another:SliderPointer = this.o.pointers[1-pointer.uid];
@@ -415,7 +422,6 @@ class Slider {
 
         return false;
     }
-
 
     /**
      * @param pointer {SliderPointer}
@@ -475,7 +481,7 @@ class Slider {
                         anotherLabel.o.css({visibility: 'hidden'});
                         anotherLabel.value.html(this.nice(another.value.origin));
 
-                        label.o.css({visibility: 'visibility'});
+                        label.o.css({visibility: 'visible'});
 
                         prc = (prc - another.value.prc) / 2 + another.value.prc;
 

@@ -28,6 +28,10 @@ var Slider = (function () {
         this.o = {};
         this.init.apply(this, arguments);
     }
+    /**
+    * @param node
+    * @param settings
+    */
     Slider.prototype.init = function (node, settings) {
         this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
 
@@ -280,6 +284,10 @@ var Slider = (function () {
         this.redrawLabels(pointer);
     };
 
+    /**
+    * @param pointer
+    * @returns {boolean}
+    */
     Slider.prototype.shouldPreventPositionUpdate = function (pointer) {
         var another = this.o.pointers[1 - pointer.uid];
 
@@ -343,7 +351,7 @@ var Slider = (function () {
                         anotherLabel.o.css({ visibility: 'hidden' });
                         anotherLabel.value.html(this.nice(another.value.origin));
 
-                        label.o.css({ visibility: 'visibility' });
+                        label.o.css({ visibility: 'visible' });
 
                         prc = (prc - another.value.prc) / 2 + another.value.prc;
 
