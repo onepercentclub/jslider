@@ -9,23 +9,17 @@
     "slider"
   ],
   "devDependencies": {
-      "grunt": "~0.4.1",
-      "grunt-contrib-cssmin": "~0.4.0",
-      "grunt-contrib-concat": "~0.3.0",
-      "grunt-contrib-uglify": "~0.2.0"
+      "grunt": "~0.4.2",
+      "grunt-contrib-watch": "~0.5.3",
+      "grunt-contrib-less": "~0.8.2",
+      "grunt-contrib-copy": "~0.4.1",
+      "grunt-contrib-clean": "~0.5.0",
+      "grunt-contrib-uglify": "~0.3.2",
+      "grunt-newer": "~0.6.0",
+      "grunt-typescript": "~0.2.7",
+      "grunt-recess": "~0.5.0"
   },
-  "jam": {
-    "main": "dist/jquery.slider.amd.min.js",
-    "include": [
-      "dist/jquery.slider.amd.min.js",
-      "dist/jquery.slider.min.css",
-      "README.md",
-      "CHANGES.md",
-      "MIT_LICENSE.txt",
-      "package.json",
-      "img"
-    ]
-  },
+
   "maintainers": [
     {
       "name": "Richard Mitchell",
