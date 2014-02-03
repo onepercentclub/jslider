@@ -1,7 +1,9 @@
-$.slider = function (node, settings) {
+$.slider = function (node, settings, force) {
+    if (typeof force === "undefined") { force = false; }
     var jNode = $(node);
-    if (!jNode.data("jslider"))
+    if (!jNode.data("jslider")) {
         jNode.data("jslider", new Slider(node, settings));
+    }
 
     return jNode.data("jslider");
 };
@@ -18,7 +20,7 @@ $.fn.slider = function (action, optValue) {
     }
 
     this.each(function () {
-        var self = $.slider(this, action);
+        var self = $.slider(this, action, optValue);
 
         if (typeof action == "string") {
             switch (action) {

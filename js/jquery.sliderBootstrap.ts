@@ -4,15 +4,18 @@
 
 /// <reference path="../js/jquery.slider.ts" />
 
-$.slider = function( node, settings ){
+$.slider = function (node:HTMLElement, settings:ISettings, force:boolean = false):Slider
+{
     var jNode = $(node);
-    if( !jNode.data( "jslider" ) )
-        jNode.data( "jslider", new Slider( node, settings ) );
+    if (!jNode.data("jslider"))
+    {
+        jNode.data("jslider", new Slider(node, settings));
+    }
 
-    return jNode.data( "jslider" );
+    return jNode.data("jslider");
 };
 
-$.fn.slider = function( action, optValue )
+$.fn.slider = function( action:any, optValue:any):any
 {
     var returnValue, args = arguments;
 
@@ -28,7 +31,7 @@ $.fn.slider = function( action, optValue )
 
     this.each(function()
     {
-        var self = $.slider( this, action );
+        var self = $.slider( this, action, optValue);
 
         // do actions
         if( typeof action == "string" )

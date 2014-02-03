@@ -83,9 +83,9 @@ class Slider {
 
     public settings:ISettings;
 
-    constructor()
+    constructor(...args)
     {
-        this.init.apply(this, arguments);
+        this.init.apply(this, args);
     }
 
     /**
@@ -406,14 +406,14 @@ class Slider {
         switch(pointer.uid)
         {
             case 0:
-                if(pointer.value.origin + (this.settings.minDistance / this.settings.step) == another.value.origin)
+                if(pointer.value.origin + this.settings.minDistance == another.value.origin)
                 {
                     return true;
                 }
                 break;
 
             case 1:
-                if(pointer.value.origin - (this.settings.minDistance / this.settings.step) == another.value.origin)
+                if(pointer.value.origin - this.settings.minDistance == another.value.origin)
                 {
                     return true;
                 }
@@ -784,5 +784,27 @@ class Slider {
         }
 
         return Number(value);
+    }
+
+    public destroy():void
+    {
+        $.each(this.o.pointers, (i:number,sliderPointer:SliderPointer)=>
+        {
+            sliderPointer.destroy();
+        });
+
+        $.each(this.o.labels, (i:number,element)=>
+        {
+            element.remove();
+        });
+
+        $.each(this.o.limits, (i:number,element)=>
+        {
+            element.remove();
+        });
+
+        this.o.value.remove();
+
+        this.domNode.remove();
     }
 }

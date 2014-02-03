@@ -1,6 +1,10 @@
 
 var Slider = (function () {
     function Slider() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
         this.defaultOptions = {
             settings: {
                 from: 1,
@@ -21,7 +25,7 @@ var Slider = (function () {
             init: false
         };
         this.o = {};
-        this.init.apply(this, arguments);
+        this.init.apply(this, args);
     }
     Slider.prototype.init = function (node, settings) {
         this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
@@ -268,13 +272,13 @@ var Slider = (function () {
 
         switch (pointer.uid) {
             case 0:
-                if (pointer.value.origin + (this.settings.minDistance / this.settings.step) == another.value.origin) {
+                if (pointer.value.origin + this.settings.minDistance == another.value.origin) {
                     return true;
                 }
                 break;
 
             case 1:
-                if (pointer.value.origin - (this.settings.minDistance / this.settings.step) == another.value.origin) {
+                if (pointer.value.origin - this.settings.minDistance == another.value.origin) {
                     return true;
                 }
                 break;
@@ -527,6 +531,24 @@ var Slider = (function () {
         }
 
         return Number(value);
+    };
+
+    Slider.prototype.destroy = function () {
+        $.each(this.o.pointers, function (i, sliderPointer) {
+            sliderPointer.destroy();
+        });
+
+        $.each(this.o.labels, function (i, element) {
+            element.remove();
+        });
+
+        $.each(this.o.limits, function (i, element) {
+            element.remove();
+        });
+
+        this.o.value.remove();
+
+        this.domNode.remove();
     };
     return Slider;
 })();

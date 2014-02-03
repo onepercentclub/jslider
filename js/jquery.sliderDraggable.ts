@@ -26,6 +26,7 @@ interface IOffset
 
 class SliderDraggable {
 
+    public static EVENT_NAMESPACE:string = '.slider.draggable';
     public static EVENT_UP:string = 'up';
     public static EVENT_MOVE:string = 'move';
     public static EVENT_DOWN:string = 'down';
@@ -72,10 +73,10 @@ class SliderDraggable {
         this.supportTouches = ('ontouchend' in document);
 
         this.events = {
-            "click": this.supportTouches ? "touchstart" : "click",
-            "down": this.supportTouches ? "touchstart" : "mousedown",
-            "move": this.supportTouches ? "touchmove" : "mousemove",
-            "up"  : this.supportTouches ? "touchend" : "mouseup"
+            'click': this.supportTouches ? 'touchstart' : 'click',
+            'down': this.supportTouches ? 'touchstart' : 'mousedown',
+            'move': this.supportTouches ? 'touchmove' : 'mousemove',
+            'up'  : this.supportTouches ? 'touchend' : 'mouseup'
         };
 
         this.onInit.apply(this, arguments);
@@ -183,6 +184,23 @@ class SliderDraggable {
         return this.pointer.offset();
     }
 
+    private unbindAllEvents():void
+    {
+        for(var eventType in this.events)
+        {
+            if(this.supportTouches)
+            {
+                $(document).get(0).removeEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+                this.pointer.get(0).removeEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+            }
+            else
+            {
+                $(document).off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+                this.pointer.off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+            }
+        }
+    }
+
     /**
      * @param element
      * @param eventType
@@ -192,11 +210,11 @@ class SliderDraggable {
     {
         if(this.supportTouches)
         {
-            element.get(0).addEventListener(this.events[eventType], callback, false);
+            element.get(0).addEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback, false);
         }
         else
         {
-            element.on(this.events[eventType], callback);
+            element.on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
         }
     }
 
@@ -220,6 +238,7 @@ class SliderDraggable {
             width:this.pointer.width(),
             height:this.pointer.height()
         });
+
 
         if(this.outer.length > 0)
         {
@@ -254,7 +273,7 @@ class SliderDraggable {
 
         this.is.drag = false;
 
-        if(this.outer.length > 0 && (navigator.userAgent.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/i.test(navigator.userAgent)))
+        if(this.outer.length > 0 && (navigator.userAgent.indexOf('compatible') < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/i.test(navigator.userAgent)))
         {
             this.outer.css({overflow:'hidden'});
         }
@@ -279,7 +298,7 @@ class SliderDraggable {
      */
     public onMouseDown(event:Event):void
     {
-        this.pointer.css({ position: "absolute" });
+        this.pointer.css({ position: 'absolute' });
     }
 
     /**
@@ -295,4 +314,10 @@ class SliderDraggable {
      */
     public onMouseUp(event:Event):void
     {}
+
+    public destroy():void
+    {
+        this.unbindAllEvents();
+        this.pointer.remove();
+    }
 }
