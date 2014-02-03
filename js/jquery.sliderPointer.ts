@@ -59,6 +59,24 @@ class SliderPointer extends SliderDraggable {
         );
 
         this.parent.setValueElementPosition();
+
+        this.parent.redrawLabels(this);
+    }
+
+    /**
+     * @param minDistance
+     * @param another
+     * @returns {boolean}
+     */
+    private isMinDistanceViolation(minDistance:number, another:SliderPointer):boolean
+    {
+        return (this.value && another && another.value)
+            &&
+            (
+                (this.uid === Slider.POINTER_LEFT && this.value.origin + minDistance >= another.value.origin)
+                ||
+                (this.uid === Slider.POINTER_RIGHT && this.value.origin - minDistance <= another.value.origin)
+            );
     }
 
     /**
@@ -68,29 +86,12 @@ class SliderPointer extends SliderDraggable {
     {
         super.onMouseUp(event);
 
-        var another:SliderPointer = this.parent.o.pointers[1 - this.uid];
-        if (this.settings.minDistance && this.value.origin === another.value.origin)
+        var another:SliderPointer = this.getAdjacentPointer(),
+            minDistance:number = this.settings.minDistance;
+
+        if (minDistance && another && this.isMinDistanceViolation(minDistance, another))
         {
-            switch(this.uid)
-            {
-                case Slider.POINTER_LEFT:
-                    if(this.value.origin >= another.value.origin)
-                    {
-                        this.set(another.value.origin - this.settings.minDistance);
-                    }
-                    break;
-
-                case Slider.POINTER_RIGHT:
-                    if(this.value.origin <= another.value.origin)
-                    {
-                        this.set(another.value.origin + this.settings.minDistance);
-                    }
-                    break;
-            }
-
             this.parent.setValueElementPosition();
-
-            this.parent.redrawLabels(this);
         }
 
         if(this.settings.callback && $.isFunction(this.settings.callback))
@@ -151,30 +152,46 @@ class SliderPointer extends SliderDraggable {
      */
     private _set(prc:number, optOrigin:boolean =  false):void
     {
-        if (this.settings.minDistance && this.parent.shouldPreventPositionUpdate(this))
-        {
-            //if we are trying to increase the left value,
-            if (this.uid === Slider.POINTER_LEFT && prc > this.value.prc)
-            {
-                return;
-            }
-            else if (this.uid === Slider.POINTER_RIGHT && prc < this.value.prc)
-            {
-                return;
-            }
-            else
-            {
-                //console.warn('Continuing with values current: %d, incoming: %d', currentValue, incomingValue);
-            }
-        }
-
         if( !optOrigin )
         {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
+        var another:SliderPointer = this.getAdjacentPointer(),
+            minDistance:number = this.settings.minDistance;
+
+        if (minDistance && another && this.isMinDistanceViolation(minDistance, another))
+        {
+            switch(this.uid)
+            {
+                case Slider.POINTER_LEFT:
+                    if(this.value.origin + minDistance >= another.value.origin)
+                    {
+                        this.value.origin = another.value.origin - minDistance;
+                    }
+                    break;
+
+                case Slider.POINTER_RIGHT:
+                    if(this.value.origin - minDistance <= another.value.origin)
+                    {
+                        this.value.origin = another.value.origin + minDistance;
+                    }
+                    break;
+            }
+
+            prc = this.parent.valueToPrc(this.value.origin, this);
+        }
+
         this.value.prc = prc;
         this.pointer.css({left: prc + '%'});
-        this.parent.redraw(this);
+        this.parent.update();
+    }
+
+    /**
+     * @returns {SliderPointer}
+     */
+    private getAdjacentPointer():SliderPointer
+    {
+        return this.parent.o.pointers[1 - this.uid];
     }
 }

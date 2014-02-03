@@ -29,7 +29,7 @@
   <div class="layout">
 
     <div class="layout-slider" style="width: 100%">
-      Slider <span style="display: inline-block; width: 400px; padding: 0 5px;"><input id="Slider1" type="slider" name="price" value="30000.5;60000" /></span>  in string
+      Slider <span style="display: inline-block; width: 400px; padding: 0 5px;"><input id="Slider1" type="text" name="price" value="30000.5;60000" /></span>  in string
     </div>
     <script type="text/javascript" charset="utf-8">
       jQuery("#Slider1").slider({ from: 1000, to: 100000, step: 500, smooth: true, round: 0, dimension: "&nbsp;$", skin: "plastic", minDistance:5000 });
@@ -46,7 +46,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-      <input id="SliderSingle" type="slider" name="price" value="20" />
+      <input id="SliderSingle" type="text" name="price" value="20" />
     </div>
     <script type="text/javascript" charset="utf-8">
       jQuery("#SliderSingle").slider({ from: 5, to: 50, step: 2.5, round: 1, format: { format: '##.0', locale: 'de' }, dimension: '&nbsp;€', skin: "round" });
@@ -62,7 +62,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-      <input id="Slider2" type="slider" name="price" value="5000;50000" />
+      <input id="Slider2" type="text" name="price" value="5000;50000" />
     </div>
     <script type="text/javascript" charset="utf-8">
       jQuery("#Slider2").slider({ from: 5000, to: 150000, heterogeneity: ['50/50000'], step: 1000, dimension: '&nbsp;$' });
@@ -80,7 +80,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-      <input id="Slider3" type="slider" name="area" value="25;75" />
+      <input id="Slider3" type="text" name="area" value="25;75" />
     </div>
     <script type="text/javascript" charset="utf-8">
       jQuery("#Slider3").slider({ from: 0, to: 500, heterogeneity: ['50/100', '75/250'], scale: [0, '|', 50, '|', '100', '|', 250, '|', 500], limits: false, step: 1, dimension: '&nbsp;m<small>2</small>', skin: "round_plastic" });
@@ -99,7 +99,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-      <input id="Slider4" type="slider" name="area" value="2;10" />
+      <input id="Slider4" type="text" name="area" value="2;10" />
     </div>
     <script type="text/javascript" charset="utf-8">
         jQuery("#Slider4").slider({ minDistance: 5, from: 16, to: 65, limits: false, step: 1, dimension: '', skin: "blue", callback: function(value)
@@ -128,7 +128,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-      <input id="Slider5" type="slider" name="area" value="600;720" />
+      <input id="Slider5" type="text" name="area" value="600;720" />
     </div>
     <script type="text/javascript" charset="utf-8">
       

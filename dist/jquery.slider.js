@@ -1215,30 +1215,21 @@ var SliderPointer = (function (_super) {
         this._set(this.calc(this.getPageCoords(event).x));
 
         this.parent.setValueElementPosition();
+
+        this.parent.redrawLabels(this);
+    };
+
+    SliderPointer.prototype.isMinDistanceViolation = function (minDistance, another) {
+        return (this.value && another && another.value) && ((this.uid === Slider.POINTER_LEFT && this.value.origin + minDistance >= another.value.origin) || (this.uid === Slider.POINTER_RIGHT && this.value.origin - minDistance <= another.value.origin));
     };
 
     SliderPointer.prototype.onMouseUp = function (event) {
         _super.prototype.onMouseUp.call(this, event);
 
-        var another = this.parent.o.pointers[1 - this.uid];
-        if (this.settings.minDistance && this.value.origin === another.value.origin) {
-            switch (this.uid) {
-                case Slider.POINTER_LEFT:
-                    if (this.value.origin >= another.value.origin) {
-                        this.set(another.value.origin - this.settings.minDistance);
-                    }
-                    break;
+        var another = this.getAdjacentPointer(), minDistance = this.settings.minDistance;
 
-                case Slider.POINTER_RIGHT:
-                    if (this.value.origin <= another.value.origin) {
-                        this.set(another.value.origin + this.settings.minDistance);
-                    }
-                    break;
-            }
-
+        if (minDistance && another && this.isMinDistanceViolation(minDistance, another)) {
             this.parent.setValueElementPosition();
-
-            this.parent.redrawLabels(this);
         }
 
         if (this.settings.callback && $.isFunction(this.settings.callback)) {
@@ -1274,22 +1265,37 @@ var SliderPointer = (function (_super) {
 
     SliderPointer.prototype._set = function (prc, optOrigin) {
         if (typeof optOrigin === "undefined") { optOrigin = false; }
-        if (this.settings.minDistance && this.parent.shouldPreventPositionUpdate(this)) {
-            if (this.uid === Slider.POINTER_LEFT && prc > this.value.prc) {
-                return;
-            } else if (this.uid === Slider.POINTER_RIGHT && prc < this.value.prc) {
-                return;
-            } else {
-            }
-        }
-
         if (!optOrigin) {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
+        var another = this.getAdjacentPointer(), minDistance = this.settings.minDistance;
+
+        if (minDistance && another && this.isMinDistanceViolation(minDistance, another)) {
+            switch (this.uid) {
+                case Slider.POINTER_LEFT:
+                    if (this.value.origin + minDistance >= another.value.origin) {
+                        this.value.origin = another.value.origin - minDistance;
+                    }
+                    break;
+
+                case Slider.POINTER_RIGHT:
+                    if (this.value.origin - minDistance <= another.value.origin) {
+                        this.value.origin = another.value.origin + minDistance;
+                    }
+                    break;
+            }
+
+            prc = this.parent.valueToPrc(this.value.origin, this);
+        }
+
         this.value.prc = prc;
         this.pointer.css({ left: prc + '%' });
-        this.parent.redraw(this);
+        this.parent.update();
+    };
+
+    SliderPointer.prototype.getAdjacentPointer = function () {
+        return this.parent.o.pointers[1 - this.uid];
     };
     return SliderPointer;
 })(SliderDraggable);
