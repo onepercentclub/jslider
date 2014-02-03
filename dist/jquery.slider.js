@@ -1213,6 +1213,8 @@ var SliderPointer = (function (_super) {
         _super.prototype.onMouseMove.call(this, event);
 
         this._set(this.calc(this.getPageCoords(event).x));
+
+        this.parent.setValueElementPosition();
     };
 
     SliderPointer.prototype.onMouseUp = function (event) {

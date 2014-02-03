@@ -57,6 +57,8 @@ class SliderPointer extends SliderDraggable {
                 this.getPageCoords(event).x
             )
         );
+
+        this.parent.setValueElementPosition();
     }
 
     /**
