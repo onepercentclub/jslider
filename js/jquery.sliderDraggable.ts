@@ -85,6 +85,17 @@ class SliderDraggable {
 
     private setupEvents():void
     {
+        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, (event:MouseEvent)=>
+        {
+            if (this.is.drag)
+            {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                this.mouseMove(event);
+            }
+        });
+
         this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:MouseEvent)=>
         {
             if(this.is.drag)

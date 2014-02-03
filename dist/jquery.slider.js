@@ -1009,6 +1009,15 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
+        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, function (event) {
+            if (_this.is.drag) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                _this.mouseMove(event);
+            }
+        });
+
         this.bindEvent($(document), SliderDraggable.EVENT_DOWN, function (event) {
             if (_this.is.drag) {
                 event.preventDefault();
