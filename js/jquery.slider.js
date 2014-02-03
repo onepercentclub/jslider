@@ -250,6 +250,12 @@ var Slider = (function () {
 
         this.setValue();
 
+        this.setValueElementPosition();
+
+        this.redrawLabels(pointer);
+    };
+
+    Slider.prototype.setValueElementPosition = function () {
         if (this.o.pointers.length == 2) {
             var cssProps = {
                 left: this.o.pointers[0].value.prc + '%',
@@ -257,10 +263,6 @@ var Slider = (function () {
             };
             this.o.value.css(cssProps);
         }
-
-        this.o.labels[pointer.uid].value.html(this.nice(pointer.value.origin));
-
-        this.redrawLabels(pointer);
     };
 
     Slider.prototype.shouldPreventPositionUpdate = function (pointer) {
@@ -271,14 +273,14 @@ var Slider = (function () {
         }
 
         switch (pointer.uid) {
-            case 0:
-                if (pointer.value.origin + this.settings.minDistance == another.value.origin) {
+            case Slider.POINTER_LEFT:
+                if ((pointer.value.origin + this.settings.minDistance) == another.value.origin) {
                     return true;
                 }
                 break;
 
-            case 1:
-                if (pointer.value.origin - this.settings.minDistance == another.value.origin) {
+            case Slider.POINTER_RIGHT:
+                if ((pointer.value.origin - this.settings.minDistance) == another.value.origin) {
                     return true;
                 }
                 break;
@@ -288,6 +290,8 @@ var Slider = (function () {
     };
 
     Slider.prototype.redrawLabels = function (pointer) {
+        this.o.labels[pointer.uid].value.html(this.nice(pointer.value.origin));
+
         var label = this.o.labels[pointer.uid], prc = pointer.value.prc, sizes = {
             label: label.o.outerWidth(),
             right: false,
@@ -550,5 +554,7 @@ var Slider = (function () {
 
         this.domNode.remove();
     };
+    Slider.POINTER_LEFT = 0;
+    Slider.POINTER_RIGHT = 1;
     return Slider;
 })();

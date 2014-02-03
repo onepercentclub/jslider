@@ -40,6 +40,27 @@ var SliderPointer = (function (_super) {
     SliderPointer.prototype.onMouseUp = function (event) {
         _super.prototype.onMouseUp.call(this, event);
 
+        var another = this.parent.o.pointers[1 - this.uid];
+        if (this.settings.minDistance && this.value.origin === another.value.origin) {
+            switch (this.uid) {
+                case Slider.POINTER_LEFT:
+                    if (this.value.origin >= another.value.origin) {
+                        this.set(another.value.origin - this.settings.minDistance);
+                    }
+                    break;
+
+                case Slider.POINTER_RIGHT:
+                    if (this.value.origin <= another.value.origin) {
+                        this.set(another.value.origin + this.settings.minDistance);
+                    }
+                    break;
+            }
+
+            this.parent.setValueElementPosition();
+
+            this.parent.redrawLabels(this);
+        }
+
         if (this.settings.callback && $.isFunction(this.settings.callback)) {
             this.settings.callback.call(this.parent, this.parent.getValue());
         }
@@ -74,10 +95,11 @@ var SliderPointer = (function (_super) {
     SliderPointer.prototype._set = function (prc, optOrigin) {
         if (typeof optOrigin === "undefined") { optOrigin = false; }
         if (this.settings.minDistance && this.parent.shouldPreventPositionUpdate(this)) {
-            if (this.uid === 0 && this.value.prc < prc) {
+            if (this.uid === Slider.POINTER_LEFT && prc > this.value.prc) {
                 return;
-            } else if (this.uid === 1 && this.value.prc > prc) {
+            } else if (this.uid === Slider.POINTER_RIGHT && prc < this.value.prc) {
                 return;
+            } else {
             }
         }
 

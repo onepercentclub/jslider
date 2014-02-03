@@ -31,6 +31,9 @@ interface ISizes {
 
 class Slider {
 
+    public static POINTER_LEFT:number = 0;
+    public static POINTER_RIGHT:number = 1;
+
     public domNode:JQuery;
     private defaultOptions = {
 
@@ -372,6 +375,13 @@ class Slider {
 
         this.setValue();
 
+        this.setValueElementPosition();
+
+        this.redrawLabels(pointer);
+    }
+
+    public setValueElementPosition():void
+    {
         if(this.o.pointers.length == 2)
         {
             var cssProps = {
@@ -380,14 +390,6 @@ class Slider {
             };
             this.o.value.css(cssProps);
         }
-
-        this.o.labels[pointer.uid].value.html(
-          this.nice(
-              pointer.value.origin
-          )
-        );
-
-        this.redrawLabels(pointer);
     }
 
     /**
@@ -405,15 +407,15 @@ class Slider {
 
         switch(pointer.uid)
         {
-            case 0:
-                if(pointer.value.origin + this.settings.minDistance == another.value.origin)
+            case Slider.POINTER_LEFT:
+                if((pointer.value.origin + this.settings.minDistance) == another.value.origin)
                 {
                     return true;
                 }
                 break;
 
-            case 1:
-                if(pointer.value.origin - this.settings.minDistance == another.value.origin)
+            case Slider.POINTER_RIGHT:
+                if((pointer.value.origin - this.settings.minDistance) == another.value.origin)
                 {
                     return true;
                 }
@@ -426,8 +428,14 @@ class Slider {
     /**
      * @param pointer {SliderPointer}
      */
-    private redrawLabels(pointer:SliderPointer):void
+    public redrawLabels(pointer:SliderPointer):void
     {
+        this.o.labels[pointer.uid].value.html(
+            this.nice(
+                pointer.value.origin
+            )
+        );
+
         var label = this.o.labels[pointer.uid],
             prc = pointer.value.prc,
             sizes = {
