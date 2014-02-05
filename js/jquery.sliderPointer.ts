@@ -48,7 +48,7 @@ class SliderPointer extends SliderDraggable {
     /**
      * @param event
      */
-    public onMouseMove(event:MouseEvent):void
+    public onMouseMove(event:JQueryEventObject):void
     {
         super.onMouseMove(event);
 
