@@ -164,8 +164,6 @@ class SliderDraggable {
     {
         var originalEvent = (event.originalEvent instanceof TouchEvent) ? event.originalEvent : event;
 
-        console.log(originalEvent);
-        
         if('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1)
         {
             return {

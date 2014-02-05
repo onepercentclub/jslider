@@ -1061,8 +1061,6 @@ var SliderDraggable = (function () {
     SliderDraggable.prototype.getPageCoords = function (event) {
         var originalEvent = (event.originalEvent instanceof TouchEvent) ? event.originalEvent : event;
 
-        console.log(originalEvent);
-
         if ('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1) {
             return {
                 x: originalEvent.targetTouches[0].pageX,
