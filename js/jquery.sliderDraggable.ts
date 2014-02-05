@@ -84,10 +84,10 @@ class SliderDraggable {
         this.supportTouches = ('ontouchend' in document);
 
         this.events = {
-            'down': this.supportTouches ? 'touchstart' : 'mousedown',
-            'move': this.supportTouches ? 'touchmove' : 'mousemove',
-            'up'  : this.supportTouches ? 'touchend' : 'mouseup',
-            'click': this.supportTouches ? 'touchstart' : 'click'
+            'down': this.supportTouches ? 'touchstart MSPointerDown' : 'mousedown',
+            'move': this.supportTouches ? 'touchmove MSPointerMove' : 'mousemove',
+            'up'  : this.supportTouches ? 'touchend MSPointerUp' : 'mouseup',
+            'click': this.supportTouches ? 'touchstart MSPointerDown' : 'click'
         };
 
         this.setupEvents();
@@ -162,7 +162,10 @@ class SliderDraggable {
      */
     public getPageCoords(event:JQueryEventObject):ICoordinates
     {
-        var originalEvent = (event.originalEvent instanceof TouchEvent) ? event.originalEvent : event;
+        var originalEvent = ('TouchEvent' in window && event.originalEvent instanceof TouchEvent)
+                            ||
+                            ('MSGestureEvent' in window && event.originalEvent instanceof MSGestureEvent)
+                            ? event.originalEvent : event;
 
         if('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1)
         {

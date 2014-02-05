@@ -1,5 +1,15 @@
+/**
+* Created by davidatborresen on 31.01.14.
+*/
+/// <reference path="../definitions/jquery/jquery.d.ts" />
+/// <reference path="jquery.slider.ts" />
 
 var SliderDraggable = (function () {
+    /**
+    * @param pointer {HTMLElement}
+    * @param uid {number}
+    * @param slider {Slider}
+    */
     function SliderDraggable(pointer, uid, slider) {
         this.defaultIs = {
             drag: false,
@@ -10,6 +20,9 @@ var SliderDraggable = (function () {
         this.init(pointer);
         this.onInit(pointer, uid, slider);
     }
+    /**
+    * @param pointer {HTMLElement}
+    */
     SliderDraggable.prototype.init = function (pointer) {
         if (arguments.length > 0) {
             this.pointer = $(pointer);
@@ -30,10 +43,10 @@ var SliderDraggable = (function () {
         this.supportTouches = ('ontouchend' in document);
 
         this.events = {
-            'down': this.supportTouches ? 'touchstart' : 'mousedown',
-            'move': this.supportTouches ? 'touchmove' : 'mousemove',
-            'up': this.supportTouches ? 'touchend' : 'mouseup',
-            'click': this.supportTouches ? 'touchstart' : 'click'
+            'down': this.supportTouches ? 'touchstart MSPointerDown' : 'mousedown',
+            'move': this.supportTouches ? 'touchmove MSPointerMove' : 'mousemove',
+            'up': this.supportTouches ? 'touchend MSPointerUp' : 'mouseup',
+            'click': this.supportTouches ? 'touchstart MSPointerDown' : 'click'
         };
 
         this.setupEvents();
@@ -91,8 +104,12 @@ var SliderDraggable = (function () {
         });
     };
 
+    /**
+    * @param event {JQueryEventObject}
+    * @returns {{x: number, y: number}}
+    */
     SliderDraggable.prototype.getPageCoords = function (event) {
-        var originalEvent = (event.originalEvent instanceof TouchEvent) ? event.originalEvent : event;
+        var originalEvent = ('TouchEvent' in window && event.originalEvent instanceof TouchEvent) || ('MSGestureEvent' in window && event.originalEvent instanceof MSGestureEvent) ? event.originalEvent : event;
 
         if ('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1) {
             return {
@@ -107,6 +124,9 @@ var SliderDraggable = (function () {
         };
     };
 
+    /**
+    * @returns {{left: number, top: number}}
+    */
     SliderDraggable.prototype.getPointerOffset = function () {
         return this.pointer.offset();
     };
@@ -118,10 +138,18 @@ var SliderDraggable = (function () {
         }
     };
 
+    /**
+    * @param element
+    * @param eventType
+    * @param callback
+    */
     SliderDraggable.prototype.bindEvent = function (element, eventType, callback) {
         element.on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
     };
 
+    /**
+    * @param event {Event}
+    */
     SliderDraggable.prototype.mouseDown = function (event) {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;
@@ -148,12 +176,18 @@ var SliderDraggable = (function () {
         this.onMouseDown(event);
     };
 
+    /**
+    * @param event {MouseEvent}
+    */
     SliderDraggable.prototype.mouseMove = function (event) {
         this.is.toclick = false;
         var coords = this.getPageCoords(event);
         this.onMouseMove(event, coords.x - this.cursorX, coords.y - this.cursorY);
     };
 
+    /**
+    * @param event {MouseEvent}
+    */
     SliderDraggable.prototype.mouseUp = function (event) {
         if (!this.is.drag) {
             return;
@@ -170,18 +204,34 @@ var SliderDraggable = (function () {
         this.onMouseUp(event);
     };
 
+    /**
+    * @param pointer
+    * @param id
+    * @param constructor
+    */
     SliderDraggable.prototype.onInit = function (pointer, id, constructor) {
     };
 
+    /**
+    * @param event {MouseEvent}
+    */
     SliderDraggable.prototype.onMouseDown = function (event) {
         this.pointer.css({ position: 'absolute' });
     };
 
+    /**
+    * @param event {MouseEvent}
+    * @param x {number}
+    * @param y {number}
+    */
     SliderDraggable.prototype.onMouseMove = function (event, x, y) {
         if (typeof x === "undefined") { x = null; }
         if (typeof y === "undefined") { y = null; }
     };
 
+    /**
+    * @param event {MouseEvent}
+    */
     SliderDraggable.prototype.onMouseUp = function (event) {
     };
 
@@ -196,3 +246,4 @@ var SliderDraggable = (function () {
     SliderDraggable.EVENT_DOWN = 'down';
     return SliderDraggable;
 })();
+//# sourceMappingURL=jquery.sliderDraggable.js.map
