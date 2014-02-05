@@ -5,7 +5,8 @@
 /// <reference path="../definitions/jquery/jquery.d.ts" />
 /// <reference path="jquery.slider.ts" />
 
-interface ICoordinates {
+interface ICoordinates
+{
     x:number;
     y:number;
 }
@@ -27,6 +28,7 @@ interface IOffset
 class SliderDraggable {
 
     public static EVENT_NAMESPACE:string = '.slider.draggable';
+    public static EVENT_CLICK:string = 'click';
     public static EVENT_UP:string = 'up';
     public static EVENT_MOVE:string = 'move';
     public static EVENT_DOWN:string = 'down';
@@ -46,16 +48,25 @@ class SliderDraggable {
     private cursorY:number;
     private d:Object;
 
-    constructor()
+    /**
+     * @param pointer {HTMLElement}
+     * @param uid {number}
+     * @param slider {Slider}
+     */
+    constructor(pointer:HTMLElement, uid:any, slider:Slider)
     {
-        this.init.apply(this, arguments);
+        this.init(pointer);
+        this.onInit(pointer, uid, slider)
     }
 
-    private init():void
+    /**
+     * @param pointer {HTMLElement}
+     */
+    private init(pointer:HTMLElement):void
     {
         if(arguments.length > 0)
         {
-            this.pointer = $(arguments[0]);
+            this.pointer = $(pointer);
             this.outer = $('.draggable-outer');
         }
 
@@ -73,20 +84,18 @@ class SliderDraggable {
         this.supportTouches = ('ontouchend' in document);
 
         this.events = {
-            'click': this.supportTouches ? 'touchstart' : 'click',
             'down': this.supportTouches ? 'touchstart' : 'mousedown',
             'move': this.supportTouches ? 'touchmove' : 'mousemove',
-            'up'  : this.supportTouches ? 'touchend' : 'mouseup'
+            'up'  : this.supportTouches ? 'touchend' : 'mouseup',
+            'click': this.supportTouches ? 'touchstart' : 'click'
         };
-
-        this.onInit.apply(this, arguments);
 
         this.setupEvents();
     }
 
     private setupEvents():void
     {
-        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, (event:MouseEvent)=>
+        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, (event:JQueryEventObject)=>
         {
             if (this.is.drag)
             {
@@ -97,7 +106,7 @@ class SliderDraggable {
             }
         });
 
-        this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:MouseEvent)=>
+        this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:JQueryEventObject)=>
         {
             if(this.is.drag)
             {
@@ -106,12 +115,12 @@ class SliderDraggable {
             }
         });
 
-        this.bindEvent($(document),SliderDraggable.EVENT_UP,(event:MouseEvent)=>
+        this.bindEvent($(document),SliderDraggable.EVENT_UP,(event:JQueryEventObject)=>
         {
             this.mouseUp(event);
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE,(event:MouseEvent)=>
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE,(event:JQueryEventObject)=>
         {
             if(this.is.drag)
             {
@@ -122,58 +131,53 @@ class SliderDraggable {
             }
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, (event:MouseEvent)=>
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, (event:JQueryEventObject)=>
         {
             this.mouseDown(event);
             return false;
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, (event:MouseEvent)=>
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, (event:JQueryEventObject)=>
         {
             this.mouseUp(event);
         });
 
-        var $anchor = this.pointer.find('a');
+        this.bindEvent(this.pointer, SliderDraggable.EVENT_CLICK,(event:JQueryEventObject)=>
+        {
+            this.is.clicked = true;
 
-            $anchor.on('click',()=>
+            if(!this.is.toclick)
             {
-                this.is.clicked = true;
+                this.is.toclick = true;
+                return false;
+            }
 
-                if(!this.is.toclick)
-                {
-                    this.is.toclick = true;
-                    return false;
-                }
-
-                return true;
-            });
-
-            $anchor.on('mousedown',(event:Event)=>
-            {
-                this.mouseDown(event);
-            });
+            return true;
+        });
     }
 
     /**
-     * @param event
+     * @param event {JQueryEventObject}
      * @returns {{x: number, y: number}}
      */
-    public getPageCoords(event):ICoordinates
+    public getPageCoords(event:JQueryEventObject):ICoordinates
     {
-        if(event.targetTouches && event.targetTouches[0])
+        var originalEvent = (event.originalEvent instanceof TouchEvent) ? event.originalEvent : event;
+
+        console.log(originalEvent);
+        
+        if('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1)
         {
             return {
-                x: event.targetTouches[0].pageX,
-                y: event.targetTouches[0].pageY
+                x: originalEvent.targetTouches[0].pageX,
+                y: originalEvent.targetTouches[0].pageY
             };
         }
-        else
-        {
-            return {
-                x: event.pageX,
-                y: event.pageY
-            };
-        }
+
+        return {
+            x: originalEvent.pageX,
+            y: originalEvent.pageY
+        };
     }
 
     /**
@@ -188,16 +192,8 @@ class SliderDraggable {
     {
         for(var eventType in this.events)
         {
-            if(this.supportTouches)
-            {
-                $(document).get(0).removeEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-                this.pointer.get(0).removeEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-            }
-            else
-            {
-                $(document).off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-                this.pointer.off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-            }
+            $(document).off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+            this.pointer.off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
         }
     }
 
@@ -206,22 +202,15 @@ class SliderDraggable {
      * @param eventType
      * @param callback
      */
-    private bindEvent(element:JQuery, eventType:string, callback:(event:MouseEvent)=>any):void
+    private bindEvent(element:JQuery, eventType:string, callback:(event:JQueryEventObject)=>void):void
     {
-        if(this.supportTouches)
-        {
-            element.get(0).addEventListener(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback, false);
-        }
-        else
-        {
-            element.on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
-        }
+        element.on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
     }
 
     /**
      * @param event {Event}
      */
-    public mouseDown(event:Event):void
+    public mouseDown(event:JQueryEventObject):void
     {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;
@@ -243,8 +232,8 @@ class SliderDraggable {
         if(this.outer.length > 0)
         {
             this.outer.css({
-                height:Math.max(this.outer.height(),$(document.body).height()),
-                overflow:'hidden'
+                height: Math.max(this.outer.height(), $(document.body).height()),
+                overflow: 'hidden'
             });
         }
 
@@ -254,7 +243,7 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    public mouseMove(event:MouseEvent):void
+    public mouseMove(event:JQueryEventObject):void
     {
         this.is.toclick = false;
         var coords = this.getPageCoords(event);
@@ -264,7 +253,7 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    public mouseUp(event:MouseEvent):void
+    public mouseUp(event:JQueryEventObject):void
     {
         if(!this.is.drag)
         {
