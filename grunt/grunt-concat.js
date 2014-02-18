@@ -6,6 +6,7 @@ module.exports = function(grunt)
         'lib/tmpl.js',
         'lib/jquery.dependClass-0.1.js',
         'lib/jquery.numberformatter-1.2.3.js',
+        'lib/hammerjs/hammer.js',
         'js/jquery.sliderDraggable.js',
         'js/jquery.sliderPointer.js',
         'js/jquery.slider.js',

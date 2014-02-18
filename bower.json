@@ -1,0 +1,18 @@
+{
+  "name": "jslider",
+  "version": "1.2.1",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "hammerjs":"https://github.com/EightMedia/hammer.js.git#1.0.6"
+  },
+  "authors": [
+    "David Børresen <db@warmsys.com>"
+  ],
+  "license": "MIT"
+}
