@@ -119,7 +119,7 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.bindEvent = function (element, eventType, callback) {
-        Hammer(element).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
+        Hammer(element.get(0)).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
     };
 
     SliderDraggable.prototype.mouseDown = function (event) {

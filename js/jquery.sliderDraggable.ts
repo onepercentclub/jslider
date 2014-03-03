@@ -206,7 +206,7 @@ class SliderDraggable {
      */
     private bindEvent(element:JQuery, eventType:string, callback:(event:JQueryEventObject)=>void):void
     {
-        Hammer(element).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
+        Hammer(element.get(0)).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
     }
 
     /**
