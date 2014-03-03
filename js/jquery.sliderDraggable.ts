@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../definitions/jquery/jquery.d.ts" />
+/// <reference path="../definitions/hammer/hammerjs.d.ts" />
 /// <reference path="jquery.slider.ts" />
 
 interface ICoordinates
@@ -205,7 +206,7 @@ class SliderDraggable {
      */
     private bindEvent(element:JQuery, eventType:string, callback:(event:JQueryEventObject)=>void):void
     {
-        element.on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
+        Hammer(element).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
     }
 
     /**
