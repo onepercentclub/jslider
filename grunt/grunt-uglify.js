@@ -1,25 +1,32 @@
 module.exports = function(grunt)
 {
 
-    var jsOrder = [
+    var standalone = [
         'lib/jshashtable-2.1_src.js',
         'lib/tmpl.js',
         'lib/jquery.dependClass-0.1.js',
         'lib/jquery.numberformatter-1.2.3.js',
-        'lib/hammerjs/hammer.js',
         'js/jquery.sliderDraggable.js',
         'js/jquery.sliderPointer.js',
         'js/jquery.slider.js',
         'js/jquery.sliderBootstrap.js'
-    ];
+        ],
+        bundled = [
+            'lib/hammerjs/hammer.js'
+        ];
 
     grunt.config('uglify', {
         options: {
             mangle: false
         },
-        my_target: {
+        standalone: {
             files: {
-                'dist/jquery.slider.min.js': jsOrder
+                'dist/jquery.slider-standalone.min.js': standalone
+            }
+        },
+        bundled: {
+            files: {
+                'dist/jquery.slider-bundled.min.js': bundled.concat(standalone)
             }
         }
     });

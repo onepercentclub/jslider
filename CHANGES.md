@@ -1,3 +1,12 @@
+2.0.0
+=====
+
+* Ported everything but some internal standalone helpers to TypeScript.
+* Moved build tasks to grunt.
+* Added Bower support.
+* Imported [Hammer.js](http://eightmedia.github.io/hammer.js/) for supporting touch devices.
+* Added feature for specifying a minimum distance when using two pointers.
+
 1.2.0
 =====
 
