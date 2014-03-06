@@ -28,7 +28,7 @@ interface IOffset
 
 class SliderDraggable {
 
-    public static EVENT_NAMESPACE:string = '.slider.draggable';
+    public static EVENT_NAMESPACE:string = '.sliderDraggable';
     public static EVENT_CLICK:string = 'click';
     public static EVENT_UP:string = 'up';
     public static EVENT_MOVE:string = 'move';
@@ -43,7 +43,6 @@ class SliderDraggable {
         mouseup: false
     };
     private is:IInteractionType;
-    private supportTouches:boolean;
     private events:Object;
     private cursorX:number;
     private cursorY:number;
@@ -57,7 +56,7 @@ class SliderDraggable {
     constructor(pointer:HTMLElement, uid:any, slider:Slider)
     {
         this.init(pointer);
-        this.onInit(pointer, uid, slider)
+        this.onInit(pointer, uid, slider);
     }
 
     /**
@@ -82,13 +81,11 @@ class SliderDraggable {
             height: this.pointer.height()
         };
 
-        this.supportTouches = ('ontouchend' in document);
-
         this.events = {
-            'down': this.supportTouches ? 'touchstart MSPointerDown' : 'mousedown',
-            'move': this.supportTouches ? 'touchmove MSPointerMove' : 'mousemove',
-            'up'  : this.supportTouches ? 'touchend MSPointerUp' : 'mouseup',
-            'click': this.supportTouches ? 'touchstart MSPointerDown' : 'click'
+            down: 'touch',
+            move: 'drag',
+            up  : 'release',
+            click: 'tap'
         };
 
         this.setupEvents();
@@ -96,54 +93,49 @@ class SliderDraggable {
 
     private setupEvents():void
     {
-        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, (event:JQueryEventObject)=>
+        this.bind($(document), SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
         {
             if (this.is.drag)
             {
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
 
                 this.mouseMove(event);
             }
         });
 
-        this.bindEvent($(document),SliderDraggable.EVENT_DOWN,(event:JQueryEventObject)=>
+        this.bind($(document), SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
         {
             if(this.is.drag)
             {
-                event.preventDefault();
-                event.stopPropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
             }
         });
 
-        this.bindEvent($(document),SliderDraggable.EVENT_UP,(event:JQueryEventObject)=>
-        {
-            this.mouseUp(event);
-        });
-
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE,(event:JQueryEventObject)=>
+        this.bind(this.pointer, SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
         {
             if(this.is.drag)
             {
-                event.preventDefault();
-                event.stopPropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
 
                 this.mouseMove(event);
             }
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, (event:JQueryEventObject)=>
+        this.bind(this.pointer, SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
         {
             this.mouseDown(event);
             return false;
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, (event:JQueryEventObject)=>
+        this.bind(this.pointer, SliderDraggable.EVENT_UP, (event:HammerEvent)=>
         {
             this.mouseUp(event);
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_CLICK,(event:JQueryEventObject)=>
+        this.bind(this.pointer, SliderDraggable.EVENT_CLICK, ()=>
         {
             this.is.clicked = true;
 
@@ -161,24 +153,12 @@ class SliderDraggable {
      * @param event {JQueryEventObject}
      * @returns {{x: number, y: number}}
      */
-    public getPageCoords(event:JQueryEventObject):ICoordinates
+    public getPageCoords(event:HammerEvent):ICoordinates
     {
-        var originalEvent = ('TouchEvent' in window && event.originalEvent instanceof TouchEvent)
-                            ||
-                            ('MSGestureEvent' in window && event.originalEvent instanceof MSGestureEvent)
-                            ? event.originalEvent : event;
-
-        if('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1)
-        {
-            return {
-                x: originalEvent.targetTouches[0].pageX,
-                y: originalEvent.targetTouches[0].pageY
-            };
-        }
-
+        var touchList = event.gesture.touches;
         return {
-            x: originalEvent.pageX,
-            y: originalEvent.pageY
+            x: touchList[0].pageX,
+            y: touchList[0].pageY
         };
     }
 
@@ -190,12 +170,16 @@ class SliderDraggable {
         return this.pointer.offset();
     }
 
-    private unbindAllEvents():void
+    /**
+     * @todo find out why event namespace doesnt work
+     */
+    private unbind():void
     {
         for(var eventType in this.events)
         {
-            $(document).off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-            this.pointer.off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+            var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
+            $(document).hammer().off(namespacedEvent);
+            this.pointer.hammer().off(namespacedEvent);
         }
     }
 
@@ -203,16 +187,19 @@ class SliderDraggable {
      * @param element
      * @param eventType
      * @param callback
+     * @todo find out why event namespace doesnt work
      */
-    private bindEvent(element:JQuery, eventType:string, callback:(event:JQueryEventObject)=>void):void
+    private bind(element:JQuery, eventType:string, callback:(event:HammerEvent)=>void):void
     {
-        Hammer(element.get(0)).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
+        var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
+        console.log('binding namespaced event: %s',namespacedEvent);
+        Hammer(element.get(0)).on(namespacedEvent, callback);
     }
 
     /**
      * @param event {Event}
      */
-    public mouseDown(event:JQueryEventObject):void
+    public mouseDown(event:HammerEvent):void
     {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;
@@ -245,7 +232,7 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    public mouseMove(event:JQueryEventObject):void
+    public mouseMove(event:HammerEvent):void
     {
         this.is.toclick = false;
         var coords = this.getPageCoords(event);
@@ -255,7 +242,7 @@ class SliderDraggable {
     /**
      * @param event {MouseEvent}
      */
-    public mouseUp(event:JQueryEventObject):void
+    public mouseUp(event:HammerEvent):void
     {
         if(!this.is.drag)
         {
@@ -281,13 +268,13 @@ class SliderDraggable {
      * @param id
      * @param constructor
      */
-    public onInit(pointer:HTMLElement,id:number,constructor:Slider):void
+    public onInit(pointer:HTMLElement,id:number, constructor:Slider):void
     {}
 
     /**
      * @param event {MouseEvent}
      */
-    public onMouseDown(event:Event):void
+    public onMouseDown(event:HammerEvent):void
     {
         this.pointer.css({ position: 'absolute' });
     }
@@ -297,18 +284,18 @@ class SliderDraggable {
      * @param x {number}
      * @param y {number}
      */
-    public onMouseMove(event:Event, x:number = null, y:number = null):void
+    public onMouseMove(event:HammerEvent, x:number = null, y:number = null):void
     {}
 
     /**
      * @param event {MouseEvent}
      */
-    public onMouseUp(event:Event):void
+    public onMouseUp(event:HammerEvent):void
     {}
 
     public destroy():void
     {
-        this.unbindAllEvents();
+        this.unbind();
         this.pointer.remove();
     }
 }

@@ -27,13 +27,11 @@ var SliderDraggable = (function () {
             height: this.pointer.height()
         };
 
-        this.supportTouches = ('ontouchend' in document);
-
         this.events = {
-            'down': this.supportTouches ? 'touchstart MSPointerDown' : 'mousedown',
-            'move': this.supportTouches ? 'touchmove MSPointerMove' : 'mousemove',
-            'up': this.supportTouches ? 'touchend MSPointerUp' : 'mouseup',
-            'click': this.supportTouches ? 'touchstart MSPointerDown' : 'click'
+            down: 'touch',
+            move: 'drag',
+            up: 'release',
+            click: 'tap'
         };
 
         this.setupEvents();
@@ -41,45 +39,41 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
-        this.bindEvent($(document), SliderDraggable.EVENT_MOVE, function (event) {
+        this.bind($(document), SliderDraggable.EVENT_MOVE, function (event) {
             if (_this.is.drag) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
 
                 _this.mouseMove(event);
             }
         });
 
-        this.bindEvent($(document), SliderDraggable.EVENT_DOWN, function (event) {
+        this.bind($(document), SliderDraggable.EVENT_DOWN, function (event) {
             if (_this.is.drag) {
-                event.preventDefault();
-                event.stopPropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
             }
         });
 
-        this.bindEvent($(document), SliderDraggable.EVENT_UP, function (event) {
-            _this.mouseUp(event);
-        });
-
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_MOVE, function (event) {
+        this.bind(this.pointer, SliderDraggable.EVENT_MOVE, function (event) {
             if (_this.is.drag) {
-                event.preventDefault();
-                event.stopPropagation();
+                event.gesture.preventDefault();
+                event.gesture.stopPropagation();
 
                 _this.mouseMove(event);
             }
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_DOWN, function (event) {
+        this.bind(this.pointer, SliderDraggable.EVENT_DOWN, function (event) {
             _this.mouseDown(event);
             return false;
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_UP, function (event) {
+        this.bind(this.pointer, SliderDraggable.EVENT_UP, function (event) {
             _this.mouseUp(event);
         });
 
-        this.bindEvent(this.pointer, SliderDraggable.EVENT_CLICK, function (event) {
+        this.bind(this.pointer, SliderDraggable.EVENT_CLICK, function () {
             _this.is.clicked = true;
 
             if (!_this.is.toclick) {
@@ -92,18 +86,10 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.getPageCoords = function (event) {
-        var originalEvent = ('TouchEvent' in window && event.originalEvent instanceof TouchEvent) || ('MSGestureEvent' in window && event.originalEvent instanceof MSGestureEvent) ? event.originalEvent : event;
-
-        if ('targetTouches' in originalEvent && originalEvent.targetTouches.length == 1) {
-            return {
-                x: originalEvent.targetTouches[0].pageX,
-                y: originalEvent.targetTouches[0].pageY
-            };
-        }
-
+        var touchList = event.gesture.touches;
         return {
-            x: originalEvent.pageX,
-            y: originalEvent.pageY
+            x: touchList[0].pageX,
+            y: touchList[0].pageY
         };
     };
 
@@ -111,15 +97,18 @@ var SliderDraggable = (function () {
         return this.pointer.offset();
     };
 
-    SliderDraggable.prototype.unbindAllEvents = function () {
+    SliderDraggable.prototype.unbind = function () {
         for (var eventType in this.events) {
-            $(document).off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
-            this.pointer.off(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE);
+            var namespacedEvent = this.events[eventType];
+            $(document).hammer().off(namespacedEvent);
+            this.pointer.hammer().off(namespacedEvent);
         }
     };
 
-    SliderDraggable.prototype.bindEvent = function (element, eventType, callback) {
-        Hammer(element.get(0)).on(this.events[eventType] + SliderDraggable.EVENT_NAMESPACE, callback);
+    SliderDraggable.prototype.bind = function (element, eventType, callback) {
+        var namespacedEvent = this.events[eventType];
+        console.log('binding namespaced event: %s', namespacedEvent);
+        Hammer(element.get(0)).on(namespacedEvent, callback);
     };
 
     SliderDraggable.prototype.mouseDown = function (event) {
@@ -186,10 +175,10 @@ var SliderDraggable = (function () {
     };
 
     SliderDraggable.prototype.destroy = function () {
-        this.unbindAllEvents();
+        this.unbind();
         this.pointer.remove();
     };
-    SliderDraggable.EVENT_NAMESPACE = '.slider.draggable';
+    SliderDraggable.EVENT_NAMESPACE = '.sliderDraggable';
     SliderDraggable.EVENT_CLICK = 'click';
     SliderDraggable.EVENT_UP = 'up';
     SliderDraggable.EVENT_MOVE = 'move';
