@@ -107,7 +107,7 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.bind = function (element, eventType, callback) {
         var namespacedEvent = this.events[eventType];
-        console.log('binding namespaced event: %s', namespacedEvent);
+
         Hammer(element.get(0)).on(namespacedEvent, callback);
     };
 

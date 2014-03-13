@@ -192,7 +192,7 @@ class SliderDraggable {
     private bind(element:JQuery, eventType:string, callback:(event:HammerEvent)=>void):void
     {
         var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
-        console.log('binding namespaced event: %s',namespacedEvent);
+
         Hammer(element.get(0)).on(namespacedEvent, callback);
     }
 
