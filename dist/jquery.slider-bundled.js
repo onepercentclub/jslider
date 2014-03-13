@@ -2356,13 +2356,13 @@ var SliderDraggable = (function () {
     }
     SliderDraggable.prototype.init = function (pointer) {
         if (arguments.length > 0) {
-            this.pointer = $(pointer);
-            this.outer = $('.draggable-outer');
+            this.pointer = jQuery(pointer);
+            this.outer = jQuery('.draggable-outer');
         }
 
         var offset = this.getPointerOffset();
 
-        this.is = $.extend(this.is, this.defaultIs);
+        this.is = jQuery.extend(this.is, this.defaultIs);
 
         this.d = {
             left: offset.left,
@@ -2383,7 +2383,7 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
-        this.bind($(document), SliderDraggable.EVENT_MOVE, function (event) {
+        this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, function (event) {
             if (_this.is.drag) {
                 event.gesture.preventDefault();
                 event.gesture.stopPropagation();
@@ -2392,7 +2392,7 @@ var SliderDraggable = (function () {
             }
         });
 
-        this.bind($(document), SliderDraggable.EVENT_DOWN, function (event) {
+        this.bind(jQuery(document), SliderDraggable.EVENT_DOWN, function (event) {
             if (_this.is.drag) {
                 event.gesture.preventDefault();
                 event.gesture.stopPropagation();
@@ -2444,7 +2444,7 @@ var SliderDraggable = (function () {
     SliderDraggable.prototype.unbind = function () {
         for (var eventType in this.events) {
             var namespacedEvent = this.events[eventType];
-            $(document).hammer().off(namespacedEvent);
+            jQuery(document).hammer().off(namespacedEvent);
             this.pointer.hammer().off(namespacedEvent);
         }
     };
@@ -2464,7 +2464,7 @@ var SliderDraggable = (function () {
         this.cursorX = coords.x - offset.left;
         this.cursorY = coords.y - offset.top;
 
-        this.d = $.extend(this.d, {
+        this.d = jQuery.extend(this.d, {
             left: offset.left,
             top: offset.top,
             width: this.pointer.width(),
@@ -2473,7 +2473,7 @@ var SliderDraggable = (function () {
 
         if (this.outer.length > 0) {
             this.outer.css({
-                height: Math.max(this.outer.height(), $(document.body).height()),
+                height: Math.max(this.outer.height(), jQuery(document.body).height()),
                 overflow: 'hidden'
             });
         }
@@ -2585,7 +2585,7 @@ var SliderPointer = (function (_super) {
             this.parent.setValueElementPosition();
         }
 
-        if (this.settings.callback && $.isFunction(this.settings.callback)) {
+        if (this.settings.callback && jQuery.isFunction(this.settings.callback)) {
             this.settings.callback.call(this.parent, this.parent.getValue());
         }
 
@@ -2682,9 +2682,9 @@ var Slider = (function () {
         this.init.apply(this, args);
     }
     Slider.prototype.init = function (node, settings) {
-        this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
+        this.settings = jQuery.extend(true, {}, this.defaultOptions.settings, settings);
 
-        this.inputNode = $(node).hide();
+        this.inputNode = jQuery(node).hide();
 
         if (this.inputNode.prop('tagName') !== 'INPUT') {
             throw "jquery.slider: Slider must only be applied to INPUT elements.";
@@ -2697,7 +2697,7 @@ var Slider = (function () {
             throw "jquery.slider: INPUT element does not have a value.";
         }
 
-        if (this.settings.calculate && $.isFunction(this.settings.calculate)) {
+        if (this.settings.calculate && jQuery.isFunction(this.settings.calculate)) {
             this.nice = this.settings.calculate;
         }
 
@@ -2706,7 +2706,7 @@ var Slider = (function () {
 
     Slider.prototype.create = function () {
         var _this = this;
-        this.domNode = $(this.defaultOptions.template({
+        this.domNode = jQuery(this.defaultOptions.template({
             className: this.defaultOptions.className,
             settings: {
                 from: this.nice(this.settings.from),
@@ -2729,7 +2729,7 @@ var Slider = (function () {
             domOffset: this.domNode.offset()
         };
 
-        $.extend(this.o, {
+        jQuery.extend(this.o, {
             pointers: [],
             labels: [
                 {
@@ -2749,11 +2749,11 @@ var Slider = (function () {
             ]
         });
 
-        $.extend(this.o.labels[0], {
+        jQuery.extend(this.o.labels[0], {
             value: this.o.labels[0].o.find('span')
         });
 
-        $.extend(this.o.labels[1], {
+        jQuery.extend(this.o.labels[1], {
             value: this.o.labels[1].o.find('span')
         });
 
@@ -2788,17 +2788,17 @@ var Slider = (function () {
         this.o.value = this.domNode.find('.v');
         this.is.init = true;
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             _this.redraw(pointer);
         });
 
-        $(window).resize(function () {
+        jQuery(window).resize(function () {
             _this.onResize();
         });
     };
 
     Slider.prototype.onStateChange = function (value) {
-        if ($.isFunction(this.settings.onStateChange)) {
+        if (jQuery.isFunction(this.settings.onStateChange)) {
             return this.settings.onStateChange.apply(this, value);
         }
         return true;
@@ -2826,7 +2826,7 @@ var Slider = (function () {
     };
 
     Slider.prototype.setPointerIndex = function (index) {
-        $.each(this.getPointers(), function (i, pointer) {
+        jQuery.each(this.getPointers(), function (i, pointer) {
             pointer.index(index);
         });
     };
@@ -2851,7 +2851,7 @@ var Slider = (function () {
 
     Slider.prototype.drawScale = function () {
         this.domNode.find(this.defaultOptions.selector + 'scale span ins').each(function () {
-            $(this).css({ marginLeft: -$(this).outerWidth() / 2 });
+            jQuery(this).css({ marginLeft: -jQuery(this).outerWidth() / 2 });
         });
     };
 
@@ -2862,7 +2862,7 @@ var Slider = (function () {
             domOffset: this.domNode.offset()
         };
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             _this.redraw(pointer);
         });
     };
@@ -3087,7 +3087,7 @@ var Slider = (function () {
 
         var value = '';
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             if (pointer.value.prc != undefined && !isNaN(pointer.value.prc)) {
                 value += (i > 0 ? ';' : '') + _this.prcToValue(pointer.value.prc);
             }
@@ -3102,7 +3102,7 @@ var Slider = (function () {
         }
 
         var value = '';
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             if (pointer.value.prc != undefined && !isNaN(pointer.value.prc)) {
                 value += (i > 0 ? ';' : '') + pointer.value.prc;
             }
@@ -3184,23 +3184,23 @@ var Slider = (function () {
     Slider.prototype.nice = function (value) {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
-        if ($.formatNumber) {
-            return $.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
+        if (jQuery.formatNumber) {
+            return jQuery.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
         }
 
         return Number(value);
     };
 
     Slider.prototype.destroy = function () {
-        $.each(this.o.pointers, function (i, sliderPointer) {
+        jQuery.each(this.o.pointers, function (i, sliderPointer) {
             sliderPointer.destroy();
         });
 
-        $.each(this.o.labels, function (i, element) {
+        jQuery.each(this.o.labels, function (i, element) {
             element.remove();
         });
 
-        $.each(this.o.limits, function (i, element) {
+        jQuery.each(this.o.limits, function (i, element) {
             element.remove();
         });
 
@@ -3212,9 +3212,9 @@ var Slider = (function () {
     Slider.POINTER_RIGHT = 1;
     return Slider;
 })();
-;$.slider = function (node, settings, force) {
+;jQuery.slider = function (node, settings, force) {
     if (typeof force === "undefined") { force = false; }
-    var jNode = $(node);
+    var jNode = jQuery(node);
     if (!jNode.data("jslider")) {
         jNode.data("jslider", new Slider(node, settings));
     }
@@ -3222,7 +3222,7 @@ var Slider = (function () {
     return jNode.data("jslider");
 };
 
-$.fn.slider = function (action, optValue) {
+jQuery.fn.slider = function (action, optValue) {
     var returnValue, args = arguments;
 
     function isDef(val) {
@@ -3234,7 +3234,7 @@ $.fn.slider = function (action, optValue) {
     }
 
     this.each(function () {
-        var self = $.slider(this, action, optValue);
+        var self = jQuery.slider(this, action, optValue);
 
         if (typeof action == "string") {
             switch (action) {
@@ -3305,7 +3305,7 @@ $.fn.slider = function (action, optValue) {
                     break;
             }
         } else if (!action && !optValue) {
-            if (!$.isArray(returnValue)) {
+            if (!jQuery.isArray(returnValue)) {
                 returnValue = [];
             }
 
@@ -3313,7 +3313,7 @@ $.fn.slider = function (action, optValue) {
         }
     });
 
-    if ($.isArray(returnValue) && returnValue.length == 1) {
+    if (jQuery.isArray(returnValue) && returnValue.length == 1) {
         returnValue = returnValue[0];
     }
 

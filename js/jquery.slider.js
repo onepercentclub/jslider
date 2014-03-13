@@ -28,9 +28,9 @@ var Slider = (function () {
         this.init.apply(this, args);
     }
     Slider.prototype.init = function (node, settings) {
-        this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
+        this.settings = jQuery.extend(true, {}, this.defaultOptions.settings, settings);
 
-        this.inputNode = $(node).hide();
+        this.inputNode = jQuery(node).hide();
 
         if (this.inputNode.prop('tagName') !== 'INPUT') {
             throw "jquery.slider: Slider must only be applied to INPUT elements.";
@@ -43,7 +43,7 @@ var Slider = (function () {
             throw "jquery.slider: INPUT element does not have a value.";
         }
 
-        if (this.settings.calculate && $.isFunction(this.settings.calculate)) {
+        if (this.settings.calculate && jQuery.isFunction(this.settings.calculate)) {
             this.nice = this.settings.calculate;
         }
 
@@ -52,7 +52,7 @@ var Slider = (function () {
 
     Slider.prototype.create = function () {
         var _this = this;
-        this.domNode = $(this.defaultOptions.template({
+        this.domNode = jQuery(this.defaultOptions.template({
             className: this.defaultOptions.className,
             settings: {
                 from: this.nice(this.settings.from),
@@ -75,7 +75,7 @@ var Slider = (function () {
             domOffset: this.domNode.offset()
         };
 
-        $.extend(this.o, {
+        jQuery.extend(this.o, {
             pointers: [],
             labels: [
                 {
@@ -95,11 +95,11 @@ var Slider = (function () {
             ]
         });
 
-        $.extend(this.o.labels[0], {
+        jQuery.extend(this.o.labels[0], {
             value: this.o.labels[0].o.find('span')
         });
 
-        $.extend(this.o.labels[1], {
+        jQuery.extend(this.o.labels[1], {
             value: this.o.labels[1].o.find('span')
         });
 
@@ -134,17 +134,17 @@ var Slider = (function () {
         this.o.value = this.domNode.find('.v');
         this.is.init = true;
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             _this.redraw(pointer);
         });
 
-        $(window).resize(function () {
+        jQuery(window).resize(function () {
             _this.onResize();
         });
     };
 
     Slider.prototype.onStateChange = function (value) {
-        if ($.isFunction(this.settings.onStateChange)) {
+        if (jQuery.isFunction(this.settings.onStateChange)) {
             return this.settings.onStateChange.apply(this, value);
         }
         return true;
@@ -172,7 +172,7 @@ var Slider = (function () {
     };
 
     Slider.prototype.setPointerIndex = function (index) {
-        $.each(this.getPointers(), function (i, pointer) {
+        jQuery.each(this.getPointers(), function (i, pointer) {
             pointer.index(index);
         });
     };
@@ -197,7 +197,7 @@ var Slider = (function () {
 
     Slider.prototype.drawScale = function () {
         this.domNode.find(this.defaultOptions.selector + 'scale span ins').each(function () {
-            $(this).css({ marginLeft: -$(this).outerWidth() / 2 });
+            jQuery(this).css({ marginLeft: -jQuery(this).outerWidth() / 2 });
         });
     };
 
@@ -208,7 +208,7 @@ var Slider = (function () {
             domOffset: this.domNode.offset()
         };
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             _this.redraw(pointer);
         });
     };
@@ -433,7 +433,7 @@ var Slider = (function () {
 
         var value = '';
 
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             if (pointer.value.prc != undefined && !isNaN(pointer.value.prc)) {
                 value += (i > 0 ? ';' : '') + _this.prcToValue(pointer.value.prc);
             }
@@ -448,7 +448,7 @@ var Slider = (function () {
         }
 
         var value = '';
-        $.each(this.o.pointers, function (i, pointer) {
+        jQuery.each(this.o.pointers, function (i, pointer) {
             if (pointer.value.prc != undefined && !isNaN(pointer.value.prc)) {
                 value += (i > 0 ? ';' : '') + pointer.value.prc;
             }
@@ -530,23 +530,23 @@ var Slider = (function () {
     Slider.prototype.nice = function (value) {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
-        if ($.formatNumber) {
-            return $.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
+        if (jQuery.formatNumber) {
+            return jQuery.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
         }
 
         return Number(value);
     };
 
     Slider.prototype.destroy = function () {
-        $.each(this.o.pointers, function (i, sliderPointer) {
+        jQuery.each(this.o.pointers, function (i, sliderPointer) {
             sliderPointer.destroy();
         });
 
-        $.each(this.o.labels, function (i, element) {
+        jQuery.each(this.o.labels, function (i, element) {
             element.remove();
         });
 
-        $.each(this.o.limits, function (i, element) {
+        jQuery.each(this.o.limits, function (i, element) {
             element.remove();
         });
 

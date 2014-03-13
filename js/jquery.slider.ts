@@ -97,9 +97,9 @@ class Slider {
      */
     public init(node:HTMLElement, settings:ISettings):void
     {
-        this.settings = $.extend(true, {}, this.defaultOptions.settings, settings);
+        this.settings = jQuery.extend(true, {}, this.defaultOptions.settings, settings);
 
-        this.inputNode = $(node).hide();
+        this.inputNode = jQuery(node).hide();
 
         if(this.inputNode.prop('tagName') !== 'INPUT')
         {
@@ -114,7 +114,7 @@ class Slider {
             throw "jquery.slider: INPUT element does not have a value.";
         }
 
-        if(this.settings.calculate && $.isFunction(this.settings.calculate))
+        if(this.settings.calculate && jQuery.isFunction(this.settings.calculate))
         {
             this.nice = this.settings.calculate;
         }
@@ -124,7 +124,7 @@ class Slider {
 
     public create():void
     {
-        this.domNode = $(this.defaultOptions.template({
+        this.domNode = jQuery(this.defaultOptions.template({
             className: this.defaultOptions.className,
             settings: {
                 from: this.nice(this.settings.from),
@@ -148,7 +148,7 @@ class Slider {
             domOffset:this.domNode.offset()
         };
 
-        $.extend(this.o, {
+        jQuery.extend(this.o, {
            pointers: [],
            labels: [
                {
@@ -168,11 +168,11 @@ class Slider {
            ]
         });
 
-        $.extend(this.o.labels[0], {
+        jQuery.extend(this.o.labels[0], {
            value: this.o.labels[0].o.find('span')
         });
 
-        $.extend(this.o.labels[1], {
+        jQuery.extend(this.o.labels[1], {
            value: this.o.labels[1].o.find('span')
         });
 
@@ -212,12 +212,12 @@ class Slider {
         this.o.value = this.domNode.find('.v');
         this.is.init = true;
 
-        $.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
         {
             this.redraw(pointer);
         });
 
-        $(window).resize(()=>
+        jQuery(window).resize(()=>
         {
            this.onResize();
         });
@@ -225,7 +225,7 @@ class Slider {
 
     public onStateChange(value:string):any
     {
-        if($.isFunction(this.settings.onStateChange))
+        if(jQuery.isFunction(this.settings.onStateChange))
         {
             return this.settings.onStateChange.apply(this, value);
         }
@@ -268,7 +268,7 @@ class Slider {
      */
     public setPointerIndex(index:number):void
     {
-        $.each(this.getPointers(),(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.getPointers(),(i:number,pointer:SliderPointer)=>
         {
             pointer.index(index);
         })
@@ -305,7 +305,7 @@ class Slider {
     {
         this.domNode.find(this.defaultOptions.selector + 'scale span ins').each(function()
         {
-            $(this).css({ marginLeft: -$(this).outerWidth() / 2 });
+            jQuery(this).css({ marginLeft: -jQuery(this).outerWidth() / 2 });
         });
     }
 
@@ -316,7 +316,7 @@ class Slider {
             domOffset:this.domNode.offset()
         };
 
-        $.each(this.o.pointers, (i:number, pointer:SliderPointer)=>
+        jQuery.each(this.o.pointers, (i:number, pointer:SliderPointer)=>
         {
             this.redraw(pointer);
         });
@@ -635,7 +635,7 @@ class Slider {
 
         var value = '';
 
-        $.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
         {
             if(pointer.value.prc != undefined && !isNaN(pointer.value.prc))
             {
@@ -657,7 +657,7 @@ class Slider {
         }
 
         var value = '';
-        $.each( this.o.pointers, (i:number,pointer:SliderPointer)=>
+        jQuery.each( this.o.pointers, (i:number,pointer:SliderPointer)=>
         {
             if( pointer.value.prc != undefined && !isNaN(pointer.value.prc) )
             {
@@ -786,9 +786,9 @@ class Slider {
     {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
-        if($.formatNumber)
+        if(jQuery.formatNumber)
         {
-            return $.formatNumber(Number(value), this.settings.format || {}).replace( /-/gi, "&minus;" );
+            return jQuery.formatNumber(Number(value), this.settings.format || {}).replace( /-/gi, "&minus;" );
         }
 
         return Number(value);
@@ -796,17 +796,17 @@ class Slider {
 
     public destroy():void
     {
-        $.each(this.o.pointers, (i:number,sliderPointer:SliderPointer)=>
+        jQuery.each(this.o.pointers, (i:number,sliderPointer:SliderPointer)=>
         {
             sliderPointer.destroy();
         });
 
-        $.each(this.o.labels, (i:number,element)=>
+        jQuery.each(this.o.labels, (i:number,element)=>
         {
             element.remove();
         });
 
-        $.each(this.o.limits, (i:number,element)=>
+        jQuery.each(this.o.limits, (i:number,element)=>
         {
             element.remove();
         });

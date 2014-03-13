@@ -54,7 +54,7 @@ var SliderPointer = (function (_super) {
             this.parent.setValueElementPosition();
         }
 
-        if (this.settings.callback && $.isFunction(this.settings.callback)) {
+        if (this.settings.callback && jQuery.isFunction(this.settings.callback)) {
             this.settings.callback.call(this.parent, this.parent.getValue());
         }
 

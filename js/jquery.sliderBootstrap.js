@@ -1,6 +1,6 @@
-$.slider = function (node, settings, force) {
+jQuery.slider = function (node, settings, force) {
     if (typeof force === "undefined") { force = false; }
-    var jNode = $(node);
+    var jNode = jQuery(node);
     if (!jNode.data("jslider")) {
         jNode.data("jslider", new Slider(node, settings));
     }
@@ -8,7 +8,7 @@ $.slider = function (node, settings, force) {
     return jNode.data("jslider");
 };
 
-$.fn.slider = function (action, optValue) {
+jQuery.fn.slider = function (action, optValue) {
     var returnValue, args = arguments;
 
     function isDef(val) {
@@ -20,7 +20,7 @@ $.fn.slider = function (action, optValue) {
     }
 
     this.each(function () {
-        var self = $.slider(this, action, optValue);
+        var self = jQuery.slider(this, action, optValue);
 
         if (typeof action == "string") {
             switch (action) {
@@ -91,7 +91,7 @@ $.fn.slider = function (action, optValue) {
                     break;
             }
         } else if (!action && !optValue) {
-            if (!$.isArray(returnValue)) {
+            if (!jQuery.isArray(returnValue)) {
                 returnValue = [];
             }
 
@@ -99,7 +99,7 @@ $.fn.slider = function (action, optValue) {
         }
     });
 
-    if ($.isArray(returnValue) && returnValue.length == 1) {
+    if (jQuery.isArray(returnValue) && returnValue.length == 1) {
         returnValue = returnValue[0];
     }
 

@@ -4,9 +4,9 @@
 
 /// <reference path="../js/jquery.slider.ts" />
 
-$.slider = function (node:HTMLElement, settings:ISettings, force:boolean = false):Slider
+jQuery.slider = function (node:HTMLElement, settings:ISettings, force:boolean = false):Slider
 {
-    var jNode = $(node);
+    var jNode = jQuery(node);
     if (!jNode.data("jslider"))
     {
         jNode.data("jslider", new Slider(node, settings));
@@ -15,7 +15,7 @@ $.slider = function (node:HTMLElement, settings:ISettings, force:boolean = false
     return jNode.data("jslider");
 };
 
-$.fn.slider = function( action:any, optValue:any):any
+jQuery.fn.slider = function( action:any, optValue:any):any
 {
     var returnValue, args = arguments;
 
@@ -31,7 +31,7 @@ $.fn.slider = function( action:any, optValue:any):any
 
     this.each(function()
     {
-        var self = $.slider( this, action, optValue);
+        var self = jQuery.slider( this, action, optValue);
 
         // do actions
         if( typeof action == "string" )
@@ -118,7 +118,7 @@ $.fn.slider = function( action:any, optValue:any):any
         // return actual object
         else if( !action && !optValue )
         {
-            if( !$.isArray( returnValue ) )
+            if( !jQuery.isArray( returnValue ) )
             {
                 returnValue = [];
             }
@@ -128,7 +128,7 @@ $.fn.slider = function( action:any, optValue:any):any
     });
 
     // flatten array just with one slider
-    if( $.isArray( returnValue ) && returnValue.length == 1 )
+    if( jQuery.isArray( returnValue ) && returnValue.length == 1 )
     {
         returnValue = returnValue[ 0 ];
     }

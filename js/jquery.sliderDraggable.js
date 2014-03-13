@@ -12,13 +12,13 @@ var SliderDraggable = (function () {
     }
     SliderDraggable.prototype.init = function (pointer) {
         if (arguments.length > 0) {
-            this.pointer = $(pointer);
-            this.outer = $('.draggable-outer');
+            this.pointer = jQuery(pointer);
+            this.outer = jQuery('.draggable-outer');
         }
 
         var offset = this.getPointerOffset();
 
-        this.is = $.extend(this.is, this.defaultIs);
+        this.is = jQuery.extend(this.is, this.defaultIs);
 
         this.d = {
             left: offset.left,
@@ -39,7 +39,7 @@ var SliderDraggable = (function () {
 
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
-        this.bind($(document), SliderDraggable.EVENT_MOVE, function (event) {
+        this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, function (event) {
             if (_this.is.drag) {
                 event.gesture.preventDefault();
                 event.gesture.stopPropagation();
@@ -48,7 +48,7 @@ var SliderDraggable = (function () {
             }
         });
 
-        this.bind($(document), SliderDraggable.EVENT_DOWN, function (event) {
+        this.bind(jQuery(document), SliderDraggable.EVENT_DOWN, function (event) {
             if (_this.is.drag) {
                 event.gesture.preventDefault();
                 event.gesture.stopPropagation();
@@ -100,7 +100,7 @@ var SliderDraggable = (function () {
     SliderDraggable.prototype.unbind = function () {
         for (var eventType in this.events) {
             var namespacedEvent = this.events[eventType];
-            $(document).hammer().off(namespacedEvent);
+            jQuery(document).hammer().off(namespacedEvent);
             this.pointer.hammer().off(namespacedEvent);
         }
     };
@@ -120,7 +120,7 @@ var SliderDraggable = (function () {
         this.cursorX = coords.x - offset.left;
         this.cursorY = coords.y - offset.top;
 
-        this.d = $.extend(this.d, {
+        this.d = jQuery.extend(this.d, {
             left: offset.left,
             top: offset.top,
             width: this.pointer.width(),
@@ -129,7 +129,7 @@ var SliderDraggable = (function () {
 
         if (this.outer.length > 0) {
             this.outer.css({
-                height: Math.max(this.outer.height(), $(document.body).height()),
+                height: Math.max(this.outer.height(), jQuery(document.body).height()),
                 overflow: 'hidden'
             });
         }

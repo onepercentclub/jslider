@@ -66,13 +66,13 @@ class SliderDraggable {
     {
         if(arguments.length > 0)
         {
-            this.pointer = $(pointer);
-            this.outer = $('.draggable-outer');
+            this.pointer = jQuery(pointer);
+            this.outer = jQuery('.draggable-outer');
         }
 
         var offset:IOffset = this.getPointerOffset();
 
-        this.is = $.extend(this.is, this.defaultIs);
+        this.is = jQuery.extend(this.is, this.defaultIs);
 
         this.d = {
             left: offset.left,
@@ -93,7 +93,7 @@ class SliderDraggable {
 
     private setupEvents():void
     {
-        this.bind($(document), SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
+        this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
         {
             if (this.is.drag)
             {
@@ -104,7 +104,7 @@ class SliderDraggable {
             }
         });
 
-        this.bind($(document), SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
+        this.bind(jQuery(document), SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
         {
             if(this.is.drag)
             {
@@ -178,7 +178,7 @@ class SliderDraggable {
         for(var eventType in this.events)
         {
             var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
-            $(document).hammer().off(namespacedEvent);
+            jQuery(document).hammer().off(namespacedEvent);
             this.pointer.hammer().off(namespacedEvent);
         }
     }
@@ -210,7 +210,7 @@ class SliderDraggable {
         this.cursorX = coords.x - offset.left;
         this.cursorY = coords.y - offset.top;
 
-        this.d = $.extend(this.d,{
+        this.d = jQuery.extend(this.d,{
             left:offset.left,
             top:offset.top,
             width:this.pointer.width(),
@@ -221,7 +221,7 @@ class SliderDraggable {
         if(this.outer.length > 0)
         {
             this.outer.css({
-                height: Math.max(this.outer.height(), $(document.body).height()),
+                height: Math.max(this.outer.height(), jQuery(document.body).height()),
                 overflow: 'hidden'
             });
         }
