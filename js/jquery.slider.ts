@@ -4,7 +4,7 @@
 /// <reference path="../definitions/jquery/jquery.d.ts" />
 /// <reference path="../js/jquery.sliderPointer.ts" />
 
-interface ISettings {
+interface ISliderSettings {
     to:number;
     from:number;
     interval:number;
@@ -24,9 +24,31 @@ interface ISettings {
     maxDistance:number;
 }
 
-interface ISizes {
+interface ISliderState {
+    init:boolean;
+}
+
+interface ISliderSizes {
     domWidth:number;
     domOffset:IOffset;
+}
+
+interface ISliderComponents
+{
+    value:JQuery;
+    labels: ISliderLabel[];
+    limits: ISliderUIComponent[];
+    pointers: SliderPointer[];
+}
+
+interface ISliderUIComponent
+{
+    o:JQuery;
+}
+
+interface ISliderLabel extends ISliderUIComponent
+{
+    value:JQuery;
 }
 
 class Slider {
@@ -77,14 +99,15 @@ class Slider {
 
     };
     private inputNode:JQuery;
-    private sizes:ISizes;
+    private sizes:ISliderSizes;
 
-    private is:Object = {
+    private is:ISliderState = {
         init:false
     };
-    private o:Object = {};
 
-    public settings:ISettings;
+    private o:ISliderComponents;
+
+    public settings:ISliderSettings;
 
     constructor(...args)
     {
@@ -95,7 +118,7 @@ class Slider {
      * @param node
      * @param settings
      */
-    public init(node:HTMLElement, settings:ISettings):void
+    public init(node:HTMLElement, settings:ISliderSettings):void
     {
         this.settings = jQuery.extend(true, {}, this.defaultOptions.settings, settings);
 
@@ -148,7 +171,7 @@ class Slider {
             domOffset:this.domNode.offset()
         };
 
-        jQuery.extend(this.o, {
+        this.o = jQuery.extend({}, {
            pointers: [],
            labels: [
                {
@@ -176,7 +199,7 @@ class Slider {
            value: this.o.labels[1].o.find('span')
         });
 
-        if(!this.settings.value.split(';')[1])
+        if(this.settings.value.split(';').length == 1)
         {
             this.settings.single = true;
             this.domNode.addDependClass('single')
@@ -253,14 +276,12 @@ class Slider {
      */
     private setSkin(skinName:string):void
     {
-        if(this.skin)
+        if(this.settings.skin)
         {
-            this.domNode.removeDependClass(this.skin,'_');
+            this.domNode.removeDependClass(this.settings.skin,'_');
         }
-        else
-        {
-            this.domNode.addDependClass( this.skin = skinName, "_" );
-        }
+
+        this.domNode.addDependClass( this.settings.skin = skinName, "_" );
     }
 
     /**
@@ -451,7 +472,7 @@ class Slider {
 
             switch(pointer.uid)
             {
-                case 0:
+                case Slider.POINTER_LEFT:
                     if(sizes.border+sizes.label / 2 > (anotherLabel.o.offset().left - this.sizes.domOffset.left))
                     {
                         anotherLabel.o.css({ visibility: "hidden" });
@@ -483,11 +504,15 @@ class Slider {
                     }
                     break;
 
-                case 1:
+                case Slider.POINTER_RIGHT:
                     if(sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth())
                     {
                         anotherLabel.o.css({visibility: 'hidden'});
-                        anotherLabel.value.html(this.nice(another.value.origin));
+                        anotherLabel.value.html(
+                            this.nice(
+                                another.value.origin
+                            )
+                        );
 
                         label.o.css({visibility: 'visible'});
 
@@ -531,41 +556,47 @@ class Slider {
 
     private redrawLimits():void
     {
-        if(this.settings.limits)
+        if(!this.settings.limits)
         {
-            var limits = [true, true];
+            return;
+        }
 
-            for(var key in this.o.pointers)
+        var limits = [true, true];
+
+        for(var key in this.o.pointers)
+        {
+            if(!this.settings.single || key == 0)
             {
-                if(!this.settings.single || key == 0)
+                if(!this.o.pointers.hasOwnProperty(key))
                 {
-                    var pointer = this.o.pointers[key],
-                        label = this.o.labels[pointer.uid],
-                        labelLeft = label.o.offset().left - this.sizes.domOffset.left;
+                    continue;
+                }
 
-                    if(labelLeft < this.o.limits[0].o.outerWidth())
-                    {
-                        limits[0] = false;
-                    }
+                var pointer:SliderPointer = this.o.pointers[key],
+                    label = this.o.labels[pointer.uid],
+                    labelLeft = label.o.offset().left - this.sizes.domOffset.left;
 
-                    if(labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth())
-                    {
-                        limits[1] = false;
-                    }
+                if(labelLeft < this.o.limits[0].o.outerWidth())
+                {
+                    limits[0] = false;
+                }
 
+                if(labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth())
+                {
+                    limits[1] = false;
                 }
             }
+        }
 
-            for(var i = 0; i < limits.length; i++)
+        for(var i = 0; i < limits.length; i++)
+        {
+            if(limits[i])
             {
-                if(limits[i])
-                {
-                    this.o.limits[i].o.fadeIn('fast');
-                }
-                else
-                {
-                    this.o.limits[i].o.fadeOut('fast');
-                }
+                this.o.limits[i].o.fadeIn('fast');
+            }
+            else
+            {
+                this.o.limits[i].o.fadeOut('fast');
             }
         }
     }
@@ -574,9 +605,9 @@ class Slider {
      * @param label
      * @param sizes
      * @param prc
-     * @returns {ISizes}
+     * @returns {ISliderSizes}
      */
-    private setPosition(label:any, sizes:any, prc:number):ISizes
+    private setPosition(label:any, sizes:any, prc:number):ISliderSizes
     {
         sizes.margin = -sizes.label / 2;
 

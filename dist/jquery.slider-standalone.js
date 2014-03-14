@@ -1301,7 +1301,6 @@ var Slider = (function () {
         this.is = {
             init: false
         };
-        this.o = {};
         this.init.apply(this, args);
     }
     Slider.prototype.init = function (node, settings) {
@@ -1352,7 +1351,7 @@ var Slider = (function () {
             domOffset: this.domNode.offset()
         };
 
-        jQuery.extend(this.o, {
+        this.o = jQuery.extend({}, {
             pointers: [],
             labels: [
                 {
@@ -1380,7 +1379,7 @@ var Slider = (function () {
             value: this.o.labels[1].o.find('span')
         });
 
-        if (!this.settings.value.split(';')[1]) {
+        if (this.settings.value.split(';').length == 1) {
             this.settings.single = true;
             this.domNode.addDependClass('single');
         }
@@ -1441,11 +1440,11 @@ var Slider = (function () {
     };
 
     Slider.prototype.setSkin = function (skinName) {
-        if (this.skin) {
-            this.domNode.removeDependClass(this.skin, '_');
-        } else {
-            this.domNode.addDependClass(this.skin = skinName, "_");
+        if (this.settings.skin) {
+            this.domNode.removeDependClass(this.settings.skin, '_');
         }
+
+        this.domNode.addDependClass(this.settings.skin = skinName, "_");
     };
 
     Slider.prototype.setPointerIndex = function (index) {
@@ -1579,7 +1578,7 @@ var Slider = (function () {
             var another = this.o.pointers[1 - pointer.uid], anotherLabel = this.o.labels[another.uid];
 
             switch (pointer.uid) {
-                case 0:
+                case Slider.POINTER_LEFT:
                     if (sizes.border + sizes.label / 2 > (anotherLabel.o.offset().left - this.sizes.domOffset.left)) {
                         anotherLabel.o.css({ visibility: "hidden" });
                         anotherLabel.value.html(this.nice(another.value.origin));
@@ -1599,7 +1598,7 @@ var Slider = (function () {
                     }
                     break;
 
-                case 1:
+                case Slider.POINTER_RIGHT:
                     if (sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth()) {
                         anotherLabel.o.css({ visibility: 'hidden' });
                         anotherLabel.value.html(this.nice(another.value.origin));
@@ -1637,29 +1636,35 @@ var Slider = (function () {
     };
 
     Slider.prototype.redrawLimits = function () {
-        if (this.settings.limits) {
-            var limits = [true, true];
+        if (!this.settings.limits) {
+            return;
+        }
 
-            for (var key in this.o.pointers) {
-                if (!this.settings.single || key == 0) {
-                    var pointer = this.o.pointers[key], label = this.o.labels[pointer.uid], labelLeft = label.o.offset().left - this.sizes.domOffset.left;
+        var limits = [true, true];
 
-                    if (labelLeft < this.o.limits[0].o.outerWidth()) {
-                        limits[0] = false;
-                    }
+        for (var key in this.o.pointers) {
+            if (!this.settings.single || key == 0) {
+                if (!this.o.pointers.hasOwnProperty(key)) {
+                    continue;
+                }
 
-                    if (labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth()) {
-                        limits[1] = false;
-                    }
+                var pointer = this.o.pointers[key], label = this.o.labels[pointer.uid], labelLeft = label.o.offset().left - this.sizes.domOffset.left;
+
+                if (labelLeft < this.o.limits[0].o.outerWidth()) {
+                    limits[0] = false;
+                }
+
+                if (labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth()) {
+                    limits[1] = false;
                 }
             }
+        }
 
-            for (var i = 0; i < limits.length; i++) {
-                if (limits[i]) {
-                    this.o.limits[i].o.fadeIn('fast');
-                } else {
-                    this.o.limits[i].o.fadeOut('fast');
-                }
+        for (var i = 0; i < limits.length; i++) {
+            if (limits[i]) {
+                this.o.limits[i].o.fadeIn('fast');
+            } else {
+                this.o.limits[i].o.fadeOut('fast');
             }
         }
     };
