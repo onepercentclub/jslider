@@ -1,0 +1,139 @@
+.linear-gradient(@light, @dark) {
+  background-image: -webkit-gradient(linear, left top, left bottom, from(@light), to(@dark));
+  background-image: -webkit-linear-gradient(@light, @dark);
+  background-image: -moz-linear-gradient(@light, @dark);
+  background-image: -ms-linear-gradient(@light, @dark);
+  background-image: -o-linear-gradient(@light, @dark);
+  background-image: linear-gradient(@light, @dark);
+}
+
+.gradient(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
+  background: @color;
+  background: -webkit-gradient(linear,
+  left bottom,
+  left top,
+  color-stop(0, @start),
+  color-stop(1, @stop));
+  background: -ms-linear-gradient(bottom,
+  @start,
+  @stop);
+  background: -moz-linear-gradient(center bottom,
+  @start 0%,
+  @stop 100%);
+  background: -o-linear-gradient(@stop,
+  @start);
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+}
+
+.radial-gradient(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
+  background: @color; /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover,  @start 0%, @stop 100%); /* FF3.6+ */
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,@start), color-stop(100%,@stop)); /* Chrome,Safari4+ */
+  background: -webkit-radial-gradient(center, ellipse cover,  @start 0%,@stop 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-radial-gradient(center, ellipse cover,  @start 0%,@stop 100%); /* Opera 12+ */
+  background: -ms-radial-gradient(center, ellipse cover,  @start 0%,@stop 100%); /* IE10+ */
+  background: radial-gradient(ellipse at center,  @start 0%,@stop 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@start', endColorstr='@stop',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+.box-shadow(@inset, @x, @y, @z, @color) {
+  -moz-box-shadow: @x @y @z @color;
+  -webkit-box-shadow: @x @y @z @color;
+  box-shadow: @x @y @z @color;
+}
+
+.drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
+  -webkit-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  -moz-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+}
+
+.box-shadow(@inset, @x, @y, @z, @color)when (@inset) {
+  -moz-box-shadow: inset @x @y @z @color;
+  -webkit-box-shadow: inset @x @y @z @color;
+  box-shadow: inset @x @y @z @color;
+}
+
+.box-shadow-none() {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.box-shadow(@radius) {
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.border-radius-top(@radius) {
+  -moz-border-radius-topright: @radius;
+  -webkit-border-top-right-radius: @radius;
+  border-top-right-radius: @radius;
+  -moz-border-radius-topleft: @radius;
+  -webkit-border-top-left-radius: @radius;
+  border-top-left-radius: @radius;
+}
+
+.border-radius-bottom(@radius) {
+  -moz-border-radius-bottomright: @radius;
+  -webkit-border-bottom-right-radius: @radius;
+  border-bottom-right-radius: @radius;
+  -moz-border-radius-bottomleft: @radius;
+  -webkit-border-bottom-left-radius: @radius;
+  border-bottom-left-radius: @radius;
+}
+
+.rotate(@degrees) {
+  -moz-transform: rotate(@degrees);
+  -webkit-transform: rotate(@degrees);
+  -o-transform: rotate(@degrees);
+  -ms-transform: rotate(@degrees);
+}
+
+.margin(@top: 0px, @left: 0px, @bottom: 0px, @right: 0px) {
+  margin: @top @left @bottom @right;
+}
+
+//Padding shortcuts
+.padding(@top: 0px, @left: 0px, @bottom: 0px, @right: 0px) {
+  padding: @top @left @bottom @right;
+}
+
+// Sizing shortcuts
+.size(@height: 5px, @width: 5px) {
+  height: @height;
+  width: @width;
+}
+
+.square(@size: 5px) {
+  .size(@size, @size);
+}
+
+.backgroundSize(@height, @width) {
+  -moz-background-size: @height @width;
+  -webkit-background-size: @height @width;
+  -background-size: @height @width;
+  background-size: @height @width;
+}
+
+.ellipsis() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.font-size(@px, @base: 18px) {
+  @fontSize: (unit(@px) / unit(@base));
+  font-size: ~"@{fontSize}rem";
+}
+
+.opacity(@delta){
+  opacity: @delta;
+}
