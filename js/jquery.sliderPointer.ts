@@ -14,7 +14,7 @@ class SliderPointer extends SliderDraggable {
 
     public uid:any;
     public parent:Slider;
-    public _parent:any;
+    public parentSizes:any;
     public value:ISliderPointerValue;
     public settings:ISliderSettings;
 
@@ -43,7 +43,7 @@ class SliderPointer extends SliderDraggable {
     {
         super.onMouseDown(event);
 
-        this._parent = {
+        this.parentSizes = {
             offset:this.parent.$el.offset(),
             width: this.parent.$el.width()
         };
@@ -75,32 +75,78 @@ class SliderPointer extends SliderDraggable {
      * @param minDistance
      * @param another
      * @returns {boolean}
-     * @todo overly complex, needs a refactor
      */
     private isDistanceViolation():boolean
     {
         var distance:IDistance = this.settings.distance;
-        var another:SliderPointer = this.getAdjacentPointer();
+        var other:SliderPointer = this.getAdjacentPointer();
 
-        return (!this.settings.single && this.value && another && another.value)
-            &&
-            (
-                distance.min &&
-                (
-                    (this.uid === Slider.POINTER_FROM && this.value.origin + distance.min >= another.value.origin)
-                    ||
-                    (this.uid === Slider.POINTER_TO && this.value.origin - distance.min <= another.value.origin)
-                )
+        if(!(other instanceof SliderPointer) || this.settings.single)
+        {
+            return false;
+        }
 
-                ||
+        if(this.isMinDistanceViolation(other.get().origin, distance.min))
+        {
+            return true;
+        }
 
-                distance.max &&
-                (
-                    (this.uid === Slider.POINTER_FROM && another.value.origin + distance.max >= this.value.origin)
-                    ||
-                    (this.uid === Slider.POINTER_TO && another.value.origin - distance.max <= this.value.origin)
-                )
-            );
+        if(this.isMaxDistanceViolation(other.get().origin, distance.max))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param otherOrigin
+     * @param max
+     * @returns {boolean}
+     */
+    private isMaxDistanceViolation(otherOrigin:number, max:number):boolean
+    {
+        if(isNaN(max))
+        {
+            return false;
+        }
+
+        if(this.uid === Slider.POINTER_FROM && otherOrigin + max >= this.value.origin)
+        {
+            return true;
+        }
+
+        if(this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param otherOrigin
+     * @param min
+     * @returns {boolean}
+     */
+    private isMinDistanceViolation(otherOrigin:number, min:number):boolean
+    {
+        if(isNaN(min))
+        {
+            return false;
+        }
+
+        if(this.uid === Slider.POINTER_FROM && this.value.origin + min >= otherOrigin)
+        {
+            return true;
+        }
+
+        if(this.uid === Slider.POINTER_TO && this.value.origin - min <= otherOrigin)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -152,7 +198,7 @@ class SliderPointer extends SliderDraggable {
      */
     public calc(coords):number
     {
-        return this.limits(((coords - this._parent.offset.left) * 100) / this._parent.width);
+        return this.limits(((coords - this.parentSizes.offset.left) * 100) / this.parentSizes.width);
     }
 
     /**
@@ -183,49 +229,56 @@ class SliderPointer extends SliderDraggable {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
-        var another:SliderPointer = this.getAdjacentPointer(),
-            distance:IDistance = this.settings.distance;
-
         if (this.isDistanceViolation())
         {
-            var originValue:number = this.get().origin;
-            var anotherOriginValue:number = another.get().origin;
-
-            switch(this.uid)
-            {
-                case Slider.POINTER_FROM:
-
-                    if(Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max))
-                    {
-                        this.value.origin = anotherOriginValue - distance.max;
-                    }
-                    else if(Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue)
-                    {
-                        this.value.origin = this.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
-                    }
-
-                    break;
-
-                case Slider.POINTER_TO:
-
-                    if(Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max))
-                    {
-                        this.value.origin = anotherOriginValue + distance.max;
-                    }
-                    else if(Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue)
-                    {
-                        this.value.origin = this.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
-                    }
-
-                    break;
-            }
-
-            prc = this.parent.valueToPrc(this.value.origin, this);
+            prc = this.enforceMinMaxDistance();
         }
 
         this.value.prc = prc;
         this.pointer.css({left: prc + '%'});
         this.parent.update();
+    }
+
+    /**
+     * @returns {number}
+     */
+    private enforceMinMaxDistance():number
+    {
+        var another:SliderPointer = this.getAdjacentPointer();
+        var distance:IDistance = this.settings.distance;
+        var originValue:number = this.get().origin;
+        var anotherOriginValue:number = another.get().origin;
+
+        switch(this.uid)
+        {
+            case Slider.POINTER_FROM:
+
+                if(Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max))
+                {
+                    this.value.origin = this.clamp(anotherOriginValue - distance.max, this.settings.from, this.settings.to);
+                }
+                else if(Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue)
+                {
+                    this.value.origin = this.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
+                }
+
+                break;
+
+            case Slider.POINTER_TO:
+
+                if(Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max))
+                {
+                    this.value.origin = this.clamp(anotherOriginValue + distance.max, this.settings.from, this.settings.to);
+                }
+                else if(Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue)
+                {
+                    this.value.origin = this.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
+                }
+
+                break;
+        }
+
+        return this.parent.valueToPrc(this.value.origin, this);
     }
 
     /**
