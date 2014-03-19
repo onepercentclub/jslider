@@ -3,9 +3,10 @@ module.exports = function(grunt)
 
     var standalone = [
         'vendor/jshashtable-2.1_src.js',
-        'vendor/tmpl.js',
         'vendor/jquery.dependClass-0.1.js',
         'vendor/jquery.numberformatter-1.2.3.js',
+        'js/jquery.sliderValueLabel.js',
+        'js/jquery.sliderTemplate.js',
         'js/jquery.sliderDraggable.js',
         'js/jquery.sliderPointer.js',
         'js/jquery.slider.js',

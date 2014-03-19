@@ -4,6 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 var SliderPointer = (function (_super) {
     __extends(SliderPointer, _super);
     function SliderPointer() {
@@ -14,7 +15,10 @@ var SliderPointer = (function (_super) {
 
         this.uid = id;
         this.parent = slider;
-        this.value = {};
+        this.value = {
+            prc: null,
+            origin: null
+        };
         this.settings = this.parent.settings;
     };
 
@@ -22,8 +26,8 @@ var SliderPointer = (function (_super) {
         _super.prototype.onMouseDown.call(this, event);
 
         this._parent = {
-            offset: this.parent.domNode.offset(),
-            width: this.parent.domNode.width()
+            offset: this.parent.$el.offset(),
+            width: this.parent.$el.width()
         };
 
         this.pointer.addDependClass('hover');
@@ -41,21 +45,22 @@ var SliderPointer = (function (_super) {
         this.parent.redrawLabels(this);
     };
 
-    SliderPointer.prototype.isMinDistanceViolation = function (minDistance, another) {
-        return (this.value && another && another.value) && ((this.uid === Slider.POINTER_LEFT && this.value.origin + minDistance >= another.value.origin) || (this.uid === Slider.POINTER_RIGHT && this.value.origin - minDistance <= another.value.origin));
+    SliderPointer.prototype.isDistanceViolation = function () {
+        var distance = this.settings.distance;
+        var another = this.getAdjacentPointer();
+
+        return (!this.settings.single && this.value && another && another.value) && (distance.min && ((this.uid === Slider.POINTER_FROM && this.value.origin + distance.min >= another.value.origin) || (this.uid === Slider.POINTER_TO && this.value.origin - distance.min <= another.value.origin)) || distance.max && ((this.uid === Slider.POINTER_FROM && another.value.origin + distance.max >= this.value.origin) || (this.uid === Slider.POINTER_TO && another.value.origin - distance.max <= this.value.origin)));
     };
 
     SliderPointer.prototype.onMouseUp = function (event) {
         _super.prototype.onMouseUp.call(this, event);
 
-        var another = this.getAdjacentPointer(), minDistance = this.settings.minDistance;
-
-        if (minDistance && another && this.isMinDistanceViolation(minDistance, another)) {
+        if (!this.settings.single && this.isDistanceViolation()) {
             this.parent.setValueElementPosition();
         }
 
-        if (this.settings.callback && jQuery.isFunction(this.settings.callback)) {
-            this.settings.callback.call(this.parent, this.parent.getValue());
+        if (jQuery.isFunction(this.settings.onStateChange)) {
+            this.settings.onStateChange.call(this.parent, this.parent.getValue());
         }
 
         this.pointer.removeDependClass('hover');
@@ -85,26 +90,39 @@ var SliderPointer = (function (_super) {
         this._set(this.parent.valueToPrc(value, this), optOrigin);
     };
 
+    SliderPointer.prototype.get = function () {
+        return this.value;
+    };
+
     SliderPointer.prototype._set = function (prc, optOrigin) {
         if (typeof optOrigin === "undefined") { optOrigin = false; }
         if (!optOrigin) {
             this.value.origin = this.parent.prcToValue(prc);
         }
 
-        var another = this.getAdjacentPointer(), minDistance = this.settings.minDistance;
+        var another = this.getAdjacentPointer(), distance = this.settings.distance;
 
-        if (minDistance && another && this.isMinDistanceViolation(minDistance, another)) {
+        if (this.isDistanceViolation()) {
+            var originValue = this.get().origin;
+            var anotherOriginValue = another.get().origin;
+
             switch (this.uid) {
-                case Slider.POINTER_LEFT:
-                    if (this.value.origin + minDistance >= another.value.origin) {
-                        this.value.origin = another.value.origin - minDistance;
+                case Slider.POINTER_FROM:
+                    if (Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max)) {
+                        this.value.origin = anotherOriginValue - distance.max;
+                    } else if (Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue) {
+                        this.value.origin = this.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
                     }
+
                     break;
 
-                case Slider.POINTER_RIGHT:
-                    if (this.value.origin - minDistance <= another.value.origin) {
-                        this.value.origin = another.value.origin + minDistance;
+                case Slider.POINTER_TO:
+                    if (Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max)) {
+                        this.value.origin = anotherOriginValue + distance.max;
+                    } else if (Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue) {
+                        this.value.origin = this.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
                     }
+
                     break;
             }
 
@@ -116,8 +134,22 @@ var SliderPointer = (function (_super) {
         this.parent.update();
     };
 
+    SliderPointer.prototype.clamp = function (delta, min, max) {
+        if (delta > max) {
+            return max;
+        } else if (delta < min) {
+            return min;
+        }
+
+        return delta;
+    };
+
     SliderPointer.prototype.getAdjacentPointer = function () {
-        return this.parent.o.pointers[1 - this.uid];
+        return this.parent.getPointers()[1 - this.uid];
+    };
+
+    SliderPointer.prototype.hasSameOrigin = function (pointer) {
+        return (this.value.prc == pointer.get().prc);
     };
     return SliderPointer;
 })(SliderDraggable);

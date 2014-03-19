@@ -2,26 +2,35 @@
  * Created by davidatborresen on 31.01.14.
  */
 /// <reference path="../definitions/jquery/jquery.d.ts" />
-/// <reference path="../js/jquery.sliderPointer.ts" />
+/// <reference path="./jquery.sliderPointer.ts" />
+/// <reference path="./jquery.sliderTemplate.ts" />
+/// <reference path="./jquery.sliderValueLabel.ts" />
+/// <reference path="./jquery.sliderLimitLabel.ts" />
+
+interface IDistance {
+    min:number;
+    max:number;
+}
 
 interface ISliderSettings {
-    to:number;
-    from:number;
-    interval:number;
-    value:string;
-    calculate:() => number;
-    onStateChange:() => boolean;
-    dimension:string;
-    skin:string;
-    limits:string;
-    single:boolean;
-    scale:string;
-    hetrogeneity:string;
-    step:number;
-    round:number;
-    smooth:boolean;
-    minDistance:number;
-    maxDistance:number;
+    to?:number;
+    from?:number;
+    interval?:number;
+    value?:string;
+    calculate?:() => string;
+    onStateChange?:() => boolean;
+    dimension?:string;
+    skin?:string;
+    limits?:any;
+    single?:boolean;
+    scale?:string;
+    hetrogeneity?:string;
+    step?:number;
+    round?:number;
+    smooth?:boolean;
+    distance?:IDistance;
+    format?:Object;
+    maxDistance?:number;
 }
 
 interface ISliderState {
@@ -35,102 +44,86 @@ interface ISliderSizes {
 
 interface ISliderComponents
 {
-    value:JQuery;
-    labels: ISliderLabel[];
-    limits: ISliderUIComponent[];
-    pointers: SliderPointer[];
-}
-
-interface ISliderUIComponent
-{
-    o:JQuery;
-}
-
-interface ISliderLabel extends ISliderUIComponent
-{
-    value:JQuery;
+    value?:JQuery;
+    labels?: SliderValueLabel[];
+    limits?: SliderLimitLabel[];
+    pointers?: SliderPointer[];
 }
 
 class Slider {
 
-    public static POINTER_LEFT:number = 0;
-    public static POINTER_RIGHT:number = 1;
+    public static POINTER_FROM:number = 0;
+    public static POINTER_TO:number = 1;
+    public static CLASSNAME:string = 'jslider';
+    public static SELECTOR:string = '.jslider-';
 
-    public domNode:JQuery;
-    private defaultOptions = {
+    public $el:JQuery;
+    public $input:JQuery;
 
-        settings: {
-            from: 1,
-            to: 10,
-            step: 1,
-            smooth: true,
-            limits: true,
-            round: 0,
-            format: { format: "#,##0.##" },
-            value: "5;7",
-            dimension: ""
-        },
-
-        className: "jslider",
-        selector: ".jslider-",
-
-        template: tmpl(
-            '<span class="<%=className%>">' +
-                '<table><tr><td>' +
-                '<div class="<%=className%>-bg">' +
-                '<i class="l"></i><i class="f"></i><i class="r"></i>' +
-                '<i class="v"></i>' +
-                '</div>' +
-
-                '<div class="<%=className%>-pointer"></div>' +
-                '<div class="<%=className%>-pointer <%=className%>-pointer-to"></div>' +
-
-                '<div class="<%=className%>-label"><span><%=settings.from%></span></div>' +
-                '<div class="<%=className%>-label <%=className%>-label-to"><span><%=settings.to%></span><%=settings.dimension%></div>' +
-
-                '<div class="<%=className%>-value"><span></span><%=settings.dimension%></div>' +
-                '<div class="<%=className%>-value <%=className%>-value-to"><span></span><%=settings.dimension%></div>' +
-
-                '<div class="<%=className%>-scale"><%=scale%></div>' +
-
-                '</td></tr></table>' +
-                '</span>'
-        )
-
+    private defaultSettings:ISliderSettings = {
+        from: 1,
+        to: 10,
+        step: 1,
+        smooth: true,
+        limits: true,
+        round: 0,
+        format: { format: "#,##0.##" },
+        value: '5;7',
+        dimension: '',
+        distance: {
+            min:null,
+            max:null
+        }
     };
-    private inputNode:JQuery;
+
+    private template:SliderTemplate = new SliderTemplate(
+        '<span class="<%=className%>">' +
+        '<div class="<%=className%>-bg">' +
+        '<i class="l"></i><i class="f"></i><i class="r"></i>' +
+        '<i class="v"></i>' +
+        '</div>' +
+
+        '<div class="<%=className%>-pointer"></div>' +
+        '<div class="<%=className%>-pointer <%=className%>-pointer-to"></div>' +
+
+        '<div class="<%=className%>-label"><span><%=settings.from%></span></div>' +
+        '<div class="<%=className%>-label <%=className%>-label-to"><span><%=settings.to%></span><%=settings.dimension%></div>' +
+
+        '<div class="<%=className%>-value"><span></span><%=settings.dimension%></div>' +
+        '<div class="<%=className%>-value <%=className%>-value-to"><span></span><%=settings.dimension%></div>' +
+
+        '<div class="<%=className%>-scale"><%=scale%></div>' +
+
+        '</span>'
+    );
+
     private sizes:ISliderSizes;
 
     private is:ISliderState = {
         init:false
     };
 
-    private o:ISliderComponents;
+    private components:ISliderComponents;
 
     public settings:ISliderSettings;
 
-    constructor(...args)
-    {
-        this.init.apply(this, args);
-    }
-
     /**
-     * @param node
+     * @param inputNode
      * @param settings
      */
-    public init(node:HTMLElement, settings:ISliderSettings):void
+    constructor(inputNode:HTMLInputElement, settings:ISliderSettings = {})
     {
-        this.settings = jQuery.extend(true, {}, this.defaultOptions.settings, settings);
+        this.settings = jQuery.extend(this.defaultSettings, settings);
 
-        this.inputNode = jQuery(node).hide();
+        this.$input = jQuery(inputNode).hide();
 
-        if(this.inputNode.prop('tagName') !== 'INPUT')
+        if(this.$input.prop('tagName') !== 'INPUT')
         {
             throw "jquery.slider: Slider must only be applied to INPUT elements.";
         }
 
         this.settings.interval = this.settings.to - this.settings.from;
-        this.settings.value = this.inputNode.val();
+        this.settings.value = this.$input.val();
 
         if(this.settings.value === null || this.settings.value === undefined)
         {
@@ -139,7 +132,7 @@ class Slider {
 
         if(this.settings.calculate && jQuery.isFunction(this.settings.calculate))
         {
-            this.nice = this.settings.calculate;
+            this.calculate = this.settings.calculate;
         }
 
         this.create();
@@ -147,96 +140,93 @@ class Slider {
 
     public create():void
     {
-        this.domNode = jQuery(this.defaultOptions.template({
-            className: this.defaultOptions.className,
+        this.$el = jQuery(this.template.render({
+            className: Slider.CLASSNAME,
             settings: {
-                from: this.nice(this.settings.from),
-                to: this.nice(this.settings.to),
+                from: this.calculate(this.settings.from),
+                to: this.calculate(this.settings.to),
                 dimension: this.settings.dimension
             },
             scale: this.generateScale()
         }));
 
-        this.inputNode.after(this.domNode);
+        this.$input.after(this.$el);
 
         this.drawScale();
 
-        if(this.settings.skin && this.settings.skin.length > 0)
-        {
-            this.setSkin(this.settings.skin);
-        }
-
-        this.sizes = {
-            domWidth:this.domNode.width(),
-            domOffset:this.domNode.offset()
-        };
-
-        this.o = jQuery.extend({}, {
-           pointers: [],
-           labels: [
-               {
-                   o:this.domNode.find(this.defaultOptions.selector + 'value').not(this.defaultOptions.selector + 'value-to')
-               },
-               {
-                   o:this.domNode.find(this.defaultOptions.selector + 'value').filter(this.defaultOptions.selector + 'value-to')
-               }
-           ],
-           limits:[
-               {
-                   o:this.domNode.find(this.defaultOptions.selector + 'label').not(this.defaultOptions.selector + 'label-to')
-               },
-               {
-                   o:this.domNode.find(this.defaultOptions.selector + 'label').filter(this.defaultOptions.selector + 'label-to')
-               }
-           ]
-        });
-
-        jQuery.extend(this.o.labels[0], {
-           value: this.o.labels[0].o.find('span')
-        });
-
-        jQuery.extend(this.o.labels[1], {
-           value: this.o.labels[1].o.find('span')
-        });
-
-        if(this.settings.value.split(';').length == 1)
+        var values:string[] = this.settings.value.split(';');
+        if(values.length == 1)
         {
             this.settings.single = true;
-            this.domNode.addDependClass('single')
+            this.$el.addDependClass('single')
         }
 
         if(!this.settings.limits)
         {
-            this.domNode.addDependClass('limitless');
+            this.$el.addDependClass('limitless');
         }
 
-        var values:string[] = this.settings.value.split(';');
-        this.domNode.find(this.defaultOptions.selector + 'pointer').each((i:number, element:HTMLElement)=>
+        if(this.settings.skin)
+        {
+            this.setSkin(this.settings.skin.toString());
+        }
+
+        this.sizes = {
+            domWidth:this.$el.width(),
+            domOffset:this.$el.offset()
+        };
+
+        var valueLabels:JQuery = this.$el.find(Slider.SELECTOR + 'value');
+        var limitLabels:JQuery = this.$el.find(Slider.SELECTOR + 'label');
+
+        this.components = {
+           pointers: [],
+           labels: [
+                new SliderValueLabel(valueLabels.not(Slider.SELECTOR + 'value-to')),
+                new SliderValueLabel(valueLabels.filter(Slider.SELECTOR + 'value-to'))
+           ],
+           limits:[
+               new SliderLimitLabel(limitLabels.not(Slider.SELECTOR + 'label-to')),
+               new SliderLimitLabel(limitLabels.filter(Slider.SELECTOR + 'label-to'))
+           ]
+        };
+
+        this.$el.find(Slider.SELECTOR + 'pointer').each((i:number, element:HTMLElement)=>
         {
             var value:number = Number(values[i]);
+            var prev:number = Number(values[i-1]);
 
-            if(value)
+            if(isNaN(value))
             {
-                this.o.pointers[i] = new SliderPointer(element, i, this);
-                var prev = Number(values[i-1]);
-
-                if(prev && value < prev)
-                {
-                    value = prev;
-                }
-
-                value = (value < this.settings.from) ? this.settings.from : value;
-                value = (value > this.settings.to) ? this.settings.to : value;
-
-                this.o.pointers[i].set(value, true);
+                return;
             }
+
+            if(!isNaN(prev) && value < prev)
+            {
+                value = prev;
+            }
+
+            var pointer:SliderPointer = new SliderPointer(element, i, this);
+
+            value = (value < this.settings.from) ? this.settings.from : value;
+            value = (value > this.settings.to) ? this.settings.to : value;
+
+            pointer.set(value,true);
+
+            this.components.pointers[i] = pointer;
         });
 
-        this.o.value = this.domNode.find('.v');
+        this.components.value = this.$el.find('.v');
+
         this.is.init = true;
 
-        jQuery.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.components.pointers,(i:number,pointer:SliderPointer)=>
         {
+            if(!this.settings.single)
+            {
+                this.ensurePointerIndex(pointer);
+            }
+
             this.redraw(pointer);
         });
 
@@ -244,6 +234,27 @@ class Slider {
         {
            this.onResize();
         });
+    }
+
+    /**
+     * @param pointer
+     */
+    private ensurePointerIndex(pointer:SliderPointer):void
+    {
+        var otherPointer:SliderPointer = pointer.getAdjacentPointer();
+        if (!pointer.hasSameOrigin(otherPointer))
+        {
+            return;
+        }
+
+        if (pointer.uid == Slider.POINTER_FROM && pointer.get().origin == this.settings.from)
+        {
+            otherPointer.setIndexOver();
+        }
+        else if (pointer.uid == Slider.POINTER_TO && pointer.get().origin == this.settings.to)
+        {
+            otherPointer.setIndexOver();
+        }
     }
 
     public onStateChange(value:string):any
@@ -257,12 +268,12 @@ class Slider {
 
     public disableSlider():void
     {
-        this.domNode.addClass('disabled');
+        this.$el.addClass('disabled');
     }
 
     public enableSlider():void
     {
-        this.domNode.removeClass('disabled');
+        this.$el.removeClass('disabled');
     }
 
     public update():void
@@ -278,10 +289,10 @@ class Slider {
     {
         if(this.settings.skin)
         {
-            this.domNode.removeDependClass(this.settings.skin,'_');
+            this.$el.removeDependClass(this.settings.skin,'_');
         }
 
-        this.domNode.addDependClass( this.settings.skin = skinName, "_" );
+        this.$el.addDependClass( this.settings.skin = skinName, "_" );
     }
 
     /**
@@ -298,9 +309,9 @@ class Slider {
     /**
      * @returns {SliderPointer[]}
      */
-    private getPointers():SliderPointer[]
+    public getPointers():SliderPointer[]
     {
-        return this.o.pointers;
+        return this.components.pointers;
     }
 
     private generateScale():string
@@ -324,7 +335,7 @@ class Slider {
 
     private drawScale():void
     {
-        this.domNode.find(this.defaultOptions.selector + 'scale span ins').each(function()
+        this.$el.find(Slider.SELECTOR + 'scale span ins').each(function()
         {
             jQuery(this).css({ marginLeft: -jQuery(this).outerWidth() / 2 });
         });
@@ -333,11 +344,11 @@ class Slider {
     private onResize():void
     {
         this.sizes = {
-            domWidth: this.domNode.width(),
-            domOffset:this.domNode.offset()
+            domWidth: this.$el.width(),
+            domOffset:this.$el.offset()
         };
 
-        jQuery.each(this.o.pointers, (i:number, pointer:SliderPointer)=>
+        jQuery.each(this.components.pointers, (i:number, pointer:SliderPointer)=>
         {
             this.redraw(pointer);
         });
@@ -355,7 +366,7 @@ class Slider {
             x = Math.round( x / step ) * step;
         }
 
-        var another = this.o.pointers[1-pointer.uid];
+        var another = this.components.pointers[1-pointer.uid];
         if(another && pointer.uid && x < another.value.prc)
         {
             x = another.value.prc;
@@ -389,11 +400,6 @@ class Slider {
             return;
         }
 
-        if (this.settings.minDistance && this.shouldPreventPositionUpdate(pointer))
-        {
-            return;
-        }
-
         this.setValue();
 
         this.setValueElementPosition();
@@ -403,47 +409,14 @@ class Slider {
 
     public setValueElementPosition():void
     {
-        if(this.o.pointers.length == 2)
+        if(this.components.pointers.length == 2)
         {
             var cssProps = {
-                left:this.o.pointers[0].value.prc + '%',
-                width:(this.o.pointers[1].value.prc - this.o.pointers[0].value.prc) + '%'
+                left:this.components.pointers[Slider.POINTER_FROM].value.prc + '%',
+                width:(this.components.pointers[Slider.POINTER_TO].value.prc - this.components.pointers[0].value.prc) + '%'
             };
-            this.o.value.css(cssProps);
+            this.components.value.css(cssProps);
         }
-    }
-
-    /**
-     * @param pointer
-     * @returns {boolean}
-     */
-    public shouldPreventPositionUpdate(pointer:SliderPointer):boolean
-    {
-        var another:SliderPointer = this.o.pointers[1-pointer.uid];
-
-        if(!another)
-        {
-            return false;
-        }
-
-        switch(pointer.uid)
-        {
-            case Slider.POINTER_LEFT:
-                if((pointer.value.origin + this.settings.minDistance) == another.value.origin)
-                {
-                    return true;
-                }
-                break;
-
-            case Slider.POINTER_RIGHT:
-                if((pointer.value.origin - this.settings.minDistance) == another.value.origin)
-                {
-                    return true;
-                }
-                break;
-        }
-
-        return false;
     }
 
     /**
@@ -451,88 +424,89 @@ class Slider {
      */
     public redrawLabels(pointer:SliderPointer):void
     {
-        this.o.labels[pointer.uid].value.html(
-            this.nice(
+        var label = this.components.labels[pointer.uid];
+
+        label.setValue(
+            this.calculate(
                 pointer.value.origin
             )
         );
 
-        var label = this.o.labels[pointer.uid],
-            prc = pointer.value.prc,
-            sizes = {
-                label: label.o.outerWidth(),
+        var prc = pointer.value.prc;
+        var sizes = {
+                label: label.outerWidth(),
                 right: false,
                 border: (prc * this.sizes.domWidth) / 100
             };
 
         if(!this.settings.single)
         {
-            var another:SliderPointer = this.o.pointers[1-pointer.uid],
-                anotherLabel = this.o.labels[another.uid];
+            var another:SliderPointer = pointer.getAdjacentPointer(),
+                anotherLabel = this.components.labels[another.uid];
 
             switch(pointer.uid)
             {
-                case Slider.POINTER_LEFT:
-                    if(sizes.border+sizes.label / 2 > (anotherLabel.o.offset().left - this.sizes.domOffset.left))
+                case Slider.POINTER_FROM:
+                    if(sizes.border+sizes.label / 2 > (anotherLabel.offset().left - this.sizes.domOffset.left))
                     {
-                        anotherLabel.o.css({ visibility: "hidden" });
-                        anotherLabel.value.html(
-                            this.nice(
-                                another.value.origin
+                        anotherLabel.css({ visibility: "hidden" });
+                        anotherLabel.setValue(
+                            this.calculate(
+                              another.value.origin
                             )
                         );
 
-                        label.o.css({ visibility: "visible" });
+                        label.css({ visibility: "visible" });
 
                         prc = (another.value.prc - prc) / 2 + prc;
 
                         if(another.value.prc != pointer.value.prc)
                         {
-                            label.value.html(
-                                this.nice(pointer.value.origin)
-                                + '&nbsp;&ndash;&nbsp;' +
-                                this.nice(another.value.origin)
+                            label.setValue(
+                                this.calculate(pointer.value.origin)
+                                    + '&nbsp;&ndash;&nbsp;' +
+                                this.calculate(another.value.origin)
                             );
 
-                            sizes.label = label.o.outerWidth();
+                            sizes.label = label.outerWidth();
                             sizes.border = (prc * this.sizes.domWidth) / 100;
                         }
                     }
                     else
                     {
-                        anotherLabel.o.css({visibility:'visible'});
+                        anotherLabel.css({visibility:'visible'});
                     }
                     break;
 
-                case Slider.POINTER_RIGHT:
-                    if(sizes.border - sizes.label / 2 < (anotherLabel.o.offset().left - this.sizes.domOffset.left) + anotherLabel.o.outerWidth())
+                case Slider.POINTER_TO:
+                    if(sizes.border - sizes.label / 2 < (anotherLabel.offset().left - this.sizes.domOffset.left) + anotherLabel.outerWidth())
                     {
-                        anotherLabel.o.css({visibility: 'hidden'});
-                        anotherLabel.value.html(
-                            this.nice(
+                        anotherLabel.css({visibility: 'hidden'});
+                        anotherLabel.setValue(
+                            this.calculate(
                                 another.value.origin
                             )
                         );
 
-                        label.o.css({visibility: 'visible'});
+                        label.css({visibility: 'visible'});
 
                         prc = (prc - another.value.prc) / 2 + another.value.prc;
 
                         if (another.value.prc != pointer.value.prc)
                         {
-                            label.value.html(
-                                this.nice(another.value.origin)
+                            label.setValue(
+                                this.calculate(another.value.origin)
                                     + "&nbsp;&ndash;&nbsp;" +
-                                this.nice(pointer.value.origin)
+                                this.calculate(pointer.value.origin)
                             );
 
-                            sizes.label = label.o.outerWidth();
+                            sizes.label = label.outerWidth();
                             sizes.border = (prc * this.sizes.domWidth) / 100;
                         }
                     }
                     else
                     {
-                        anotherLabel.o.css({visibility:'visible'});
+                        anotherLabel.css({visibility:'visible'});
                     }
                     break;
             }
@@ -543,7 +517,7 @@ class Slider {
         if(anotherLabel)
         {
             sizes = {
-                label: anotherLabel.o.outerWidth(),
+                label: anotherLabel.outerWidth(),
                 right:false,
                 border:(another.value.prc * this.sizes.domWidth) / 100
             };
@@ -563,25 +537,25 @@ class Slider {
 
         var limits = [true, true];
 
-        for(var key in this.o.pointers)
+        for(var key in this.components.pointers)
         {
             if(!this.settings.single || key == 0)
             {
-                if(!this.o.pointers.hasOwnProperty(key))
+                if(!this.components.pointers.hasOwnProperty(key))
                 {
                     continue;
                 }
 
-                var pointer:SliderPointer = this.o.pointers[key],
-                    label = this.o.labels[pointer.uid],
-                    labelLeft = label.o.offset().left - this.sizes.domOffset.left;
+                var pointer:SliderPointer = this.components.pointers[key],
+                    label = this.components.labels[pointer.uid],
+                    labelLeft = label.offset().left - this.sizes.domOffset.left;
 
-                if(labelLeft < this.o.limits[0].o.outerWidth())
+                if(labelLeft < this.components.limits[Slider.POINTER_FROM].outerWidth())
                 {
                     limits[0] = false;
                 }
 
-                if(labelLeft + label.o.outerWidth() > this.sizes.domWidth - this.o.limits[1].o.outerWidth())
+                if(labelLeft + label.outerWidth() > this.sizes.domWidth - this.components.limits[Slider.POINTER_TO].outerWidth())
                 {
                     limits[1] = false;
                 }
@@ -592,11 +566,11 @@ class Slider {
         {
             if(limits[i])
             {
-                this.o.limits[i].o.fadeIn('fast');
+                this.components.limits[i].fadeIn('fast');
             }
             else
             {
-                this.o.limits[i].o.fadeOut('fast');
+                this.components.limits[i].fadeOut('fast');
             }
         }
     }
@@ -635,11 +609,11 @@ class Slider {
             right: 'auto'
         };
 
-        label.o.css(cssProps);
+        label.css(cssProps);
 
         if (sizes.right)
         {
-            label.o.css({ left: "auto", right: 0 });
+            label.css({ left: "auto", right: 0 });
         }
 
         return sizes;
@@ -649,7 +623,7 @@ class Slider {
     {
         var value = this.getValue();
 
-        this.inputNode.val(value);
+        this.$input.val(value);
 
         this.onStateChange(value);
     }
@@ -666,7 +640,7 @@ class Slider {
 
         var value = '';
 
-        jQuery.each(this.o.pointers,(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.components.pointers,(i:number,pointer:SliderPointer)=>
         {
             if(pointer.value.prc != undefined && !isNaN(pointer.value.prc))
             {
@@ -688,7 +662,7 @@ class Slider {
         }
 
         var value = '';
-        jQuery.each( this.o.pointers, (i:number,pointer:SliderPointer)=>
+        jQuery.each( this.components.pointers, (i:number,pointer:SliderPointer)=>
         {
             if( pointer.value.prc != undefined && !isNaN(pointer.value.prc) )
             {
@@ -813,7 +787,7 @@ class Slider {
      * @param value
      * @returns {*}
      */
-    public nice(value:any):number
+    private calculate(value:any):string
     {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
@@ -822,28 +796,28 @@ class Slider {
             return jQuery.formatNumber(Number(value), this.settings.format || {}).replace( /-/gi, "&minus;" );
         }
 
-        return Number(value);
+        return Number(value).toString();
     }
 
     public destroy():void
     {
-        jQuery.each(this.o.pointers, (i:number,sliderPointer:SliderPointer)=>
+        jQuery.each(this.components.pointers, (i:number,sliderPointer:SliderPointer)=>
         {
             sliderPointer.destroy();
         });
 
-        jQuery.each(this.o.labels, (i:number,element)=>
+        jQuery.each(this.components.labels, (i:number,sliderValueLabel:SliderValueLabel)=>
         {
-            element.remove();
+            sliderValueLabel.destroy();
         });
 
-        jQuery.each(this.o.limits, (i:number,element)=>
+        jQuery.each(this.components.limits, (i:number,sliderLimitLabel:SliderLimitLabel)=>
         {
-            element.remove();
+            sliderLimitLabel.destroy();
         });
 
-        this.o.value.remove();
+        this.components.value.remove();
 
-        this.domNode.remove();
+        this.$el.remove();
     }
 }

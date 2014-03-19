@@ -4,7 +4,7 @@
 
 /// <reference path="../js/jquery.slider.ts" />
 
-jQuery.slider = function (node:HTMLElement, settings:ISliderSettings, force:boolean = false):Slider
+jQuery.slider = function (node:HTMLInputElement, settings:ISliderSettings, force:boolean = false):Slider
 {
     var jNode = jQuery(node);
     if (!jNode.data("jslider"))

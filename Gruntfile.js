@@ -6,8 +6,8 @@ module.exports = function(grunt)
 
     grunt.loadTasks('grunt');
 
-    grunt.registerTask('build',
-        'Copies resources, compiles LESS, minifies JS.',
+    grunt.registerTask('deploy',
+        'Compiles LESS, minifies JS.',
         [
             'less:build',
             'typescript:build',
@@ -16,10 +16,21 @@ module.exports = function(grunt)
         ]
     );
 
-    grunt.registerTask('watch',
-        'Copies resources, compiles LESS, minifies JS.',
+    grunt.registerTask('build:js',
+        'Minifies JS.',
         [
-            'watch'
+            'typescript:build',
+            'concat',
+            'uglify'
+        ]
+    );
+
+    grunt.registerTask('build:less',
+        'Minifies JS.',
+        [
+            'less:build',
+            'concat',
+            'uglify'
         ]
     );
 };

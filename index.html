@@ -43,7 +43,7 @@
 
 </head>
 <body>
-
+<input type="range"/>
 <div class="layout">
 
     <div class="layout-slider-settings">
@@ -55,31 +55,33 @@
   round: 0,
   dimension: "&nbsp;$",
   skin: "plastic",
-  minDistance: 5000
+  distance:{
+    min:5000
+  },
 }</pre>
     </div>
     <div class="layout-slider" style="width: 100%">
         <input id="Slider1" type="text" name="price" value="30000.5;60000"/>
     </div>
     <script type="text/javascript" charset="utf-8">
-        jQuery("#Slider1").slider({ from: 1000, to: 100000, step: 500, smooth: true, round: 0, dimension: "&nbsp;$", skin: "plastic", minDistance: 5000 });
+        jQuery("#Slider1").slider({ from: 1000, to: 100000, step: 500, smooth: true, round: 0, dimension: "&nbsp;$", skin: "plastic", distance: {min: 5000}});
     </script>
 
     <div class="layout-slider-settings">
 <pre>{
-  from: 5,
+  from: 0,
   to: 50,
   step: 2.5,
   round: 1,
   format: { format: '##.0', locale: 'de' },
-  dimension: '&amp;nbsp;€'
+  dimension: '&amp;nbsp;€',
 }</pre>
     </div>
     <div class="layout-slider">
-        <input id="SliderSingle" type="text" name="price" value="20"/>
+        <input id="SliderSingle" type="text" name="price" value="0"/>
     </div>
     <script type="text/javascript" charset="utf-8">
-        jQuery("#SliderSingle").slider({ from: 5, to: 50, step: 2.5, round: 1, format: { format: '##.0', locale: 'de' }, dimension: '&nbsp;€', skin: "round" });
+        jQuery("#SliderSingle").slider({from: 0, to: 50, step: 2.5, round: 1, format: { format: '##.0', locale: 'de' }, dimension: '&nbsp;€', skin: "round" });
     </script>
 
     <div class="layout-slider-settings">
@@ -92,7 +94,7 @@
 }</pre>
     </div>
     <div class="layout-slider">
-        <input id="Slider2" type="text" name="price" value="5000;50000"/>
+        <input id="Slider2" type="text" name="price" value="5000;5000"/>
     </div>
     <script type="text/javascript" charset="utf-8">
         jQuery("#Slider2").slider({ from: 5000, to: 150000, heterogeneity: ['50/50000'], step: 1000, dimension: '&nbsp;$' });
@@ -118,7 +120,10 @@
 
     <div class="layout-slider-settings">
 <pre>{
-  minDistance: 5,
+  distance:{
+    min:5,
+    max:15
+  },
   from: 2,
   to: 65,
   limits: false,
@@ -132,10 +137,10 @@
 }</pre>
     </div>
     <div class="layout-slider">
-        <input id="Slider4" type="text" name="area" value="2;10"/>
+        <input id="Slider4" type="text" name="area" value="20;30"/>
     </div>
     <script type="text/javascript" charset="utf-8">
-        jQuery("#Slider4").slider({minDistance: 5, from: 2, to: 65, limits: false, step: 1, dimension: '', skin: "blue", callback: function(value)
+        jQuery("#Slider4").slider({distance: {min: 5, max: 15}, from: 2, to: 65, limits: false, step: 1, dimension: '', skin: "blue", callback: function(value)
         {
             console.dir(this);
         } });
@@ -154,9 +159,6 @@
     var hours = Math.floor( value / 60 );
     var mins = ( value - hours*60 );
     return (hours &lt; 10 ? "0"+hours : hours) + ":" + ( mins == 0 ? "00" : mins );
-  },
-  onstatechange: function( value ){
-    console.dir( this );
   }
 }</pre>
     </div>
@@ -173,6 +175,46 @@
         }})
 
     </script>
+
+</div>
+
+<div class="layout-slider-settings">
+<pre>{
+  from: 480,
+  to: 1020,
+  step: 15,
+  dimension: '',
+  scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
+  limits: false,
+  calculate: function( value ){
+    var hours = Math.floor( value / 60 );
+    var mins = ( value - hours*60 );
+    return (hours &lt; 10 ? "0"+hours : hours) + ":" + ( mins == 0 ? "00" : mins );
+  }
+}</pre>
+</div>
+<div class="layout-slider">
+    <input id="Slider6" type="text" name="area" value="600;720"/>
+</div>
+<script type="text/javascript" charset="utf-8">
+
+    jQuery("#Slider6").slider({
+        from: 480,
+        to: 1020,
+        step: 15,
+        dimension: '',
+        skin: 'fancy_round',
+        scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
+        limits: false,
+        calculate: function(value)
+        {
+            var hours = Math.floor(value / 60);
+            var mins = ( value - hours * 60 );
+            return (hours < 10 ? "0" + hours : hours) + ":" + ( mins == 0 ? "00" : mins );
+        }
+    });
+
+</script>
 
 </div>
 

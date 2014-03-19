@@ -1,3 +1,5 @@
+@import "mixins";
+
 .jslider {
   display: block;
   width: 100%;
@@ -5,13 +7,6 @@
   position: relative;
   top: 0.6em;
   font-family: Arial, sans-serif;
-
-  td, th {
-    padding: 0;
-    vertical-align: top;
-    text-align: left;
-    border: 0;
-  }
 
   .jslider-label small,
   .jslider-value small {
@@ -66,18 +61,6 @@
     top: -4px;
     margin-left: -6px;
     cursor: pointer;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 0;
-    vertical-align: top;
-    tr, td {
-      width: 100%;
-      vertical-align: top;
-
-    }
   }
 
   .jslider-pointer-hover {

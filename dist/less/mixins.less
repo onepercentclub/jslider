@@ -1,3 +1,26 @@
+.slider-handle(@d: 16px) {
+  width: @d;
+  height: @d;
+
+  border-top: 1px solid #EEEEE2;
+  border-bottom: 1px solid rgb(136, 136, 136);
+  .border-radius(@d/2);
+
+  margin: -13px 0 0 -4px;
+  outline: none;
+  .radial-gradient(#e3e3e3, #f5f5f5, #cdcdcd);
+  .box-shadow(0px 2px 9px rgba(44, 35, 35, 0.3));
+
+  .lt-ie10 & {
+    background-color: #e3e3e3;
+    filter: none;
+  }
+
+  .no-touch &:hover {
+    .drop-shadow(0, 0, 4px, 0.5);
+  }
+}
+
 .linear-gradient(@light, @dark) {
   background-image: -webkit-gradient(linear, left top, left bottom, from(@light), to(@dark));
   background-image: -webkit-linear-gradient(@light, @dark);

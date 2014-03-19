@@ -1,0 +1,51 @@
+@import "mixins";
+
+.jslider_fancy_round {
+
+  width: 80%;
+  max-width: 200px;
+  height: 10px;
+  margin: 20px auto 30px auto;
+  overflow: visible;
+  background-color: #eaeaea;
+
+  position: relative;
+  .border-radius(2px);
+
+  @media (min-height: 320px) {
+    margin: 20px auto;
+  }
+
+  input {
+    display: none;
+  }
+
+  .jslider-bg {
+    height: 10px;
+    .v {
+      // position: absolute;
+      height: 10px;
+      top: -10px;
+
+      // .gradient(#a5bf56, #90b042, #bace6a);
+      .gradient(#94c844, #59a429, #94c844);
+    }
+  }
+
+  .jslider-value {
+    background: none;
+    top: -40px;
+    padding-left: 20px;
+  }
+
+  .jslider-pointer {
+    display: block;
+
+    .slider-handle(24px);
+    position: absolute;
+  }
+
+  .jslider-label {
+    top: -30px;
+  }
+}
