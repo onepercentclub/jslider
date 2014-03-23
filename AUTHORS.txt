@@ -1,0 +1,3 @@
+Credits to:
+Original implementation by [Egor Khmelev](https://github.com/egorkhmelev)
+Maintained by [SalesSeek Limited](https://github.com/SalesSeek/) before fork.

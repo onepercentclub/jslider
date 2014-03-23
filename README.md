@@ -1,17 +1,10 @@
-# jQuery Slider plugin
+# jQuery Touch Slider plugin
 jQuery Slider is easy to use and multifunctional jQuery plugin.
-
 Note: As of v2.0.0 this library has a dependency of [Hammer.js](http://eightmedia.github.io/hammer.js/)
 
-
-## Bugs / Pull requests
-Original implementation by [Egor Khmelev](https://github.com/egorkhmelev)
-
-Maintained by [SalesSeek Limited](https://github.com/SalesSeek/)
-
-Ported to Typescript for better codestyle, and improved inheritance by [David A T Børresen](https://github.com/abdavid/)
-
-Added grunt task runner for improved and easier build process by [David A T Børresen](https://github.com/abdavid/)
+## Improvements
+* Ported to Typescript for better codestyle, and improved inheritance.
+* Added grunt task runner for improved and easier build process.
 
 ## Build process
 You need to have grunt installed to a manual build of this repo. When grunt is installed and available in the project directory you
@@ -33,4 +26,4 @@ to your stylesheet is necessary to prevent IE from navigating back or forth in h
 on your project. 
 
 ## License
-(MIT License) — Copyright &copy Egor Khmelev;
+MIT License
