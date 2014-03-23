@@ -1,309 +1,99 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-  <title>jQuery Slider plugin</title>
-  <meta name="description" content="">
-  <meta name="author" content="">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
-  <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0"/>
+    <title>Jslider by abdavid</title>
+  </head>
 
-  <!-- CSS concatenated and minified via ant build script-->
-  <link rel="stylesheet" href="plugins/google-code-prettify/prettify.css" type="text/css" charset="utf-8">
-  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" charset="utf-8">
-  <link rel="stylesheet" href="css/jquery.slider.min.css" type="text/css" charset="utf-8">
-  <link rel="stylesheet" href="css/main.css" type="text/css" charset="utf-8">
-  <!-- end CSS-->
-
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script type="text/javascript" src="plugins/google-code-prettify/prettify.js"></script>
-  <script type="text/javascript" src="js/jquery.slider.min.js"></script>
-  <script type="text/javascript" src="js/main.js"></script>
-
-  <script type="text/javascript">
-
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-8478924-6']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-
-  </script>
-</head>
-
-<body>
-  <div class="container">
-
-    <div class="page-header">
-      <h1>jQuery Slider plugin <small><a href="http://github.com/SalesSeek/jslider">View project on GitHub</a></small></h1>
-    </div>
-    <p>jQuery Slider is easy to use and multifunctional jQuery plugin that supports any webkit based touch mobile devices such as iPhone/iPod/iPad and Android. Below you can find demos and documentation.</p>
-    <br/>
-    <div class="slider-preview well">
-      <div class="inline">Slider placed in string</div>
-      <div class="inline">
-        <div class="slider"><input id="Slider6" type="slider" name="price" value="30000.5;60000" /></div>
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Jslider</h1>
+        <h2>jQuery Touch Slider plugin</h2>
+        <a href="https://github.com/abdavid/jslider" class="button"><small>View project on</small>GitHub</a>
       </div>
-      <div class="inline">with</div>
-      <div class="inline">
-        <select name="skin" onchange="change_slider( this );">
-          <option value="classic">classic</option>
-          <option value="plastic" selected="selected">plastic</option>
-          <option value="round">round</option>
-          <option value="round_plastic">round_plastic</option>
-        </select>
-      </div>
-      <div class="inline">skin.</div>
-    </div>
+    </header>
 
-    <br/><br/>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="jquery-slider-plugin" class="anchor" href="#jquery-slider-plugin"><span class="octicon octicon-link"></span></a>jQuery Slider plugin</h1>
 
-    <h2>Demos</h2>
-    <br/>
-    <div class="row">
-      <div class="span8">
-<pre class="prettyprint linenums">
-{
-  from: 5,
-  to: 50,
-  step: 2.5,
-  round: 1,
-  format: { format: '##.0', locale: 'de' },
-  dimension: '&amp;nbsp;€'
-}
-</pre>
-      </div>
-      <div class="span4">
-        <input id="SliderSingle" type="slider" name="price" value="20" />
-        <br/><br/>
-        <div class="alert alert">
-          <h4 class="alert-heading">Notice!</h4>
-          New option <strong>format</strong>. Check docs and usage on <a href="http://code.google.com/p/jquery-numberformatter/">http://code.google.com/p/jquery-numberformatter/</a>
-        </div>
-      </div>
-      <script type="text/javascript" charset="utf-8">
-        jQuery("#SliderSingle").slider({ from: 5, to: 50, step: 2.5, round: 1, format: { format: '##.0', locale: 'de' }, dimension: '&nbsp;€', skin: "round" });
-      </script>
-    </div>
+<p>jQuery Slider is easy to use and multifunctional jQuery plugin.</p>
 
-    <br/><br/>
+<p>Note: As of v2.0.0 this library has a dependency of <a href="http://eightmedia.github.io/hammer.js/">Hammer.js</a></p>
 
-    <div class="row">
-      <div class="span8">
-<pre class="prettyprint linenums">
-{
-  from: 5000,
-  to: 150000,
-  heterogeneity: ['50/50000'],
-  step: 1000,
-  dimension: '&amp;nbsp;$'
-}
-</pre>
-      </div>
-      <div class="span4">
-        <input id="Slider2" type="slider" name="price" value="5000;50000" />
-      </div>
-      <script type="text/javascript" charset="utf-8">
-        jQuery("#Slider2").slider({ from: 5000, to: 150000, heterogeneity: ['50/50000'], step: 1000, dimension: '&nbsp;$' });
-      </script>
-    </div>
-    
-    <br/><br/>
+<h2>
+<a name="bugs--pull-requests" class="anchor" href="#bugs--pull-requests"><span class="octicon octicon-link"></span></a>Bugs / Pull requests</h2>
 
-    <div class="row">
-      <div class="span8">
-<pre class="prettyprint linenums">
-{
-  from: 0,
-  to: 500,
-  heterogeneity: ['50/100', '75/250'],
-  scale: [0, '|', 50, '|' , '100', '|', 250, '|', 500],
-  limits: false,
-  step: 1,
-  dimension: '&amp;nbsp;m&lt;small&gt;2&lt;/small&gt;'
-}
-</pre>
-      </div>
-      <div class="span4">
-        <input id="Slider3" type="slider" name="area" value="25;75" />
-        <br/><br/>
-        <div class="alert">
-          <h4 class="alert-heading">Notice!</h4>
-          That half of the slider here is just 1/5 of whole slider — this is what <strong>heterogeneity</strong> for.
-        </div>
-      </div>
-      <script type="text/javascript" charset="utf-8">
-        jQuery("#Slider3").slider({ from: 0, to: 500, heterogeneity: ['50/100', '75/250'], scale: [0, '|', 50, '|', '100', '|', 250, '|', 500], limits: false, step: 1, dimension: '&nbsp;m<small>2</small>', skin: "round_plastic" });
-      </script>
-    </div>
-    
-    <br/><br/>
-    
-    <div class="row">
-      <div class="span8">
-<pre class="prettyprint linenums">
-{
-  from: 1,
-  to: 30,
-  heterogeneity: ['50/5', '75/15'],
-  scale: [1, '|', 3, '|', '5', '|', 15, '|', 30],
-  limits: false,
-  step: 1,
-  dimension: '',
-  skin: "blue"
-}
-</pre>
-      </div>
-      <div class="span4">
-        <input id="Slider4" type="slider" name="area" value="2;10" />
-      </div>
-      <script type="text/javascript" charset="utf-8">
-        jQuery("#Slider4").slider({ from: 1, to: 30, heterogeneity: ['50/5', '75/15'], scale: [1, '|', 3, '|', '5', '|', 15, '|', 30], limits: false, step: 1, dimension: '', skin: "blue", callback: function( value ){ console.dir( this ); } });
-      </script>
-    </div>
-    
-    <br/><br/>
+<p>Original implementation by <a href="https://github.com/egorkhmelev">Egor Khmelev</a></p>
 
-    <div class="row">
-      <div class="span8">
-<pre class="prettyprint linenums">
-{
-  from: 480,
-  to: 1020,
-  step: 15,
-  dimension: '',
-  scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-  limits: false,
-  calculate: function( value ){
-    var hours = Math.floor( value / 60 );
-    var mins = ( value - hours*60 );
-    return (hours &lt; 10 ? "0"+hours : hours) + ":" + ( mins == 0 ? "00" : mins );
-  },
-  onstatechange: function( value ){
-    console.dir( this );
-  }
-}
-</pre>
-      </div>
-      <div class="span4">
-        <input id="Slider5" type="slider" name="area" value="600;720" />
-      </div>
-      <script type="text/javascript" charset="utf-8">
+<p>Maintained by <a href="https://github.com/SalesSeek/">SalesSeek Limited</a></p>
 
-        jQuery("#Slider5").slider({ from: 480, to: 1020, step: 15, dimension: '', scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'], limits: false, calculate: function( value ){
-          var hours = Math.floor( value / 60 );
-          var mins = ( value - hours*60 );
-          return (hours < 10 ? "0"+hours : hours) + ":" + ( mins == 0 ? "00" : mins );
-        }})
+<p>Ported to Typescript for better codestyle, and improved inheritance by <a href="https://github.com/abdavid/">David A T Børresen</a></p>
 
-      </script>
-    </div>
-    
-    <br/><br/>
-    
-    
-    <h2>Documentation</h2>
-    <br/>
-    
-    <div class="row">
-      <div class="span4">
-        <h3>Basic functions</h3>
-        <dl>
-          <dt><code>$(".selector")<wbr/><nobr>.slider()</nobr></code></dt>
-          <dd>Get inner slider object</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("value")</nobr></code></dt>
-          <dd>Get values scope</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("value", p1, p2)</nobr></code></dt>
-          <dd>Set values of the pointers p1 &amp; p2</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("prc")</nobr></code></dt>
-          <dd>Get percentage values scope</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("prc", p1, p2)</nobr></code></dt>
-          <dd>Set percentage values of the pointers p1 &amp; p2</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("calculatedValue")</nobr></code></dt>
-          <dd>Get values scope from "calculate" function</dd>
-          
-          <dt><code>$(".selector")<wbr/><nobr>.slider("skin", skin)</nobr></code></dt>
-          <dd>Set slider skin</dd>
-        </dl>
-      </div>
-      <div class="span8">
-        <h3>Build options</h3>
-        
-        <div class="row">
-          <div class="span4">
-            <dl>
-              <dt>from <code>number</code></dt>
-              <dd>Left limit</dd>
+<p>Added grunt task runner for improved and easier build process by <a href="https://github.com/abdavid/">David A T Børresen</a></p>
 
-              <dt>to <code>number</code></dt>
-              <dd>Right limit</dd>
+<h2>
+<a name="build-process" class="anchor" href="#build-process"><span class="octicon octicon-link"></span></a>Build process</h2>
 
-              <dt>step <code>number</code></dt>
-              <dd>Step of pointer</dd>
+<p>You need to have grunt installed to a manual build of this repo. When grunt is installed and available in the project directory you
+only need to run <code>grunt build</code> which then will spit out four .js files under dist:</p>
 
-              <dt>round <code>number</code></dt>
-              <dd>How many numbers allowed after comma</dd>
+<ul>
+<li>jquery.slider-bundled.js</li>
+<li>jquery.slider-bundled.min.js</li>
+<li>jquery.slider-standalone.js</li>
+<li>jquery.slider-standalone.min.js</li>
+</ul><h2>
+<a name="tips--tricks" class="anchor" href="#tips--tricks"><span class="octicon octicon-link"></span></a>Tips &amp; Tricks</h2>
 
-              <dt>format <code>object</code></dt>
-              <dd>How to format numbers, readme for <a href="http://code.google.com/p/jquery-numberformatter/">how to use</a></dd>
+<p>Since the original implementation has been improved to properly support touch screens, <a href="http://eightmedia.github.io/hammer.js/">Hammer.js</a> was the library of
+choise to do this. While doing tests on this on Windows 8.1 machines and tablets it has been suggested that adding</p>
 
-              <dt>heterogeneity <code>array</code></dt>
-              <dd>[percentage of point on slider]/[value in that point]</dd>
+<pre><code>.slider {
+          -ms-touch-action: none;
+      }
+</code></pre>
 
-              <dt>dimension <code>string</code></dt>
-              <dd>Show this after number</dd>
-            </dl>
-          </div>
-          <div class="span4">
-            <dl>
+<p>to your stylesheet is necessary to prevent IE from navigating back or forth in history when interacting with touch enabled elements
+on your project. </p>
 
-              <dt>limits <code>boolean</code></dt>
-              <dd>Show or not limits</dd>
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-              <dt>scale <code>array</code></dt>
-              <dd>Labels under slider, '|' — show just line</dd>
+<p>(MIT License) — Copyright &amp;copy Egor Khmelev;</p>
+        </section>
 
-              <dt>skin <code>string</code></dt>
-              <dd>If you define new skin, just write here it name, in sources defined blue skin for example</dd>
+        <aside id="sidebar">
+          <a href="https://github.com/abdavid/jslider/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/abdavid/jslider/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
 
-              <dt>calculate <code>function(value)</code></dt>
-              <dd>Function to calculate final numbers, for example time.</dd>
+          <p class="repo-owner"><a href="https://github.com/abdavid/jslider"></a> is maintained by <a href="https://github.com/abdavid">abdavid</a>.</p>
 
-              <dt>onstatechange <code>function(value)</code></dt>
-              <dd>Function fires while slider change state.</dd>
-
-              <dt>callback <code>function(value)</code></dt>
-              <dd>Function fires on "mouseup" event.</dd>
-            </dl>
-          </div>
-        </div>
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
       </div>
     </div>
-    
-    <br/>
 
-    <p class="sources">
-      <a class="btn btn-info btn-large" href="http://github.com/SalesSeek/jslider">View project on GitHub</a>
-      <a class="btn btn-large" href="https://github.com/SalesSeek/jslider/zipball/master">Download jQuery Slider</a>
-    </p>
-
-    <br/><br/>
-
-    <h2>License</h2>
-    <p>(MIT License) — Copyright © 2012 Egor Khmelev</p>
-    
-    <br/><br/>
-  </div>
-</body>
+  
+  </body>
 </html>
