@@ -2,18 +2,20 @@ module.exports = function(grunt)
 {
 
     var standalone = [
-        'vendor/jshashtable-2.1_src.js',
-        'vendor/jquery.dependClass-0.1.js',
-        'vendor/jquery.numberformatter-1.2.3.js',
-        'js/jquery.sliderValueLabel.js',
-        'js/jquery.sliderTemplate.js',
-        'js/jquery.sliderDraggable.js',
-        'js/jquery.sliderPointer.js',
-        'js/jquery.slider.js',
-        'js/jquery.sliderBootstrap.js'
+            'src/vendor/jshashtable-2.1_src.js',
+            'src/vendor/jquery.dependClass-0.1.js',
+            'src/vendor/jquery.numberformatter-1.2.3.js',
+            'src/js/SliderUXComponent.js',
+            'src/js/SliderLimitLabel.js',
+            'src/js/SliderValueLabel.js',
+            'src/js/SliderTemplate.js',
+            'src/js/SliderDraggable.js',
+            'src/js/SliderPointer.js',
+            'src/js/Slider.js',
+            'src/js/Bootstrap.js'
         ],
         bundled = [
-            'vendor/hammerjs/hammer.js'
+            'src/vendor/hammerjs/hammer.js'
         ];
 
     grunt.config('uglify', {
