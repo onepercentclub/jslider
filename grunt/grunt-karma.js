@@ -11,7 +11,7 @@ module.exports = function (grunt) {
             browsers: ['Chrome'],
             reporters: ['dots', 'junit', 'coverage'],
             junitReporter: {
-                outputFile: '../result/junit.xml'
+                outputFile: 'build/junit.xml'
             },
             colors: false,
             preprocessors: {
@@ -24,7 +24,7 @@ module.exports = function (grunt) {
             // optionally, configure the reporter
             coverageReporter: {
                 type : 'html',
-                dir : '../result/coverage/'
+                dir : 'build/coverage/'
             }
         }
     });
