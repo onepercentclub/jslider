@@ -1375,6 +1375,118 @@ Hammer.gestures.Transform = {
   else {
     window.Hammer = Hammer;
   }
+})(this);;/*! jQuery plugin for Hammer.JS - v1.0.1 - 2014-02-03
+ * http://eightmedia.github.com/hammer.js
+ *
+ * Copyright (c) 2014 Jorik Tangelder <j.tangelder@gmail.com>;
+ * Licensed under the MIT license */(function(window, undefined) {
+  'use strict';
+
+function setup(Hammer, $) {
+  /**
+   * bind dom events
+   * this overwrites addEventListener
+   * @param   {HTMLElement}   element
+   * @param   {String}        eventTypes
+   * @param   {Function}      handler
+   */
+  Hammer.event.bindDom = function(element, eventTypes, handler) {
+    $(element).on(eventTypes, function(ev) {
+      var data = ev.originalEvent || ev;
+
+      if(data.pageX === undefined) {
+        data.pageX = ev.pageX;
+        data.pageY = ev.pageY;
+      }
+
+      if(!data.target) {
+        data.target = ev.target;
+      }
+
+      if(data.which === undefined) {
+        data.which = data.button;
+      }
+
+      if(!data.preventDefault) {
+        data.preventDefault = ev.preventDefault;
+      }
+
+      if(!data.stopPropagation) {
+        data.stopPropagation = ev.stopPropagation;
+      }
+
+      handler.call(this, data);
+    });
+  };
+
+  /**
+   * the methods are called by the instance, but with the jquery plugin
+   * we use the jquery event methods instead.
+   * @this    {Hammer.Instance}
+   * @return  {jQuery}
+   */
+  Hammer.Instance.prototype.on = function(types, handler) {
+    return $(this.element).on(types, handler);
+  };
+  Hammer.Instance.prototype.off = function(types, handler) {
+    return $(this.element).off(types, handler);
+  };
+
+
+  /**
+   * trigger events
+   * this is called by the gestures to trigger an event like 'tap'
+   * @this    {Hammer.Instance}
+   * @param   {String}    gesture
+   * @param   {Object}    eventData
+   * @return  {jQuery}
+   */
+  Hammer.Instance.prototype.trigger = function(gesture, eventData) {
+    var el = $(this.element);
+    if(el.has(eventData.target).length) {
+      el = $(eventData.target);
+    }
+
+    return el.trigger({
+      type   : gesture,
+      gesture: eventData
+    });
+  };
+
+
+  /**
+   * jQuery plugin
+   * create instance of Hammer and watch for gestures,
+   * and when called again you can change the options
+   * @param   {Object}    [options={}]
+   * @return  {jQuery}
+   */
+  $.fn.hammer = function(options) {
+    return this.each(function() {
+      var el = $(this);
+      var inst = el.data('hammer');
+      // start new hammer instance
+      if(!inst) {
+        el.data('hammer', new Hammer(this, options || {}));
+      }
+      // change the options
+      else if(inst && options) {
+        Hammer.utils.extend(inst.options, options);
+      }
+    });
+  };
+}
+
+  // Based off Lo-Dash's excellent UMD wrapper (slightly modified) - https://github.com/bestiejs/lodash/blob/master/lodash.js#L5515-L5543
+  // some AMD build optimizers, like r.js, check for specific condition patterns like the following:
+  if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+    // define as an anonymous module
+    define(['hammerjs', 'jquery'], setup);
+  
+  }
+  else {
+    setup(window.Hammer, window.jQuery || window.Zepto);
+  }
 })(this);;/**
  * Copyright 2010 Tim Down.
  *
@@ -2308,7 +2420,136 @@ var Hashtable = (function() {
     	return value;
 	};
 
- })(jQuery);;var SliderUXComponent = (function () {
+ })(jQuery);;var MathHelper = (function () {
+    function MathHelper() {
+    }
+    MathHelper.clamp = function (delta, min, max) {
+        return Math.min(Math.max(delta, min), max);
+    };
+
+    MathHelper.round = function (value, step, round) {
+        if (typeof round === "undefined") { round = 0; }
+        value = Math.round(value / step) * step;
+
+        if (round) {
+            value = Math.round(value * Math.pow(10, round)) / Math.pow(10, round);
+        } else {
+            value = Math.round(value);
+        }
+
+        return value;
+    };
+
+    MathHelper.prcToValue = function (prc, pointer) {
+        var settings = pointer.settings;
+        if (settings.hetrogeneity && settings.hetrogeneity.length > 0) {
+            var heterogeneity = settings.hetrogeneity;
+            var start = 0;
+            var from = settings.from;
+            var value;
+
+            for (var i = 0; i <= heterogeneity.length; i++) {
+                var v;
+                if (heterogeneity[i]) {
+                    v = heterogeneity[i].split('/');
+                } else {
+                    v = [100, settings.to];
+                }
+
+                v[0] = Number(v[0]);
+                v[1] = Number(v[1]);
+
+                if (prc >= start && prc <= v[0]) {
+                    value = from + ((prc - start) * (v[1] - from)) / (v[0] - start);
+                }
+
+                start = v[0];
+                from = v[1];
+            }
+        } else {
+            value = settings.from + (prc * settings.interval) / 100;
+        }
+
+        return MathHelper.round(value, settings.step, settings.round);
+    };
+
+    MathHelper.valueToPrc = function (value, pointer) {
+        var prc;
+        var settings = pointer.settings;
+        if (settings.hetrogeneity && settings.hetrogeneity.length > 0) {
+            var hetrogeneity = settings.hetrogeneity;
+            var start = 0;
+            var from = settings.from;
+            var v;
+
+            for (var i = 0; i <= hetrogeneity.length; i++) {
+                if (hetrogeneity[i]) {
+                    v = hetrogeneity[i].split('/');
+                } else {
+                    v = [100, settings.to];
+                }
+
+                v[0] = Number(v[0]);
+                v[1] = Number(v[1]);
+
+                if (value >= from && value <= v[1]) {
+                    prc = MathHelper.calcLimits(start + (value - from) * (v[0] - start) / (v[1] - from), pointer);
+                }
+
+                start = v[0];
+                from = v[1];
+            }
+        } else {
+            prc = MathHelper.calcLimits((value - settings.from) * 100 / settings.interval, pointer);
+        }
+
+        return prc;
+    };
+
+    MathHelper.calcLimits = function (delta, pointer) {
+        var settings = pointer.settings;
+        if (!settings.smooth) {
+            var step = settings.step * 100 / (settings.interval);
+            delta = Math.round(delta / step) * step;
+        }
+
+        var another = pointer.getAdjacentPointer();
+        if (another && pointer.uid && delta < another.get().prc) {
+            delta = another.get().prc;
+        }
+
+        if (another && !pointer.uid && delta > another.get().prc) {
+            delta = another.get().prc;
+        }
+
+        if (delta < 0) {
+            delta = 0;
+        }
+
+        if (delta > 100) {
+            delta = 100;
+        }
+
+        return Math.round(delta * 10) / 10;
+    };
+    return MathHelper;
+})();
+//# sourceMappingURL=MathHelper.js.map
+;var SliderTemplate = (function () {
+    function SliderTemplate(template) {
+        this.cache = this.createTemplateFn(template);
+    }
+    SliderTemplate.prototype.render = function (data) {
+        return this.cache(data);
+    };
+
+    SliderTemplate.prototype.createTemplateFn = function (template) {
+        return new Function("data", "var p=[]," + "print=function(){" + "p.push.apply(p,arguments);" + "};" + "with(data){p.push('" + template.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
+    };
+    return SliderTemplate;
+})();
+//# sourceMappingURL=SliderTemplate.js.map
+;var SliderUXComponent = (function () {
     function SliderUXComponent() {
         this.initialized = false;
     }
@@ -2352,6 +2593,7 @@ var Hashtable = (function() {
     };
     return SliderUXComponent;
 })();
+//# sourceMappingURL=SliderUXComponent.js.map
 ;var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -2375,6 +2617,7 @@ var SliderLimitLabel = (function (_super) {
     };
     return SliderLimitLabel;
 })(SliderUXComponent);
+//# sourceMappingURL=SliderLimitLabel.js.map
 ;var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -2395,19 +2638,7 @@ var SliderValueLabel = (function (_super) {
     };
     return SliderValueLabel;
 })(SliderUXComponent);
-;var SliderTemplate = (function () {
-    function SliderTemplate(template) {
-        this.cache = this.createTemplateFn(template);
-    }
-    SliderTemplate.prototype.render = function (data) {
-        return this.cache(data);
-    };
-
-    SliderTemplate.prototype.createTemplateFn = function (template) {
-        return new Function("data", "var p=[]," + "print=function(){" + "p.push.apply(p,arguments);" + "};" + "with(data){p.push('" + template.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
-    };
-    return SliderTemplate;
-})();
+//# sourceMappingURL=SliderValueLabel.js.map
 ;var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -2416,17 +2647,46 @@ var SliderValueLabel = (function (_super) {
 };
 var SliderDraggable = (function (_super) {
     __extends(SliderDraggable, _super);
-    function SliderDraggable(uid, slider) {
+    function SliderDraggable() {
         _super.call(this);
         this.defaultIs = {
             drag: false,
             clicked: false,
-            toclick: true,
+            toclick: false,
             mouseup: false
         };
-
-        this.onInit(uid, slider);
     }
+    SliderDraggable.prototype.initialize = function (config) {
+        this.is = jQuery.extend(this.is, this.defaultIs);
+
+        this.events = {
+            down: 'touch',
+            move: 'drag',
+            up: 'release',
+            click: 'tap'
+        };
+    };
+
+    SliderDraggable.prototype.create = function (templateParams) {
+        if (typeof templateParams === "undefined") { templateParams = {}; }
+        _super.prototype.create.call(this, templateParams);
+
+        this.outer = jQuery('.draggable-outer');
+
+        var offset = this.getPointerOffset();
+
+        this.d = {
+            left: offset.left,
+            top: offset.top,
+            width: this.$el.width(),
+            height: this.$el.height()
+        };
+
+        this.setupEvents();
+
+        return this;
+    };
+
     SliderDraggable.prototype.setupEvents = function () {
         var _this = this;
         this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, function (event) {
@@ -2456,30 +2716,26 @@ var SliderDraggable = (function (_super) {
 
         this.bind(this.$el, SliderDraggable.EVENT_DOWN, function (event) {
             _this.mouseDown(event);
-            return false;
         });
 
         this.bind(this.$el, SliderDraggable.EVENT_UP, function (event) {
             _this.mouseUp(event);
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_CLICK, function () {
+        this.bind(this.$el, SliderDraggable.EVENT_CLICK, function (event) {
             _this.is.clicked = true;
 
             if (!_this.is.toclick) {
                 _this.is.toclick = true;
-                return false;
             }
-
-            return true;
         });
     };
 
     SliderDraggable.prototype.getPageCoords = function (event) {
-        var touchList = event.gesture.touches;
+        var touch = event.gesture.touches[0];
         return {
-            x: touchList[0].pageX,
-            y: touchList[0].pageY
+            x: touch.x,
+            y: touch.y
         };
     };
 
@@ -2503,7 +2759,7 @@ var SliderDraggable = (function (_super) {
     SliderDraggable.prototype.bind = function (element, eventType, callback) {
         var namespacedEvent = this.events[eventType];
 
-        Hammer(element.get(0)).on(namespacedEvent, callback);
+        element.hammer().on(namespacedEvent, callback);
     };
 
     SliderDraggable.prototype.mouseDown = function (event) {
@@ -2554,28 +2810,7 @@ var SliderDraggable = (function (_super) {
         this.onMouseUp(event);
     };
 
-    SliderDraggable.prototype.onInit = function (id, constructor) {
-        this.outer = jQuery('.draggable-outer');
-
-        var offset = this.getPointerOffset();
-
-        this.is = jQuery.extend(this.is, this.defaultIs);
-
-        this.d = {
-            left: offset.left,
-            top: offset.top,
-            width: this.$el.width(),
-            height: this.$el.height()
-        };
-
-        this.events = {
-            down: 'touch',
-            move: 'drag',
-            up: 'release',
-            click: 'tap'
-        };
-
-        this.setupEvents();
+    SliderDraggable.prototype.onInit = function (id) {
     };
 
     SliderDraggable.prototype.onMouseDown = function (event) {
@@ -2596,6 +2831,7 @@ var SliderDraggable = (function (_super) {
     SliderDraggable.EVENT_DOWN = 'down';
     return SliderDraggable;
 })(SliderUXComponent);
+//# sourceMappingURL=SliderDraggable.js.map
 ;var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -2604,35 +2840,37 @@ var SliderDraggable = (function (_super) {
 };
 var SliderPointer = (function (_super) {
     __extends(SliderPointer, _super);
-    function SliderPointer(uid, slider) {
-        this.template = new SliderTemplate('<div class="<%=className%>-pointer"></div>');
+    function SliderPointer(config) {
+        _super.call(this);
 
-        this.components = {
-            label: null
-        };
-
-        _super.call(this, uid, slider);
-    }
-    SliderPointer.prototype.onInit = function (uid, slider) {
-        this.uid = uid;
-        this.parent = slider;
-        this.value = {
-            prc: null,
-            origin: null
-        };
-        this.settings = this.parent.settings;
+        this.initialize(config);
 
         this.create({
             className: Slider.CLASSNAME
         });
 
-        this.parent.$el.append(this.$el);
+        this.$scope.$el.append(this.$el);
 
         this.createValueLabel();
 
         this.$el.insertAfter(Slider.SELECTOR + '-bg');
 
-        _super.prototype.onInit.call(this, uid, slider);
+        this.set(MathHelper.valueToPrc(config.value, this), true);
+    }
+    SliderPointer.prototype.initialize = function (config) {
+        _super.prototype.initialize.call(this, config);
+
+        this.template = new SliderTemplate('<div class="<%=className%>-pointer"></div>');
+        this.components = {
+            label: null
+        };
+        this.uid = config.id;
+        this.$scope = config.$scope;
+        this.settings = this.$scope.settings;
+        this.value = {
+            prc: null,
+            origin: null
+        };
     };
 
     SliderPointer.prototype.createValueLabel = function () {
@@ -2657,7 +2895,7 @@ var SliderPointer = (function (_super) {
 
         var label = new SliderValueLabel(template, labelParams);
 
-        this.parent.$el.append(label.$el);
+        this.$scope.$el.append(label.$el);
         this.components.label = label;
     };
 
@@ -2665,8 +2903,8 @@ var SliderPointer = (function (_super) {
         _super.prototype.onMouseDown.call(this, event);
 
         this.parentSizes = {
-            offset: this.parent.$el.offset(),
-            width: this.parent.$el.width()
+            offset: this.$scope.$el.offset(),
+            width: this.$scope.$el.width()
         };
 
         this.$el.addDependClass('hover');
@@ -2677,11 +2915,12 @@ var SliderPointer = (function (_super) {
     SliderPointer.prototype.onMouseMove = function (event) {
         _super.prototype.onMouseMove.call(this, event);
 
-        this._set(this.calc(this.getPageCoords(event).x));
+        var prc = this.getPrcValueForX(this.getPageCoords(event).x);
+        this.set(prc, true);
 
-        this.parent.setValueElementPosition();
+        this.$scope.setValueElementPosition();
 
-        this.parent.redrawLabels(this);
+        this.redrawLabels();
     };
 
     SliderPointer.prototype.isDistanceViolation = function () {
@@ -2692,15 +2931,10 @@ var SliderPointer = (function (_super) {
             return false;
         }
 
-        if (this.isMinDistanceViolation(other.get().origin, distance.min)) {
+        if (distance && this.isMinDistanceViolation(other.get().origin, distance.min)) {
             return true;
         }
-
-        if (this.isMaxDistanceViolation(other.get().origin, distance.max)) {
-            return true;
-        }
-
-        return false;
+        return distance && this.isMaxDistanceViolation(other.get().origin, distance.max);
     };
 
     SliderPointer.prototype.isMaxDistanceViolation = function (otherOrigin, max) {
@@ -2712,11 +2946,7 @@ var SliderPointer = (function (_super) {
             return true;
         }
 
-        if (this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin) {
-            return true;
-        }
-
-        return false;
+        return this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin;
     };
 
     SliderPointer.prototype.isMinDistanceViolation = function (otherOrigin, min) {
@@ -2728,29 +2958,27 @@ var SliderPointer = (function (_super) {
             return true;
         }
 
-        if (this.uid === Slider.POINTER_TO && this.value.origin - min <= otherOrigin) {
-            return true;
-        }
-
-        return false;
+        return this.uid === Slider.POINTER_TO && this.value.origin - min <= otherOrigin;
     };
 
     SliderPointer.prototype.onMouseUp = function (event) {
         _super.prototype.onMouseUp.call(this, event);
 
         if (!this.settings.single && this.isDistanceViolation()) {
-            this.parent.setValueElementPosition();
+            this.$scope.setValueElementPosition();
         }
 
         if (jQuery.isFunction(this.settings.onStateChange)) {
-            this.settings.onStateChange.call(this.parent, this.parent.getValue());
+            this.settings.onStateChange.call(this.$scope, this.$scope.getValue());
         }
 
         this.$el.removeDependClass('hover');
+
+        this.$scope.setValue();
     };
 
     SliderPointer.prototype.setIndexOver = function () {
-        this.parent.setPointerIndex(1);
+        this.$scope.setPointerIndex(1);
         this.index(2);
     };
 
@@ -2758,38 +2986,33 @@ var SliderPointer = (function (_super) {
         this.css({ zIndex: i });
     };
 
-    SliderPointer.prototype.calcLimits = function (x) {
-        return this.parent.calcLimits(x, this);
+    SliderPointer.prototype.getPrcValueForX = function (x) {
+        return MathHelper.calcLimits(((x - this.parentSizes.offset.left) * 100) / this.parentSizes.width, this);
     };
 
-    SliderPointer.prototype.calc = function (coords) {
-        return this.calcLimits(((coords - this.parentSizes.offset.left) * 100) / this.parentSizes.width);
-    };
+    SliderPointer.prototype.set = function (value, isPrc) {
+        if (typeof isPrc === "undefined") { isPrc = false; }
+        var roundedValue;
+        if (isPrc) {
+            roundedValue = MathHelper.prcToValue(value, this);
+        } else {
+            roundedValue = MathHelper.round(value, this.settings.step, this.settings.round);
+        }
 
-    SliderPointer.prototype.set = function (value, optOrigin) {
-        if (typeof optOrigin === "undefined") { optOrigin = false; }
-        this.value.origin = this.parent.round(value);
+        this.value.origin = MathHelper.clamp(roundedValue, this.settings.from, this.settings.to);
+        this.value.prc = MathHelper.valueToPrc(this.value.origin, this);
 
-        this._set(this.parent.valueToPrc(value, this), optOrigin);
+        if (this.isDistanceViolation()) {
+            this.value.prc = this.enforceMinMaxDistance();
+        }
+
+        this.css({ left: this.value.prc + '%' });
+
+        this.$scope.update();
     };
 
     SliderPointer.prototype.get = function () {
         return this.value;
-    };
-
-    SliderPointer.prototype._set = function (prc, optOrigin) {
-        if (typeof optOrigin === "undefined") { optOrigin = false; }
-        if (!optOrigin) {
-            this.value.origin = this.parent.prcToValue(prc);
-        }
-
-        if (this.isDistanceViolation()) {
-            prc = this.enforceMinMaxDistance();
-        }
-
-        this.value.prc = prc;
-        this.css({ left: prc + '%' });
-        this.parent.update();
     };
 
     SliderPointer.prototype.enforceMinMaxDistance = function () {
@@ -2801,38 +3024,28 @@ var SliderPointer = (function (_super) {
         switch (this.uid) {
             case Slider.POINTER_FROM:
                 if (Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max)) {
-                    this.value.origin = this.clamp(anotherOriginValue - distance.max, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue - distance.max, this.settings.from, this.settings.to);
                 } else if (Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue) {
-                    this.value.origin = this.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
                 }
 
                 break;
 
             case Slider.POINTER_TO:
                 if (Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max)) {
-                    this.value.origin = this.clamp(anotherOriginValue + distance.max, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue + distance.max, this.settings.from, this.settings.to);
                 } else if (Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue) {
-                    this.value.origin = this.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
                 }
 
                 break;
         }
 
-        return this.parent.valueToPrc(this.value.origin, this);
-    };
-
-    SliderPointer.prototype.clamp = function (delta, min, max) {
-        if (delta > max) {
-            return max;
-        } else if (delta < min) {
-            return min;
-        }
-
-        return delta;
+        return MathHelper.valueToPrc(this.value.origin, this);
     };
 
     SliderPointer.prototype.getAdjacentPointer = function () {
-        return this.parent.getPointers()[1 - this.uid];
+        return this.$scope.getPointers()[1 - this.uid];
     };
 
     SliderPointer.prototype.getLabel = function () {
@@ -2842,8 +3055,112 @@ var SliderPointer = (function (_super) {
     SliderPointer.prototype.hasSameOrigin = function (pointer) {
         return (this.value.prc == pointer.get().prc);
     };
+
+    SliderPointer.prototype.redrawLabels = function () {
+        var label = this.getLabel();
+
+        label.setValue(this.$scope.calculate(this.get().origin));
+
+        var prc = this.get().prc;
+        var parentSizes = this.$scope.sizes;
+        var sizes = {
+            label: label.outerWidth(),
+            right: false,
+            border: (prc * parentSizes.domWidth) / 100
+        };
+
+        var otherPointer = this.getAdjacentPointer();
+        if (otherPointer) {
+            var otherLabel = otherPointer.getLabel();
+
+            switch (this.uid) {
+                case Slider.POINTER_FROM:
+                    if (sizes.border + sizes.label / 2 > (otherLabel.offset().left - parentSizes.domOffset.left)) {
+                        otherLabel.css({ visibility: "hidden" });
+                        otherLabel.setValue(this.$scope.calculate(otherPointer.get().origin));
+
+                        label.css({ visibility: "visible" });
+
+                        prc = (otherPointer.get().prc - prc) / 2 + prc;
+
+                        if (otherPointer.get().prc != this.get().prc) {
+                            label.setValue(this.$scope.calculate(this.get().origin) + '&nbsp;&ndash;&nbsp;' + this.$scope.calculate(otherPointer.get().origin));
+
+                            sizes.label = label.outerWidth();
+                            sizes.border = (prc * parentSizes.domWidth) / 100;
+                        }
+                    } else {
+                        otherLabel.css({ visibility: 'visible' });
+                    }
+                    break;
+
+                case Slider.POINTER_TO:
+                    if (sizes.border - sizes.label / 2 < (otherLabel.offset().left - parentSizes.domOffset.left) + otherLabel.outerWidth()) {
+                        otherLabel.css({ visibility: 'hidden' });
+                        otherLabel.setValue(this.$scope.calculate(otherPointer.get().origin));
+
+                        label.css({ visibility: 'visible' });
+
+                        prc = (prc - otherPointer.get().prc) / 2 + otherPointer.get().prc;
+
+                        if (otherPointer.get().prc != this.get().prc) {
+                            label.setValue(this.$scope.calculate(otherPointer.get().origin) + "&nbsp;&ndash;&nbsp;" + this.$scope.calculate(this.get().origin));
+
+                            sizes.label = label.outerWidth();
+                            sizes.border = (prc * parentSizes.domWidth) / 100;
+                        }
+                    } else {
+                        otherLabel.css({ visibility: 'visible' });
+                    }
+                    break;
+            }
+        }
+
+        this.setPosition(label, sizes, prc);
+
+        if (otherLabel) {
+            sizes = {
+                label: otherLabel.outerWidth(),
+                right: false,
+                border: (otherPointer.value.prc * parentSizes.domWidth) / 100
+            };
+
+            this.setPosition(otherLabel, sizes, otherPointer.value.prc);
+        }
+    };
+
+    SliderPointer.prototype.setPosition = function (label, sizes, prc) {
+        sizes.margin = -sizes.label / 2;
+
+        var labelLeft = sizes.border + sizes.margin;
+        if (labelLeft < 0) {
+            sizes.margin -= labelLeft;
+        }
+
+        if (sizes.border + sizes.label / 2 > this.$scope.sizes.domWidth) {
+            sizes.margin = 0;
+            sizes.right = true;
+        } else {
+            sizes.right = false;
+        }
+
+        var cssProps = {
+            left: prc + '%',
+            marginLeft: sizes.margin,
+            right: 'auto'
+        };
+
+        label.css(cssProps);
+
+        if (sizes.right) {
+            label.css({ left: "auto", right: 0 });
+        }
+
+        return sizes;
+    };
     return SliderPointer;
 })(SliderDraggable);
+//# sourceMappingURL=SliderPointer.js.map
 ;var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -2893,7 +3210,8 @@ var Slider = (function (_super) {
 
         this.components = {
             limits: [],
-            pointers: []
+            pointers: [],
+            labels: []
         };
 
         this.create({
@@ -2920,7 +3238,7 @@ var Slider = (function (_super) {
             this.settings.single = true;
             this.$el.addDependClass('single');
         } else if (values.length > 2) {
-            throw "Slider: Only two handles are supported";
+            throw "jquery.slider: Only two handles are supported";
         }
 
         if (!this.settings.limits) {
@@ -2938,33 +3256,32 @@ var Slider = (function (_super) {
 
         this.components = {
             pointers: [],
-            limits: []
+            limits: [],
+            labels: []
         };
+
+        this.createLimitLabels();
 
         values.forEach(function (value, uid) {
             var typedValue = parseInt(value, 10);
-
-            var prev = Number(values[uid - 1]);
+            var prev = parseInt(values[uid - 1], 10);
 
             if (isNaN(typedValue)) {
-                return;
-            }
-
-            if (!isNaN(prev) && typedValue < prev) {
+                throw "jquery.slider: Invalid value: \"" + value.toString() + "\". Values must be integers.";
+            } else if (!isNaN(prev) && typedValue < prev) {
                 typedValue = prev;
             }
 
-            var pointer = new SliderPointer(uid, _this);
+            typedValue = MathHelper.clamp(typedValue, _this.settings.from, _this.settings.to);
 
-            typedValue = (typedValue < _this.settings.from) ? _this.settings.from : typedValue;
-            typedValue = (typedValue > _this.settings.to) ? _this.settings.to : typedValue;
+            _this.components.pointers[uid] = new SliderPointer({
+                id: uid,
+                value: typedValue,
+                $scope: _this
+            });
 
-            pointer.set(typedValue, true);
-
-            _this.components.pointers[uid] = pointer;
+            _this.components.pointers[uid].redrawLabels();
         });
-
-        this.createLimitLabels();
 
         if (!this.settings.single) {
             this.$value = this.$el.find('.v');
@@ -2974,8 +3291,6 @@ var Slider = (function (_super) {
             if (!_this.settings.single) {
                 _this.ensurePointerIndex(pointer);
             }
-
-            _this.redrawLabels(pointer);
         });
 
         this.setValue();
@@ -2985,7 +3300,7 @@ var Slider = (function (_super) {
         this.redrawLimits();
 
         jQuery(window).resize(function () {
-            _this.onResize();
+            _this.redraw();
         });
 
         return this;
@@ -3033,7 +3348,7 @@ var Slider = (function (_super) {
     };
 
     Slider.prototype.onStateChange = function (value) {
-        if (jQuery.isFunction(this.settings.onStateChange)) {
+        if (this.settings.onStateChange && jQuery.isFunction(this.settings.onStateChange)) {
             return this.settings.onStateChange.apply(this, value);
         }
         return true;
@@ -3048,7 +3363,7 @@ var Slider = (function (_super) {
     };
 
     Slider.prototype.update = function () {
-        this.onResize();
+        this.redraw();
         this.drawScale();
     };
 
@@ -3094,7 +3409,7 @@ var Slider = (function (_super) {
         });
     };
 
-    Slider.prototype.onResize = function () {
+    Slider.prototype.redraw = function () {
         var _this = this;
         this.sizes = {
             domWidth: this.$el.width(),
@@ -3102,46 +3417,12 @@ var Slider = (function (_super) {
         };
 
         jQuery.each(this.components.pointers, function (i, pointer) {
-            _this.redraw(pointer);
+            _this.setValueElementPosition();
+            pointer.redrawLabels();
         });
-    };
 
-    Slider.prototype.calcLimits = function (x, pointer) {
-        if (!this.settings.smooth) {
-            var step = this.settings.step * 100 / (this.settings.interval);
-            x = Math.round(x / step) * step;
-        }
-
-        var another = pointer.getAdjacentPointer();
-        if (another && pointer.uid && x < another.get().prc) {
-            x = another.get().prc;
-        }
-
-        if (another && !pointer.uid && x > another.get().prc) {
-            x = another.get().prc;
-        }
-
-        if (x < 0) {
-            x = 0;
-        }
-
-        if (x > 100) {
-            x = 100;
-        }
-
-        return Math.round(x * 10) / 10;
-    };
-
-    Slider.prototype.redraw = function (pointer) {
-        if (!this.isInitialized()) {
-            return;
-        }
-
+        this.redrawLimits();
         this.setValue();
-
-        this.setValueElementPosition();
-
-        this.redrawLabels(pointer);
     };
 
     Slider.prototype.setValueElementPosition = function () {
@@ -3158,166 +3439,48 @@ var Slider = (function (_super) {
         });
     };
 
-    Slider.prototype.redrawLabels = function (pointer) {
-        var label = pointer.getLabel();
-
-        label.setValue(this.calculate(pointer.get().origin));
-
-        var prc = pointer.get().prc;
-        var sizes = {
-            label: label.outerWidth(),
-            right: false,
-            border: (prc * this.sizes.domWidth) / 100
-        };
-
-        if (!this.settings.single && pointer.getAdjacentPointer()) {
-            var otherPointer = pointer.getAdjacentPointer();
-            var otherLabel = otherPointer.getLabel();
-
-            switch (pointer.uid) {
-                case Slider.POINTER_FROM:
-                    if (sizes.border + sizes.label / 2 > (otherLabel.offset().left - this.sizes.domOffset.left)) {
-                        otherLabel.css({ visibility: "hidden" });
-                        otherLabel.setValue(this.calculate(otherPointer.get().origin));
-
-                        label.css({ visibility: "visible" });
-
-                        prc = (otherPointer.get().prc - prc) / 2 + prc;
-
-                        if (otherPointer.get().prc != pointer.get().prc) {
-                            label.setValue(this.calculate(pointer.get().origin) + '&nbsp;&ndash;&nbsp;' + this.calculate(otherPointer.get().origin));
-
-                            sizes.label = label.outerWidth();
-                            sizes.border = (prc * this.sizes.domWidth) / 100;
-                        }
-                    } else {
-                        otherLabel.css({ visibility: 'visible' });
-                    }
-                    break;
-
-                case Slider.POINTER_TO:
-                    if (sizes.border - sizes.label / 2 < (otherLabel.offset().left - this.sizes.domOffset.left) + otherLabel.outerWidth()) {
-                        otherLabel.css({ visibility: 'hidden' });
-                        otherLabel.setValue(this.calculate(otherPointer.get().origin));
-
-                        label.css({ visibility: 'visible' });
-
-                        prc = (prc - otherPointer.get().prc) / 2 + otherPointer.get().prc;
-
-                        if (otherPointer.get().prc != pointer.get().prc) {
-                            label.setValue(this.calculate(otherPointer.get().origin) + "&nbsp;&ndash;&nbsp;" + this.calculate(pointer.get().origin));
-
-                            sizes.label = label.outerWidth();
-                            sizes.border = (prc * this.sizes.domWidth) / 100;
-                        }
-                    } else {
-                        otherLabel.css({ visibility: 'visible' });
-                    }
-                    break;
-            }
-        }
-
-        this.setPosition(label, sizes, prc);
-
-        if (otherLabel) {
-            sizes = {
-                label: otherLabel.outerWidth(),
-                right: false,
-                border: (otherPointer.value.prc * this.sizes.domWidth) / 100
-            };
-
-            this.setPosition(otherLabel, sizes, otherPointer.value.prc);
-        }
-    };
-
     Slider.prototype.redrawLimits = function () {
         if (!this.settings.limits) {
             return;
         }
 
-        var limits = [true, true];
+        for (var i = 0; i < this.components.pointers.length; i++) {
+            var pointer = this.components.pointers[i];
+            var label = pointer.getLabel();
+            var labelLeft = label.offset().left - this.sizes.domOffset.left;
 
-        for (var key in this.components.pointers) {
-            if (!this.settings.single || key == 0) {
-                if (!this.components.pointers.hasOwnProperty(key)) {
-                    continue;
+            if (i == Slider.POINTER_FROM) {
+                var limitFrom = this.components.limits[Slider.POINTER_FROM];
+                if (labelLeft < limitFrom.outerWidth()) {
+                    limitFrom.fadeOut('fast');
+                } else {
+                    limitFrom.fadeIn('fast');
                 }
-
-                var pointer = this.components.pointers[key];
-                var label = pointer.getLabel();
-                var labelLeft = label.offset().left - this.sizes.domOffset.left;
-
-                if (labelLeft < this.components.limits[Slider.POINTER_FROM].outerWidth()) {
-                    limits[0] = false;
-                }
-
-                if (labelLeft + label.outerWidth() > this.sizes.domWidth - this.components.limits[Slider.POINTER_TO].outerWidth()) {
-                    limits[1] = false;
+            } else if (i == Slider.POINTER_TO) {
+                var limitTo = this.components.limits[Slider.POINTER_TO];
+                if (labelLeft + label.outerWidth() > this.sizes.domWidth - limitTo.outerWidth()) {
+                    limitTo.fadeOut('fast');
+                } else {
+                    limitTo.fadeIn('fast');
                 }
             }
         }
-
-        for (var i = 0; i < limits.length; i++) {
-            if (!(this.components.limits[i] instanceof SliderLimitLabel)) {
-                continue;
-            }
-
-            if (limits[i]) {
-                this.components.limits[i].fadeIn('fast');
-            } else {
-                this.components.limits[i].fadeOut('fast');
-            }
-        }
-    };
-
-    Slider.prototype.setPosition = function (label, sizes, prc) {
-        sizes.margin = -sizes.label / 2;
-
-        var labelLeft = sizes.border + sizes.margin;
-        if (labelLeft < 0) {
-            sizes.margin -= labelLeft;
-        }
-
-        if (sizes.border + sizes.label / 2 > this.sizes.domWidth) {
-            sizes.margin = 0;
-            sizes.right = true;
-        } else {
-            sizes.right = false;
-        }
-
-        var cssProps = {
-            left: prc + '%',
-            marginLeft: sizes.margin,
-            right: 'auto'
-        };
-
-        label.css(cssProps);
-
-        if (sizes.right) {
-            label.css({ left: "auto", right: 0 });
-        }
-
-        return sizes;
     };
 
     Slider.prototype.setValue = function () {
         var value = this.getValue();
 
-        this.$input.val(value);
-
         this.onStateChange(value);
+
+        this.$input.val(value);
     };
 
     Slider.prototype.getValue = function () {
-        var _this = this;
-        if (!this.isInitialized()) {
-            return false;
-        }
-
         var value = '';
         jQuery.each(this.getPointers(), function (i, pointer) {
-            if (pointer.get().prc != undefined && !isNaN(pointer.get().prc)) {
-                value += (i > 0 ? ';' : '') + _this.prcToValue(pointer.get().prc);
+            var prc = pointer.get().prc;
+            if (prc && !isNaN(prc)) {
+                value += (i > 0 ? ';' : '') + MathHelper.prcToValue(prc, pointer).toString();
             }
         });
 
@@ -3325,92 +3488,13 @@ var Slider = (function (_super) {
     };
 
     Slider.prototype.getPrcValue = function () {
-        if (!this.isInitialized()) {
-            return false;
-        }
-
         var value = '';
         jQuery.each(this.getPointers(), function (i, pointer) {
-            if (pointer.get().prc != undefined && !isNaN(pointer.get().prc)) {
-                value += (i > 0 ? ';' : '') + pointer.get().prc;
+            var prc = pointer.get().prc;
+            if (prc && !isNaN(prc)) {
+                value += (i > 0 ? ';' : '') + prc.toString();
             }
         });
-
-        return value;
-    };
-
-    Slider.prototype.prcToValue = function (prc) {
-        if (this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0) {
-            var heterogeneity = this.settings.hetrogeneity;
-            var start = 0;
-            var from = this.settings.from;
-            var value;
-
-            for (var i = 0; i <= heterogeneity.length; i++) {
-                var v;
-                if (heterogeneity[i]) {
-                    v = heterogeneity[i].split('/');
-                } else {
-                    v = [100, this.settings.to];
-                }
-
-                v[0] = Number(v[0]);
-                v[1] = Number(v[1]);
-
-                if (prc >= start && prc <= v[0]) {
-                    value = from + ((prc - start) * (v[1] - from)) / (v[0] - start);
-                }
-
-                start = v[0];
-                from = v[1];
-            }
-        } else {
-            value = this.settings.from + (prc * this.settings.interval) / 100;
-        }
-
-        return this.round(value);
-    };
-
-    Slider.prototype.valueToPrc = function (value, pointer) {
-        var prc;
-        if (this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0) {
-            var hetrogeneity = this.settings.hetrogeneity;
-            var start = 0;
-            var from = this.settings.from;
-            var v;
-
-            for (var i = 0; i <= hetrogeneity.length; i++) {
-                if (hetrogeneity[i]) {
-                    v = hetrogeneity[i].split('/');
-                } else {
-                    v = [100, this.settings.to];
-                }
-
-                v[0] = Number(v[0]);
-                v[1] = Number(v[1]);
-
-                if (value >= from && value <= v[1]) {
-                    prc = pointer.calcLimits(start + (value - from) * (v[0] - start) / (v[1] - from));
-                }
-
-                start = v[0];
-                from = v[1];
-            }
-        } else {
-            prc = pointer.calcLimits((value - this.settings.from) * 100 / this.settings.interval);
-        }
-
-        return prc;
-    };
-
-    Slider.prototype.round = function (value) {
-        value = Math.round(value / this.settings.step) * this.settings.step;
-
-        if (this.settings.round) {
-            value = Math.round(value * Math.pow(10, this.settings.round)) / Math.pow(10, this.settings.round);
-        } else {
-            value = Math.round(value);
-        }
 
         return value;
     };
@@ -3422,7 +3506,7 @@ var Slider = (function (_super) {
             return jQuery.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
         }
 
-        return Number(value).toString();
+        return value;
     };
 
     Slider.prototype.destroy = function () {
@@ -3448,6 +3532,7 @@ var Slider = (function (_super) {
     Slider.SELECTOR = '.jslider-';
     return Slider;
 })(SliderUXComponent);
+//# sourceMappingURL=Slider.js.map
 ;jQuery.slider = function (node, settings, force) {
     if (typeof force === "undefined") { force = false; }
     var jNode = jQuery(node);
@@ -3466,7 +3551,7 @@ jQuery.fn.slider = function (action, optValue) {
     }
 
     function isDefAndNotNull(val) {
-        return val != null;
+        return isDef(val) && val != null;
     }
 
     this.each(function () {
@@ -3501,18 +3586,18 @@ jQuery.fn.slider = function (action, optValue) {
                     if (isDef(args[1]) && isDef(args[2])) {
                         var pointers = self.getPointers();
                         if (isDefAndNotNull(pointers[0]) && isDefAndNotNull(args[1])) {
-                            pointers[0]._set(args[1]);
+                            pointers[0].set(args[1]);
                             pointers[0].setIndexOver();
                         }
 
                         if (isDefAndNotNull(pointers[1]) && isDefAndNotNull(args[2])) {
-                            pointers[1]._set(args[2]);
+                            pointers[1].set(args[2]);
                             pointers[1].setIndexOver();
                         }
                     } else if (isDef(args[1])) {
                         var pointers = self.getPointers();
                         if (isDefAndNotNull(pointers[0]) && isDefAndNotNull(args[1])) {
-                            pointers[0]._set(args[1]);
+                            pointers[0].set(args[1]);
                             pointers[0].setIndexOver();
                         }
                     } else
@@ -3555,3 +3640,4 @@ jQuery.fn.slider = function (action, optValue) {
 
     return returnValue || this;
 };
+//# sourceMappingURL=Bootstrap.js.map

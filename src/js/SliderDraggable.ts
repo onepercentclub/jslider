@@ -3,7 +3,7 @@
  */
 
 /// <reference path="../definitions/jquery/jquery.d.ts" />
-/// <reference path="../definitions/hammer/hammerjs.d.ts" />
+/// <reference path="../definitions/hammerjs/hammerjs.d.ts" />
 /// <reference path="./interfaces.ts" />
 /// <reference path="./Slider.ts" />
 /// <reference path="./SliderUXComponent.ts" />
@@ -20,7 +20,7 @@ class SliderDraggable extends SliderUXComponent {
     private defaultIs:IInteractionType = {
         drag: false,
         clicked: false,
-        toclick: true,
+        toclick: false,
         mouseup: false
     };
     private is:IInteractionType;
@@ -29,15 +29,48 @@ class SliderDraggable extends SliderUXComponent {
     private cursorY:number;
     private d:Object;
 
-    /**
-     * @param uid {number}
-     * @param slider {Slider}
-     */
-    constructor(uid:number, slider:Slider)
+    constructor()
     {
         super();
+    }
 
-        this.onInit(uid, slider);
+    /**
+     * @param config
+     */
+    public initialize(config?:Object):void
+    {
+        this.is = jQuery.extend(this.is, this.defaultIs);
+
+        this.events = {
+            down: 'touch',
+            move: 'drag',
+            up  : 'release',
+            click: 'tap'
+        };
+    }
+
+    /**
+     * @param templateParams
+     * @returns {SliderDraggable}
+     */
+    public create(templateParams:Object = {}):SliderDraggable
+    {
+        super.create(templateParams);
+
+        this.outer = jQuery('.draggable-outer');
+
+        var offset:IOffset = this.getPointerOffset();
+
+        this.d = {
+            left: offset.left,
+            top: offset.top,
+            width: this.$el.width(),
+            height: this.$el.height()
+        };
+
+        this.setupEvents();
+
+        return this;
     }
 
     private setupEvents():void
@@ -76,7 +109,6 @@ class SliderDraggable extends SliderUXComponent {
         this.bind(this.$el, SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
         {
             this.mouseDown(event);
-            return false;
         });
 
         this.bind(this.$el, SliderDraggable.EVENT_UP, (event:HammerEvent)=>
@@ -84,17 +116,14 @@ class SliderDraggable extends SliderUXComponent {
             this.mouseUp(event);
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_CLICK, ()=>
+        this.bind(this.$el, SliderDraggable.EVENT_CLICK, (event:HammerEvent)=>
         {
             this.is.clicked = true;
 
             if(!this.is.toclick)
             {
                 this.is.toclick = true;
-                return false;
             }
-
-            return true;
         });
     }
 
@@ -104,10 +133,10 @@ class SliderDraggable extends SliderUXComponent {
      */
     public getPageCoords(event:HammerEvent):ICoordinates
     {
-        var touchList = event.gesture.touches;
+        var touch = event.gesture.touches[0];
         return {
-            x: touchList[0].pageX,
-            y: touchList[0].pageY
+            x: touch.x,
+            y: touch.y
         };
     }
 
@@ -144,11 +173,11 @@ class SliderDraggable extends SliderUXComponent {
      * @param callback
      * @todo find out why event namespace doesnt work
      */
-    private bind(element:JQuery, eventType:string, callback:(event:HammerEvent)=>void):void
+    private bind(element:JQuery, eventType:string, callback:(event:any)=>void):void
     {
         var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
 
-        Hammer(element.get(0)).on(namespacedEvent, callback);
+        element.hammer().on(namespacedEvent, callback);
     }
 
     /**
@@ -222,29 +251,9 @@ class SliderDraggable extends SliderUXComponent {
      * @param id
      * @param constructor
      */
-    public onInit(id:number, constructor:Slider):void
+    public onInit(id:number):void
     {
-        this.outer = jQuery('.draggable-outer');
 
-        var offset:IOffset = this.getPointerOffset();
-
-        this.is = jQuery.extend(this.is, this.defaultIs);
-
-        this.d = {
-            left: offset.left,
-            top: offset.top,
-            width: this.$el.width(),
-            height: this.$el.height()
-        };
-
-        this.events = {
-            down: 'touch',
-            move: 'drag',
-            up  : 'release',
-            click: 'tap'
-        };
-
-        this.setupEvents();
     }
 
     /**

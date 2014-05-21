@@ -6,11 +6,12 @@
 /// <reference path="./SliderDraggable.ts" />
 /// <reference path="./Slider.ts" />
 
-class SliderPointer extends SliderDraggable {
 
+class SliderPointer extends SliderDraggable
+{
     public uid:number;
 
-    public parent:Slider;
+    public $scope:Slider;
 
     public parentSizes:any;
 
@@ -23,56 +24,56 @@ class SliderPointer extends SliderDraggable {
     };
 
     /**
-     * @param uid
-     * @param slider
+     * @param config
      */
-    constructor(uid:number, slider:Slider)
+    constructor(config:ISliderPointerConfig)
     {
-        this.template = new SliderTemplate(
-            '<div class="<%=className%>-pointer"></div>'
-        );
+        super();
 
-        this.components = {
-            label:null
-        };
-
-        super(uid, slider);
-    }
-
-    /**
-     * @param pointer
-     * @param uid
-     * @param slider
-     */
-    public onInit(uid:number, slider:Slider):void
-    {
-        this.uid = uid;
-        this.parent = slider;
-        this.value = {
-            prc: null,
-            origin: null
-        };
-        this.settings = this.parent.settings;
+        this.initialize(config);
 
         this.create({
             className: Slider.CLASSNAME
         });
 
-        this.parent.$el.append(this.$el);
+        this.$scope.$el.append(this.$el);
 
         this.createValueLabel();
 
         this.$el.insertAfter(Slider.SELECTOR + '-bg');
 
-        super.onInit(uid, slider);
+        this.set(MathHelper.valueToPrc(config.value, this), true);
+    }
+
+    /**
+     * @param config
+     */
+    public initialize(config?:ISliderPointerConfig):void
+    {
+        super.initialize(config);
+
+        this.template = new SliderTemplate(
+            '<div class="<%=className%>-pointer"></div>'
+        );
+        this.components = {
+            label: null
+        };
+        this.uid = config.id;
+        this.$scope = config.$scope;
+        this.settings = this.$scope.settings;
+        this.value = {
+            prc: null,
+            origin: null
+        };
     }
 
     private createValueLabel():void
     {
         var template:string;
         var labelParams:Object;
-        if(this.uid === Slider.POINTER_TO)
+        if (this.uid === Slider.POINTER_TO)
         {
+
             template = '<div class="<%=className%>-label <%=className%>-label-to"><span><%=to%></span><%=dimension%></div>'
             labelParams = {
                 className: Slider.CLASSNAME,
@@ -91,9 +92,9 @@ class SliderPointer extends SliderDraggable {
             template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
         }
 
-        var label =  new SliderValueLabel(template, labelParams);
+        var label = new SliderValueLabel(template, labelParams);
 
-        this.parent.$el.append(label.$el);
+        this.$scope.$el.append(label.$el);
         this.components.label = label;
     }
 
@@ -105,8 +106,8 @@ class SliderPointer extends SliderDraggable {
         super.onMouseDown(event);
 
         this.parentSizes = {
-            offset:this.parent.$el.offset(),
-            width: this.parent.$el.width()
+            offset: this.$scope.$el.offset(),
+            width: this.$scope.$el.width()
         };
 
         this.$el.addDependClass('hover');
@@ -121,15 +122,12 @@ class SliderPointer extends SliderDraggable {
     {
         super.onMouseMove(event);
 
-        this._set(
-            this.calc(
-                this.getPageCoords(event).x
-            )
-        );
+        var prc = this.getPrcValueForX(this.getPageCoords(event).x);
+        this.set(prc, true);
 
-        this.parent.setValueElementPosition();
+        this.$scope.setValueElementPosition();
 
-        this.parent.redrawLabels(this);
+        this.redrawLabels();
     }
 
     /**
@@ -142,22 +140,16 @@ class SliderPointer extends SliderDraggable {
         var distance:IDistance = this.settings.distance;
         var other:SliderPointer = this.getAdjacentPointer();
 
-        if(!(other instanceof SliderPointer) || this.settings.single)
+        if (!(other instanceof SliderPointer) || this.settings.single)
         {
             return false;
         }
 
-        if(this.isMinDistanceViolation(other.get().origin, distance.min))
+        if (distance && this.isMinDistanceViolation(other.get().origin, distance.min))
         {
             return true;
         }
-
-        if(this.isMaxDistanceViolation(other.get().origin, distance.max))
-        {
-            return true;
-        }
-
-        return false;
+        return distance && this.isMaxDistanceViolation(other.get().origin, distance.max);
     }
 
     /**
@@ -167,22 +159,17 @@ class SliderPointer extends SliderDraggable {
      */
     private isMaxDistanceViolation(otherOrigin:number, max:number):boolean
     {
-        if(isNaN(max))
+        if (isNaN(max))
         {
             return false;
         }
 
-        if(this.uid === Slider.POINTER_FROM && otherOrigin + max >= this.value.origin)
+        if (this.uid === Slider.POINTER_FROM && otherOrigin + max >= this.value.origin)
         {
             return true;
         }
 
-        if(this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin)
-        {
-            return true;
-        }
-
-        return false;
+        return this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin;
     }
 
     /**
@@ -192,22 +179,17 @@ class SliderPointer extends SliderDraggable {
      */
     private isMinDistanceViolation(otherOrigin:number, min:number):boolean
     {
-        if(isNaN(min))
+        if (isNaN(min))
         {
             return false;
         }
 
-        if(this.uid === Slider.POINTER_FROM && this.value.origin + min >= otherOrigin)
+        if (this.uid === Slider.POINTER_FROM && this.value.origin + min >= otherOrigin)
         {
             return true;
         }
 
-        if(this.uid === Slider.POINTER_TO && this.value.origin - min <= otherOrigin)
-        {
-            return true;
-        }
-
-        return false;
+        return this.uid === Slider.POINTER_TO && this.value.origin - min <= otherOrigin;
     }
 
     /**
@@ -217,22 +199,24 @@ class SliderPointer extends SliderDraggable {
     {
         super.onMouseUp(event);
 
-        if(!this.settings.single && this.isDistanceViolation())
+        if (!this.settings.single && this.isDistanceViolation())
         {
-            this.parent.setValueElementPosition();
+            this.$scope.setValueElementPosition();
         }
 
-        if(jQuery.isFunction(this.settings.onStateChange))
+        if (jQuery.isFunction(this.settings.onStateChange))
         {
-            this.settings.onStateChange.call(this.parent, this.parent.getValue())
+            this.settings.onStateChange.call(this.$scope, this.$scope.getValue())
         }
 
         this.$el.removeDependClass('hover');
+
+        this.$scope.setValue();
     }
 
     public setIndexOver():void
     {
-        this.parent.setPointerIndex(1);
+        this.$scope.setPointerIndex(1);
         this.index(2);
     }
 
@@ -248,56 +232,46 @@ class SliderPointer extends SliderDraggable {
      * @param x
      * @returns {number}
      */
-    public calcLimits(x:number):number
+    private getPrcValueForX(x:number):number
     {
-        return this.parent.calcLimits(x, this);
-    }
-
-    /**
-     * @param coords
-     * @returns {number}
-     */
-    public calc(coords):number
-    {
-        return this.calcLimits(((coords - this.parentSizes.offset.left) * 100) / this.parentSizes.width);
+        return MathHelper.calcLimits(((x - this.parentSizes.offset.left) * 100) / this.parentSizes.width, this);
     }
 
     /**
      * @param value
-     * @param optOrigin
+     * @param isPrc
      */
-    public set(value:number, optOrigin:boolean = false):void
+    public set(value:number, isPrc:boolean = false):void
     {
-        this.value.origin = this.parent.round(value);
-
-        this._set(this.parent.valueToPrc(value, this), optOrigin);
-    }
-
-    public get():ISliderPointerValue
-    {
-        return this.value;
-    }
-
-    /**
-     * @param prc
-     * @param optOrigin
-     * @private
-     */
-    public _set(prc:number, optOrigin:boolean =  false):void
-    {
-        if (!optOrigin)
+        var roundedValue:number;
+        if(isPrc)
         {
-            this.value.origin = this.parent.prcToValue(prc);
+            roundedValue = MathHelper.prcToValue(value, this);
         }
+        else
+        {
+            roundedValue = MathHelper.round(value, this.settings.step, this.settings.round);
+        }
+
+        this.value.origin = MathHelper.clamp(roundedValue, this.settings.from, this.settings.to);
+        this.value.prc = MathHelper.valueToPrc(this.value.origin, this);
 
         if (this.isDistanceViolation())
         {
-            prc = this.enforceMinMaxDistance();
+            this.value.prc = this.enforceMinMaxDistance();
         }
 
-        this.value.prc = prc;
-        this.css({left: prc + '%'});
-        this.parent.update();
+        this.css({left: this.value.prc + '%'});
+
+        this.$scope.update();
+    }
+
+    /**
+     * @returns {ISliderPointerValue}
+     */
+    public get():ISliderPointerValue
+    {
+        return this.value;
     }
 
     /**
@@ -310,56 +284,36 @@ class SliderPointer extends SliderDraggable {
         var originValue:number = this.get().origin;
         var anotherOriginValue:number = another.get().origin;
 
-        switch(this.uid)
+        switch (this.uid)
         {
             case Slider.POINTER_FROM:
 
-                if(Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max))
+                if (Boolean(distance.max) && originValue <= (anotherOriginValue - distance.max))
                 {
-                    this.value.origin = this.clamp(anotherOriginValue - distance.max, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue - distance.max, this.settings.from, this.settings.to);
                 }
-                else if(Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue)
+                else if (Boolean(distance.min) && (originValue + distance.min) >= anotherOriginValue)
                 {
-                    this.value.origin = this.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue - distance.min, this.settings.from, this.settings.to);
                 }
 
                 break;
 
             case Slider.POINTER_TO:
 
-                if(Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max))
+                if (Boolean(distance.max) && originValue >= (anotherOriginValue + distance.max))
                 {
-                    this.value.origin = this.clamp(anotherOriginValue + distance.max, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue + distance.max, this.settings.from, this.settings.to);
                 }
-                else if(Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue)
+                else if (Boolean(distance.min) && (originValue - distance.min) <= anotherOriginValue)
                 {
-                    this.value.origin = this.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
+                    this.value.origin = MathHelper.clamp(anotherOriginValue + distance.min, this.settings.from, this.settings.to);
                 }
 
                 break;
         }
 
-        return this.parent.valueToPrc(this.value.origin, this);
-    }
-
-    /**
-     * @param delta
-     * @param min
-     * @param max
-     * @returns {number}
-     */
-    private clamp(delta:number,min:number,max:number):number
-    {
-        if(delta > max)
-        {
-            return max;
-        }
-        else if(delta < min)
-        {
-            return min;
-        }
-
-        return delta;
+        return MathHelper.valueToPrc(this.value.origin, this);
     }
 
     /**
@@ -367,7 +321,7 @@ class SliderPointer extends SliderDraggable {
      */
     public getAdjacentPointer():SliderPointer
     {
-        return this.parent.getPointers()[1 - this.uid];
+        return this.$scope.getPointers()[1 - this.uid];
     }
 
     /**
@@ -384,5 +338,157 @@ class SliderPointer extends SliderDraggable {
     public hasSameOrigin(pointer:SliderPointer):boolean
     {
         return (this.value.prc == pointer.get().prc);
+    }
+
+    /**
+     * @param pointer {SliderPointer}
+     */
+    public redrawLabels():void
+    {
+        var label = this.getLabel();
+
+        label.setValue(
+            this.$scope.calculate(
+                this.get().origin
+            )
+        );
+
+        var prc:number = this.get().prc;
+        var parentSizes:ISliderSizes = this.$scope.sizes;
+        var sizes = {
+            label: label.outerWidth(),
+            right: false,
+            border: (prc * parentSizes.domWidth) / 100
+        };
+
+        var otherPointer:SliderPointer = this.getAdjacentPointer();
+        if (otherPointer)
+        {
+            var otherLabel:SliderValueLabel = otherPointer.getLabel();
+
+            switch (this.uid)
+            {
+                case Slider.POINTER_FROM:
+                    if (sizes.border + sizes.label / 2 > (otherLabel.offset().left - parentSizes.domOffset.left))
+                    {
+                        otherLabel.css({ visibility: "hidden" });
+                        otherLabel.setValue(
+                            this.$scope.calculate(
+                                otherPointer.get().origin
+                            )
+                        );
+
+                        label.css({ visibility: "visible" });
+
+                        prc = (otherPointer.get().prc - prc) / 2 + prc;
+
+                        if (otherPointer.get().prc != this.get().prc)
+                        {
+                            label.setValue(
+                                this.$scope.calculate(this.get().origin)
+                                    + '&nbsp;&ndash;&nbsp;' +
+                                    this.$scope.calculate(otherPointer.get().origin)
+                            );
+
+                            sizes.label = label.outerWidth();
+                            sizes.border = (prc * parentSizes.domWidth) / 100;
+                        }
+                    }
+                    else
+                    {
+                        otherLabel.css({visibility: 'visible'});
+                    }
+                    break;
+
+                case Slider.POINTER_TO:
+                    if (sizes.border - sizes.label / 2 < (otherLabel.offset().left - parentSizes.domOffset.left) + otherLabel.outerWidth())
+                    {
+                        otherLabel.css({visibility: 'hidden'});
+                        otherLabel.setValue(
+                            this.$scope.calculate(
+                                otherPointer.get().origin
+                            )
+                        );
+
+                        label.css({visibility: 'visible'});
+
+                        prc = (prc - otherPointer.get().prc) / 2 + otherPointer.get().prc;
+
+                        if (otherPointer.get().prc != this.get().prc)
+                        {
+                            label.setValue(
+                                this.$scope.calculate(otherPointer.get().origin)
+                                    + "&nbsp;&ndash;&nbsp;" +
+                                    this.$scope.calculate(this.get().origin)
+                            );
+
+                            sizes.label = label.outerWidth();
+                            sizes.border = (prc * parentSizes.domWidth) / 100;
+                        }
+                    }
+                    else
+                    {
+                        otherLabel.css({visibility: 'visible'});
+                    }
+                    break;
+            }
+        }
+
+        this.setPosition(label, sizes, prc);
+
+        if (otherLabel)
+        {
+            sizes = {
+                label: otherLabel.outerWidth(),
+                right: false,
+                border: (otherPointer.value.prc * parentSizes.domWidth) / 100
+            };
+
+            this.setPosition(otherLabel, sizes, otherPointer.value.prc);
+        }
+    }
+
+    /**
+     * @param label
+     * @param sizes
+     * @param prc
+     * @returns {ISliderSizes}
+     */
+    private setPosition(label:SliderValueLabel, sizes:any, prc:number):ISliderSizes
+    {
+        sizes.margin = -sizes.label / 2;
+
+        // left limit
+        var labelLeft = sizes.border + sizes.margin;
+        if (labelLeft < 0)
+        {
+            sizes.margin -= labelLeft;
+        }
+
+        // right limit
+        if (sizes.border + sizes.label / 2 > this.$scope.sizes.domWidth)
+        {
+            sizes.margin = 0;
+            sizes.right = true;
+        }
+        else
+        {
+            sizes.right = false;
+        }
+
+        var cssProps = {
+            left: prc + '%',
+            marginLeft: sizes.margin,
+            right: 'auto'
+        };
+
+        label.css(cssProps);
+
+        if (sizes.right)
+        {
+            label.css({ left: "auto", right: 0 });
+        }
+
+        return sizes;
     }
 }

@@ -59,6 +59,12 @@ interface ISliderPointerValue {
     origin:number;
 }
 
+interface ISliderPointerConfig {
+    id:number;
+    value:number;
+    $scope:Slider;
+}
+
 interface ICoordinates
 {
     x:number;
@@ -76,10 +82,18 @@ interface IInteractionType
 interface JQuery
 {
     slider(node:HTMLInputElement, settings:ISliderSettings, force:boolean):Slider;
+    addDependClass(className:string, delimiter?:string):void;
+    removeDependClass(className:string, delimiter?:string):void;
+    formatNumber(delta:number, config:Object):string;
 }
 
 interface JQueryStatic
 {
     slider(node:HTMLInputElement, settings:ISliderSettings, force:boolean):Slider;
+    addDependClass(className:string, delimiter?:string):void;
+    removeDependClass(className:string, delimiter?:string):void;
+    formatNumber(delta:number, config:Object):string;
 }
+
+
 

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="dist/css/jquery.jslider-all.css" type="text/css">
     <!-- end -->
 
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/index.js"></script>
     <script type="text/javascript" src="dist/jquery.slider-bundled.js"></script>
 
     <style type="text/css" media="screen">
@@ -43,7 +43,6 @@
 
 </head>
 <body>
-<input type="range"/>
 <div class="layout">
 
     <div class="layout-slider-settings">
@@ -177,44 +176,6 @@
     </script>
 
 </div>
-
-<div class="layout-slider-settings">
-<pre>{
-  from: 480,
-  to: 1020,
-  step: 15,
-  dimension: '',
-  scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-  limits: false,
-  calculate: function( value ){
-    var hours = Math.floor( value / 60 );
-    var mins = ( value - hours*60 );
-    return (hours &lt; 10 ? "0"+hours : hours) + ":" + ( mins == 0 ? "00" : mins );
-  }
-}</pre>
-</div>
-<div class="layout-slider">
-    <input id="Slider6" type="text" name="area" value="600;720"/>
-</div>
-<script type="text/javascript" charset="utf-8">
-
-    jQuery("#Slider6").slider({
-        from: 480,
-        to: 1020,
-        step: 15,
-        dimension: '',
-        skin: 'fancy_round',
-        scale: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'],
-        limits: false,
-        calculate: function(value)
-        {
-            var hours = Math.floor(value / 60);
-            var mins = ( value - hours * 60 );
-            return (hours < 10 ? "0" + hours : hours) + ":" + ( mins == 0 ? "00" : mins );
-        }
-    });
-
-</script>
 
 </div>
 

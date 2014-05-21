@@ -1845,7 +1845,7 @@ function test_isNumeric() {
     $.isNumeric("8e5");
     $.isNumeric(3.1415);
     $.isNumeric(+10);
-    $.isNumeric(0144);
+    $.isNumeric(144); // hack since 0144 (octals) not supported in ES5
     $.isNumeric("");
     $.isNumeric({});
     $.isNumeric(NaN);

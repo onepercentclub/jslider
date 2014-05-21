@@ -20,14 +20,14 @@ jQuery.fn.slider = function( action:any, optValue:any):any
 {
     var returnValue, args = arguments;
 
-    function isDef( val )
+    function isDef( val:any ):boolean
     {
         return val !== undefined;
     }
 
-    function isDefAndNotNull( val )
+    function isDefAndNotNull( val:any ):boolean
     {
-        return val != null;
+        return isDef(val) && val != null;
     }
 
     this.each(function()
@@ -70,12 +70,12 @@ jQuery.fn.slider = function( action:any, optValue:any):any
                     if( isDef( args[ 1 ] ) && isDef( args[ 2 ] ) ){
                         var pointers = self.getPointers();
                         if( isDefAndNotNull( pointers[0] ) && isDefAndNotNull( args[1] ) ){
-                            pointers[0]._set( args[ 1 ] );
+                            pointers[0].set( args[ 1 ] );
                             pointers[0].setIndexOver();
                         }
 
                         if( isDefAndNotNull( pointers[1] ) && isDefAndNotNull( args[2] ) ){
-                            pointers[1]._set( args[ 2 ] );
+                            pointers[1].set( args[ 2 ] );
                             pointers[1].setIndexOver();
                         }
                     }
@@ -83,7 +83,7 @@ jQuery.fn.slider = function( action:any, optValue:any):any
                     else if( isDef( args[ 1 ] ) ){
                         var pointers = self.getPointers();
                         if( isDefAndNotNull( pointers[0] ) && isDefAndNotNull( args[1] ) ){
-                            pointers[0]._set( args[ 1 ] );
+                            pointers[0].set( args[ 1 ] );
                             pointers[0].setIndexOver();
                         }
                     }

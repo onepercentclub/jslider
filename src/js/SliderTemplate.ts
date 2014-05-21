@@ -4,7 +4,8 @@
  */
 class SliderTemplate
 {
-    private cache:(data:Object)=>string;
+    private cache:Function;
+
 
     /**
      * @param template
@@ -27,7 +28,7 @@ class SliderTemplate
      * @param template
      * @returns {Function}
      */
-    private createTemplateFn(template):(data:Object)=>any
+    private createTemplateFn(template):Function
     {
         return new Function("data",
             "var p=[]," +

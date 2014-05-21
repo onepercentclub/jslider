@@ -15,7 +15,7 @@ class SliderUXComponent {
 
     /**
      * @param templateParams
-     * @returns {SliderUIComponent}
+     * @returns {SliderUXComponent}
      */
     public create(templateParams:Object = {}):SliderUXComponent
     {

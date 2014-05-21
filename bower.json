@@ -1,18 +1,25 @@
 {
-  "name": "jslider",
-  "version": "2.0.0",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "hammerjs":"https://github.com/EightMedia/hammer.js.git#1.0.6"
-  },
-  "authors": [
-    "David Børresen <db@warmsys.com>"
-  ],
-  "license": "MIT"
+    "name": "jslider",
+    "version": "2.1.0",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "jquery": "http://code.jquery.com/jquery-2.0.3.js",
+        "hammerjs": "https://github.com/EightMedia/hammer.js.git#1.0.6",
+        "jquery-hammerjs": "1.0.1"
+    },
+    "devDependencies": {
+        "jasmine": "~2.0.0",
+        "jasmine-matchers": "~0.2.2",
+        "jasmine-jquery": "~2.0.3"
+    },
+    "authors": [
+        "David Børresen <db@warmsys.com>"
+    ],
+    "license": "MIT"
 }

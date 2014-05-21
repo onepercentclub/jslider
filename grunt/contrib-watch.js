@@ -3,12 +3,17 @@ module.exports = function(grunt)
 
     grunt.config('watch', {
         stylesheets: {
-            files: 'src/**/*.less',
-            tasks: [ 'newer:less']
+            files: 'src/**/*.less'
+            //tasks: [ 'newer:less']
         },
         typescript: {
-            files: 'js/**/*.ts',
-            tasks: ['newer:typescript:build']
+            files: 'src/**/*.ts',
+            tasks: [
+            //    'newer',
+                'ts:build',
+                'ts:development-tests',
+                'karma:ci'
+            ]
         }
     });
 

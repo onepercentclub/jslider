@@ -6,11 +6,30 @@ module.exports = function(grunt)
 
     grunt.loadTasks('grunt');
 
-    grunt.registerTask('deploy',
-        'Compiles LESS, minifies JS.',
+    grunt.registerTask('dev',
+        'Prepares for development, sets up watch.',
         [
-            'less:build',
-            'typescript:build',
+            'clean:development',
+            //'less:development',
+            'ts:build',
+            'ts:development-tests',
+            'karma',
+        ]
+    );
+
+    grunt.registerTask('development',
+        'Prepares for development, sets up watch.',
+        [
+            'dev',
+            'watch'
+        ]
+    );
+
+    grunt.registerTask('build',
+        'Compiles LESS, builds JS, and uglifies it',
+        [
+            //'less:build',
+            'ts:build',
             'concat',
             'uglify'
         ]
@@ -19,7 +38,7 @@ module.exports = function(grunt)
     grunt.registerTask('build:js',
         'Minifies JS.',
         [
-            'typescript:build',
+            'ts:build',
             'concat',
             'uglify'
         ]

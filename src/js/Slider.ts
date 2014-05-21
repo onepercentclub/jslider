@@ -1,6 +1,3 @@
-/**
- * Created by davidatborresen on 31.01.14.
- */
 /// <reference path="interfaces.ts" />
 /// <reference path="../definitions/jquery/jquery.d.ts" />
 /// <reference path="./SliderPointer.ts" />
@@ -8,8 +5,10 @@
 /// <reference path="./SliderValueLabel.ts" />
 /// <reference path="./SliderLimitLabel.ts" />
 /// <reference path="./SliderUXComponent.ts" />
+/// <reference path="./helpers/MathHelper.ts" />
 
-class Slider extends SliderUXComponent {
+class Slider extends SliderUXComponent
+{
 
     public static POINTER_FROM:number = 0;
     public static POINTER_TO:number = 1;
@@ -29,19 +28,20 @@ class Slider extends SliderUXComponent {
         format: { format: "#,##0.##" },
         value: '5;7',
         dimension: null,
-        hetrogeneity:null,
+        hetrogeneity: null,
         distance: {
-            min:null,
-            max:null
+            min: null,
+            max: null
         }
     };
 
     public components:{
         pointers:SliderPointer[];
         limits:SliderLimitLabel[];
+        labels:SliderValueLabel[];
     };
 
-    private sizes:ISliderSizes;
+    public sizes:ISliderSizes;
 
     public settings:ISliderSettings;
 
@@ -57,7 +57,7 @@ class Slider extends SliderUXComponent {
 
         this.$input = jQuery(inputNode).hide();
 
-        if(this.$input.prop('tagName') !== 'INPUT')
+        if (this.$input.prop('tagName') !== 'INPUT')
         {
             throw "jquery.slider: Slider must only be applied to INPUT elements.";
         }
@@ -65,19 +65,20 @@ class Slider extends SliderUXComponent {
         this.settings.interval = this.settings.to - this.settings.from;
         this.settings.value = this.$input.val();
 
-        if(this.settings.value === null || this.settings.value === undefined)
+        if (this.settings.value === null || this.settings.value === undefined)
         {
             throw "jquery.slider: INPUT element does not have a value.";
         }
 
-        if(this.settings.calculate && jQuery.isFunction(this.settings.calculate))
+        if (this.settings.calculate && jQuery.isFunction(this.settings.calculate))
         {
             this.calculate = this.settings.calculate;
         }
 
         this.components = {
-            limits:[],
-            pointers:[]
+            limits: [],
+            pointers: [],
+            labels: []
         };
 
         this.create({
@@ -98,15 +99,15 @@ class Slider extends SliderUXComponent {
     public create(params?:Object):SliderUXComponent
     {
         this.template = new SliderTemplate(
-        '<span class="<%=className%>">' +
-            '<div class="<%=className%>-bg">' +
-            '<i class="l"></i><i class="f"></i><i class="r"></i>' +
-            '<i class="v"></i>' +
-            '</div>' +
+            '<span class="<%=className%>">' +
+                '<div class="<%=className%>-bg">' +
+                '<i class="l"></i><i class="f"></i><i class="r"></i>' +
+                '<i class="v"></i>' +
+                '</div>' +
 
-            (this.settings.scale ? '<div class="<%=className%>-scale"><%=scale%></div>' : '') +
+                (this.settings.scale ? '<div class="<%=className%>-scale"><%=scale%></div>' : '') +
 
-        '</span>'
+                '</span>'
         );
         super.create(params);
 
@@ -115,79 +116,75 @@ class Slider extends SliderUXComponent {
         this.drawScale();
 
         var values:string[] = this.settings.value.split(';');
-        if(values.length == 1)
+        if (values.length == 1)
         {
             this.settings.single = true;
             this.$el.addDependClass('single')
         }
-        else if(values.length > 2)
+        else if (values.length > 2)
         {
-            throw "Slider: Only two handles are supported";
+            throw "jquery.slider: Only two handles are supported";
         }
 
-        if(!this.settings.limits)
+        if (!this.settings.limits)
         {
             this.$el.addDependClass('limitless');
         }
 
-        if(this.settings.skin)
+        if (this.settings.skin)
         {
             this.setSkin(this.settings.skin.toString());
         }
 
         this.sizes = {
-            domWidth:this.$el.width(),
-            domOffset:this.$el.offset()
+            domWidth: this.$el.width(),
+            domOffset: this.$el.offset()
         };
 
         this.components = {
-           pointers: [],
-           limits:[]
+            pointers: [],
+            limits: [],
+            labels: []
         };
+
+        this.createLimitLabels();
 
         values.forEach((value:string, uid:number)=>
         {
-            var typedValue = parseInt(value,10);
+            var typedValue:number = parseInt(value, 10);
+            var prev:number = parseInt(values[uid - 1], 10);
 
-            var prev:number = Number(values[uid-1]);
-
-            if(isNaN(typedValue))
+            if (isNaN(typedValue))
             {
-                return;
+                throw "jquery.slider: Invalid value: \"" + value.toString() + "\". Values must be integers.";
             }
-
-            if(!isNaN(prev) && typedValue < prev)
+            else if (!isNaN(prev) && typedValue < prev)
             {
                 typedValue = prev;
             }
 
-            var pointer:SliderPointer = new SliderPointer(uid, this);
+            typedValue = MathHelper.clamp(typedValue, this.settings.from, this.settings.to);
 
-            typedValue = (typedValue < this.settings.from) ? this.settings.from : typedValue;
-            typedValue = (typedValue > this.settings.to) ? this.settings.to : typedValue;
+            this.components.pointers[uid] = new SliderPointer({
+                id: uid,
+                value: typedValue,
+                $scope: this
+            });
 
-            pointer.set(typedValue, true);
-
-
-
-            this.components.pointers[uid] = pointer;
+            this.components.pointers[uid].redrawLabels();
         });
 
-        this.createLimitLabels();
-
-        if(!this.settings.single)
+        if (!this.settings.single)
         {
             this.$value = this.$el.find('.v');
         }
 
-        jQuery.each(this.getPointers(),(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.getPointers(), (i:number, pointer:SliderPointer)=>
         {
-            if(!this.settings.single)
+            if (!this.settings.single)
             {
                 this.ensurePointerIndex(pointer);
             }
-
-            this.redrawLabels(pointer);
         });
 
         this.setValue();
@@ -198,7 +195,7 @@ class Slider extends SliderUXComponent {
 
         jQuery(window).resize(()=>
         {
-           this.onResize();
+            this.redraw();
         });
 
         return this;
@@ -214,13 +211,13 @@ class Slider extends SliderUXComponent {
         var params:Object;
         var limitLabel:SliderLimitLabel;
 
-            template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
-            params = {
-                className: Slider.CLASSNAME,
-                from: this.settings.from,
-                dimension: this.settings.dimension
-            };
-            limitLabel = new SliderLimitLabel(template, params);
+        template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
+        params = {
+            className: Slider.CLASSNAME,
+            from: this.settings.from,
+            dimension: this.settings.dimension
+        };
+        limitLabel = new SliderLimitLabel(template, params);
 
 
         this.$el.append(limitLabel.$el);
@@ -263,9 +260,9 @@ class Slider extends SliderUXComponent {
      * @param value
      * @returns {boolean}
      */
-    public onStateChange(value:string):any
+    public onStateChange(value:string):boolean
     {
-        if(jQuery.isFunction(this.settings.onStateChange))
+        if (this.settings.onStateChange && jQuery.isFunction(this.settings.onStateChange))
         {
             return this.settings.onStateChange.apply(this, value);
         }
@@ -284,7 +281,7 @@ class Slider extends SliderUXComponent {
 
     public update():void
     {
-        this.onResize();
+        this.redraw();
         this.drawScale();
     }
 
@@ -293,12 +290,12 @@ class Slider extends SliderUXComponent {
      */
     public setSkin(skinName:string):void
     {
-        if(this.settings.skin)
+        if (this.settings.skin)
         {
-            this.$el.removeDependClass(this.settings.skin,'_');
+            this.$el.removeDependClass(this.settings.skin, '_');
         }
 
-        this.$el.addDependClass( this.settings.skin = skinName, "_" );
+        this.$el.addDependClass(this.settings.skin = skinName, "_");
     }
 
     /**
@@ -306,7 +303,7 @@ class Slider extends SliderUXComponent {
      */
     public setPointerIndex(index:number):void
     {
-        jQuery.each(this.getPointers(),(i:number,pointer:SliderPointer)=>
+        jQuery.each(this.getPointers(), (i:number, pointer:SliderPointer)=>
         {
             pointer.index(index);
         })
@@ -352,81 +349,32 @@ class Slider extends SliderUXComponent {
 
     private drawScale():void
     {
-        this.$el.find(Slider.SELECTOR + 'scale span ins').each(function()
+        this.$el.find(Slider.SELECTOR + 'scale span ins').each(function ()
         {
             jQuery(this).css({ marginLeft: -jQuery(this).outerWidth() / 2 });
         });
     }
 
-    private onResize():void
+    public redraw():void
     {
         this.sizes = {
             domWidth: this.$el.width(),
-            domOffset:this.$el.offset()
+            domOffset: this.$el.offset()
         };
 
         jQuery.each(this.components.pointers, (i:number, pointer:SliderPointer)=>
         {
-            this.redraw(pointer);
+            this.setValueElementPosition();
+            pointer.redrawLabels();
         });
-    }
 
-    /**
-     * @param x {number}
-     * @param pointer {SliderPointer}
-     */
-    public calcLimits(x:number, pointer:SliderPointer):number
-    {
-        if(!this.settings.smooth)
-        {
-            var step = this.settings.step * 100 / (this.settings.interval);
-            x = Math.round( x / step ) * step;
-        }
-
-        var another:SliderPointer = pointer.getAdjacentPointer();
-        if(another && pointer.uid && x < another.get().prc)
-        {
-            x = another.get().prc;
-        }
-
-        if (another && !pointer.uid && x > another.get().prc)
-        {
-            x = another.get().prc;
-        }
-
-        if(x < 0)
-        {
-            x = 0;
-        }
-
-        if(x > 100)
-        {
-            x = 100;
-        }
-
-        return Math.round(x * 10) / 10;
-    }
-
-    /**
-     * @param pointer {SliderPointer}
-     */
-    public redraw(pointer:SliderPointer):void
-    {
-        if(!this.isInitialized())
-        {
-            return;
-        }
-
+        this.redrawLimits();
         this.setValue();
-
-        this.setValueElementPosition();
-
-        this.redrawLabels(pointer);
     }
 
     public setValueElementPosition():void
     {
-        if(this.components.pointers.length == 1)
+        if (this.components.pointers.length == 1)
         {
             return;
         }
@@ -435,261 +383,74 @@ class Slider extends SliderUXComponent {
         var toPercent:number = this.components.pointers[Slider.POINTER_TO].get().prc;
 
         this.$value.css({
-            left:  fromPercent + '%',
+            left: fromPercent + '%',
             width: (toPercent - fromPercent) + '%'
         });
     }
 
-    /**
-     * @param pointer {SliderPointer}
-     */
-    public redrawLabels(pointer:SliderPointer):void
-    {
-        var label = pointer.getLabel();
 
-        label.setValue(
-            this.calculate(
-                pointer.get().origin
-            )
-        );
-
-        var prc:number = pointer.get().prc;
-        var sizes = {
-                label: label.outerWidth(),
-                right: false,
-                border: (prc * this.sizes.domWidth) / 100
-            };
-
-        if(!this.settings.single && pointer.getAdjacentPointer())
-        {
-            var otherPointer:SliderPointer = pointer.getAdjacentPointer();
-            var otherLabel:SliderValueLabel = otherPointer.getLabel();
-
-            switch(pointer.uid)
-            {
-                case Slider.POINTER_FROM:
-                    if(sizes.border+sizes.label / 2 > (otherLabel.offset().left - this.sizes.domOffset.left))
-                    {
-                        otherLabel.css({ visibility: "hidden" });
-                        otherLabel.setValue(
-                            this.calculate(
-                              otherPointer.get().origin
-                            )
-                        );
-
-                        label.css({ visibility: "visible" });
-
-                        prc = (otherPointer.get().prc - prc) / 2 + prc;
-
-                        if(otherPointer.get().prc != pointer.get().prc)
-                        {
-                            label.setValue(
-                                this.calculate(pointer.get().origin)
-                                    + '&nbsp;&ndash;&nbsp;' +
-                                this.calculate(otherPointer.get().origin)
-                            );
-
-                            sizes.label = label.outerWidth();
-                            sizes.border = (prc * this.sizes.domWidth) / 100;
-                        }
-                    }
-                    else
-                    {
-                        otherLabel.css({visibility:'visible'});
-                    }
-                    break;
-
-                case Slider.POINTER_TO:
-                    if(sizes.border - sizes.label / 2 < (otherLabel.offset().left - this.sizes.domOffset.left) + otherLabel.outerWidth())
-                    {
-                        otherLabel.css({visibility: 'hidden'});
-                        otherLabel.setValue(
-                            this.calculate(
-                                otherPointer.get().origin
-                            )
-                        );
-
-                        label.css({visibility: 'visible'});
-
-                        prc = (prc - otherPointer.get().prc) / 2 + otherPointer.get().prc;
-
-                        if (otherPointer.get().prc != pointer.get().prc)
-                        {
-                            label.setValue(
-                                this.calculate(otherPointer.get().origin)
-                                    + "&nbsp;&ndash;&nbsp;" +
-                                this.calculate(pointer.get().origin)
-                            );
-
-                            sizes.label = label.outerWidth();
-                            sizes.border = (prc * this.sizes.domWidth) / 100;
-                        }
-                    }
-                    else
-                    {
-                        otherLabel.css({visibility:'visible'});
-                    }
-                    break;
-            }
-        }
-
-        this.setPosition(label, sizes, prc);
-
-        if(otherLabel)
-        {
-            sizes = {
-                label: otherLabel.outerWidth(),
-                right:false,
-                border:(otherPointer.value.prc * this.sizes.domWidth) / 100
-            };
-
-            this.setPosition(otherLabel, sizes, otherPointer.value.prc);
-        }
-    }
 
     private redrawLimits():void
     {
-        if(!this.settings.limits)
+        if (!this.settings.limits)
         {
             return;
         }
 
-        var limits = [true, true];
-
-        for(var key in this.components.pointers)
+        for (var i = 0; i < this.components.pointers.length; i++)
         {
-            if(!this.settings.single || key == 0)
+            var pointer:SliderPointer = this.components.pointers[i];
+            var label = pointer.getLabel();
+            var labelLeft = label.offset().left - this.sizes.domOffset.left;
+
+            if(i == Slider.POINTER_FROM)
             {
-                if(!this.components.pointers.hasOwnProperty(key))
+                var limitFrom:SliderLimitLabel =  this.components.limits[Slider.POINTER_FROM];
+                if (labelLeft < limitFrom.outerWidth())
                 {
-                    continue;
+                    limitFrom.fadeOut('fast');
                 }
-
-                var pointer:SliderPointer = this.components.pointers[key];
-                var label = pointer.getLabel();
-                var labelLeft = label.offset().left - this.sizes.domOffset.left;
-
-                if(labelLeft < this.components.limits[Slider.POINTER_FROM].outerWidth())
+                else
                 {
-                    limits[0] = false;
-                }
-
-                if(labelLeft + label.outerWidth() > this.sizes.domWidth - this.components.limits[Slider.POINTER_TO].outerWidth())
-                {
-                    limits[1] = false;
+                    limitFrom.fadeIn('fast');
                 }
             }
-        }
-
-        for(var i = 0; i < limits.length; i++)
-        {
-            if(!(this.components.limits[i] instanceof SliderLimitLabel))
+            else if(i == Slider.POINTER_TO)
             {
-                continue;
-            }
-
-            if(limits[i])
-            {
-                this.components.limits[i].fadeIn('fast');
-            }
-            else
-            {
-                this.components.limits[i].fadeOut('fast');
+                var limitTo:SliderLimitLabel = this.components.limits[Slider.POINTER_TO];
+                if (labelLeft + label.outerWidth() > this.sizes.domWidth - limitTo.outerWidth())
+                {
+                    limitTo.fadeOut('fast');
+                }
+                else
+                {
+                    limitTo.fadeIn('fast');
+                }
             }
         }
-    }
-
-    /**
-     * @param label
-     * @param sizes
-     * @param prc
-     * @returns {ISliderSizes}
-     */
-    private setPosition(label:SliderValueLabel, sizes:any, prc:number):ISliderSizes
-    {
-        sizes.margin = -sizes.label / 2;
-
-        // left limit
-        var labelLeft = sizes.border + sizes.margin;
-        if (labelLeft < 0)
-        {
-            sizes.margin -= labelLeft;
-        }
-
-        // right limit
-        if (sizes.border + sizes.label / 2 > this.sizes.domWidth)
-        {
-            sizes.margin = 0;
-            sizes.right = true;
-        }
-        else
-        {
-            sizes.right = false;
-        }
-
-        var cssProps = {
-            left: prc + '%',
-            marginLeft: sizes.margin,
-            right: 'auto'
-        };
-
-        label.css(cssProps);
-
-        if (sizes.right)
-        {
-            label.css({ left: "auto", right: 0 });
-        }
-
-        return sizes;
     }
 
     public setValue():void
     {
-        var value = this.getValue();
-
-        this.$input.val(value);
+        var value:string = this.getValue();
 
         this.onStateChange(value);
+
+        this.$input.val(value);
     }
 
     /**
-     * @returns {*}
+     * @returns {string}
      */
-    public getValue():any
+    public getValue():string
     {
-        if(!this.isInitialized())
-        {
-            return false;
-        }
-
         var value:string = '';
-        jQuery.each(this.getPointers(),(i:number,pointer:SliderPointer)=>
-        {
-            if(pointer.get().prc != undefined && !isNaN(pointer.get().prc))
-            {
-                value += (i > 0 ? ';':'') + this.prcToValue(pointer.get().prc);
-            }
-        });
-
-        return value;
-    }
-
-    /**
-     * @returns {*}
-     */
-    public getPrcValue():any
-    {
-        if(!this.isInitialized())
-        {
-            return false;
-        }
-
-        var value = '';
         jQuery.each(this.getPointers(), (i:number, pointer:SliderPointer)=>
         {
-            if (pointer.get().prc != undefined && !isNaN(pointer.get().prc))
+            var prc = pointer.get().prc;
+            if (prc && !isNaN(prc))
             {
-                value += (i > 0 ? ';' : '') + pointer.get().prc;
+                value += (i > 0 ? ';' : '') + MathHelper.prcToValue(prc, pointer).toString();
             }
         });
 
@@ -697,144 +458,52 @@ class Slider extends SliderUXComponent {
     }
 
     /**
-     * @param prc
-     * @returns {number}
+     * @returns {string}
      */
-    public prcToValue(prc:number):number
+    public getPrcValue():string
     {
-        if(this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0)
+        var value:string = '';
+        jQuery.each(this.getPointers(), (i:number, pointer:SliderPointer)=>
         {
-            var heterogeneity:string = this.settings.hetrogeneity;
-            var start:number = 0;
-            var from = this.settings.from;
-            var value:any;
-
-            for (var i = 0; i <= heterogeneity.length; i++)
+            var prc = pointer.get().prc;
+            if (prc && !isNaN(prc))
             {
-                var v:any[];
-                if(heterogeneity[i])
-                {
-                    v = heterogeneity[i].split('/');
-                }
-                else
-                {
-                    v = [100, this.settings.to];
-                }
-
-                v[0] = Number(v[0]);
-                v[1] = Number(v[1]);
-
-                if(prc >= start && prc <= v[0])
-                {
-                    value = from + ((prc - start) * (v[1]-from)) / (v[0]-start);
-                }
-
-                start = v[0];
-                from = v[1];
+                value += (i > 0 ? ';' : '') + prc.toString();
             }
-        }
-        else
-        {
-            value = this.settings.from + (prc * this.settings.interval) / 100;
-        }
-
-        return this.round(value);
-    }
-
-    /**
-     * @param value
-     * @param pointer
-     */
-    public valueToPrc(value:any,pointer:SliderPointer):any
-    {
-        var prc:any;
-        if(this.settings.hetrogeneity && this.settings.hetrogeneity.length > 0)
-        {
-            var hetrogeneity:string = this.settings.hetrogeneity;
-            var start:number = 0;
-            var from:number = this.settings.from;
-            var v:any;
-
-            for(var i = 0; i <= hetrogeneity.length; i++)
-            {
-                if(hetrogeneity[i])
-                {
-                    v = hetrogeneity[i].split('/');
-                }
-                else
-                {
-                    v = [100, this.settings.to];
-                }
-
-                v[0] = Number(v[0]);
-                v[1] = Number(v[1]);
-
-                if (value >= from && value <= v[1])
-                {
-                    prc = pointer.calcLimits(start + (value - from) * (v[0] - start) / (v[1] - from));
-                }
-
-                start = v[0];
-                from = v[1];
-            }
-        }
-        else
-        {
-            prc = pointer.calcLimits((value - this.settings.from) * 100 / this.settings.interval);
-        }
-
-        return prc;
-    }
-
-    /**
-     * @param value
-     * @returns {number}
-     */
-    public round(value:number):number
-    {
-        value = Math.round(value / this.settings.step) * this.settings.step;
-
-        if(this.settings.round)
-        {
-            value = Math.round(value * Math.pow(10, this.settings.round)) / Math.pow(10,this.settings.round);
-        }
-        else
-        {
-            value = Math.round(value);
-        }
+        });
 
         return value;
     }
 
     /**
      * @param value
-     * @returns {*}
+     * @returns {string}
      */
     public calculate(value:any):string
     {
         value = value.toString().replace(/,/gi, ".").replace(/ /gi, "");
 
-        if(jQuery.formatNumber)
+        if (jQuery.formatNumber)
         {
-            return jQuery.formatNumber(Number(value), this.settings.format || {}).replace( /-/gi, "&minus;" );
+            return jQuery.formatNumber(Number(value), this.settings.format || {}).replace(/-/gi, "&minus;");
         }
 
-        return Number(value).toString();
+        return value;
     }
 
     public destroy():void
     {
-        jQuery.each(this.components.pointers, (i:number,sliderPointer:SliderPointer)=>
+        jQuery.each(this.components.pointers, (i:number, sliderPointer:SliderPointer)=>
         {
             sliderPointer.destroy();
         });
 
-        jQuery.each(this.components.labels, (i:number,sliderValueLabel:SliderValueLabel)=>
+        jQuery.each(this.components.labels, (i:number, sliderValueLabel:SliderValueLabel)=>
         {
             sliderValueLabel.destroy();
         });
 
-        jQuery.each(this.components.limits, (i:number,sliderLimitLabel:SliderLimitLabel)=>
+        jQuery.each(this.components.limits, (i:number, sliderLimitLabel:SliderLimitLabel)=>
         {
             sliderLimitLabel.destroy();
         });
