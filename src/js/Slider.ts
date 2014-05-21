@@ -400,12 +400,13 @@ class Slider extends SliderUXComponent
         for (var i = 0; i < this.components.pointers.length; i++)
         {
             var pointer:SliderPointer = this.components.pointers[i];
-            var label = pointer.getLabel();
-            var labelLeft = label.offset().left - this.sizes.domOffset.left;
+            var label:SliderValueLabel = pointer.getLabel();
+            var labelLeft:number = label.offset().left - this.sizes.domOffset.left;
 
             if(i == Slider.POINTER_FROM)
             {
                 var limitFrom:SliderLimitLabel =  this.components.limits[Slider.POINTER_FROM];
+
                 if (labelLeft < limitFrom.outerWidth())
                 {
                     limitFrom.fadeOut('fast');
@@ -413,6 +414,19 @@ class Slider extends SliderUXComponent
                 else
                 {
                     limitFrom.fadeIn('fast');
+                }
+
+                if(this.settings.single)
+                {
+                    var limitTo:SliderLimitLabel =  this.components.limits[Slider.POINTER_TO];
+                    if(labelLeft + label.outerWidth() > this.sizes.domWidth - limitTo.outerWidth())
+                    {
+                        limitTo.fadeOut('fast');
+                    }
+                    else
+                    {
+                        limitTo.fadeIn('fast');
+                    }
                 }
             }
             else if(i == Slider.POINTER_TO)

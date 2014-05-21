@@ -3451,10 +3451,20 @@ var Slider = (function (_super) {
 
             if (i == Slider.POINTER_FROM) {
                 var limitFrom = this.components.limits[Slider.POINTER_FROM];
+
                 if (labelLeft < limitFrom.outerWidth()) {
                     limitFrom.fadeOut('fast');
                 } else {
                     limitFrom.fadeIn('fast');
+                }
+
+                if (this.settings.single) {
+                    var limitTo = this.components.limits[Slider.POINTER_TO];
+                    if (labelLeft + label.outerWidth() > this.sizes.domWidth - limitTo.outerWidth()) {
+                        limitTo.fadeOut('fast');
+                    } else {
+                        limitTo.fadeIn('fast');
+                    }
                 }
             } else if (i == Slider.POINTER_TO) {
                 var limitTo = this.components.limits[Slider.POINTER_TO];
