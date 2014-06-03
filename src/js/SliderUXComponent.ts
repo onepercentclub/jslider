@@ -42,7 +42,10 @@ class SliderUXComponent {
      */
     public css(cssProps:any):any
     {
-        return this.$el.css(cssProps)
+        this.getAnimationFrame(()=>{
+            this.$el.css(cssProps);
+        });
+        return this.$el;
     }
 
     /**
@@ -74,5 +77,23 @@ class SliderUXComponent {
     public isInitialized():boolean
     {
         return this.initialized;
+    }
+
+    /**
+     * @param callback
+     */
+    public getAnimationFrame(callback:()=>any):void
+    {
+        var animationFrame = (function(){
+            return  window.requestAnimationFrame       ||
+                window['webkitRequestAnimationFrame'] ||
+                window['mozRequestAnimationFrame']    ||
+                function( callback ){
+                    window.setTimeout(callback, 1000 / 60);
+                };
+        })();
+
+        animationFrame(callback);
+
     }
 }
