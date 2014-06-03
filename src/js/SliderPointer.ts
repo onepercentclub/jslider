@@ -89,7 +89,7 @@ class SliderPointer extends SliderDraggable
                 from: this.settings.from,
                 dimension: this.settings.dimension
             };
-            template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
+            template = '<div class="<%=className%>-label <%=className%>-label-from"><span><%=from%></span><%=dimension%></div>';
         }
 
         var label = new SliderValueLabel(template, labelParams);
