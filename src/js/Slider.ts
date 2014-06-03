@@ -448,8 +448,6 @@ class Slider extends SliderUXComponent
     {
         var value:string = this.getValue();
 
-        this.onStateChange(value);
-
         this.$input.val(value);
     }
 

@@ -2117,8 +2117,6 @@ var Slider = (function (_super) {
     Slider.prototype.setValue = function () {
         var value = this.getValue();
 
-        this.onStateChange(value);
-
         this.$input.val(value);
     };
 
