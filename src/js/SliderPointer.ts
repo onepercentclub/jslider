@@ -206,7 +206,7 @@ class SliderPointer extends SliderDraggable
 
         if (jQuery.isFunction(this.settings.onStateChange))
         {
-            this.settings.onStateChange.call(this.$scope, this.$scope.getValue())
+            this.$scope.onStateChange(this.$scope.getValue());
         }
 
         this.$el.removeDependClass('hover');

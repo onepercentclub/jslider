@@ -264,7 +264,7 @@ class Slider extends SliderUXComponent
     {
         if (this.settings.onStateChange && jQuery.isFunction(this.settings.onStateChange))
         {
-            return this.settings.onStateChange.apply(this, value);
+            return this.settings.onStateChange.call(this, value);
         }
         return true;
     }
