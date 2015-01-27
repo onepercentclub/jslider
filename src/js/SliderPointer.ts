@@ -164,12 +164,12 @@ class SliderPointer extends SliderDraggable
             return false;
         }
 
-        if (this.uid === Slider.POINTER_FROM && otherOrigin + max >= this.value.origin)
+        if (this.uid === Slider.POINTER_FROM && otherOrigin + max > this.value.origin)
         {
             return true;
         }
 
-        return this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin;
+        return this.uid === Slider.POINTER_TO && otherOrigin - max < this.value.origin;
     }
 
     /**
