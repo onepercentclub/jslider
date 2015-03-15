@@ -229,7 +229,7 @@ describe('Slider', function()
         });
     });
 
-    describe('Hetrogeneity configuration', function()
+    describe('Heterogeneity configuration', function()
     {
         xit('should add correct scale',function(){});
     });

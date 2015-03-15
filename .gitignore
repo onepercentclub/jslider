@@ -1,3 +1,8 @@
 */.DS_Store
 .DS_Store
 node_modules/
+src/js/.baseDir.ts
+.idea/
+.tscache/
+lib/
+build/

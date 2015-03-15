@@ -7,7 +7,7 @@ Note: As of v2.0.0 this library has a dependency of [Hammer.js](http://eightmedi
 * Added grunt task runner for improved and easier build process.
 
 ## Build process
-You need to have grunt installed to a manual build of this repo. When grunt is installed and available in the project directory you
+You need to have grunt installed to do a manual build of this repo. When grunt is installed and available in the project directory you
 only need to run `grunt build` which then will spit out four .js files under dist:
 * jquery.slider-bundled.js
 * jquery.slider-bundled.min.js

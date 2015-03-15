@@ -131,8 +131,6 @@ class SliderPointer extends SliderDraggable
     }
 
     /**
-     * @param minDistance
-     * @param another
      * @returns {boolean}
      */
     private isDistanceViolation():boolean
@@ -340,9 +338,9 @@ class SliderPointer extends SliderDraggable
         return (this.value.prc == pointer.get().prc);
     }
 
-    /**
-     * @param pointer {SliderPointer}
-     */
+	/**
+	 * @returns {void}
+	 */
     public redrawLabels():void
     {
         var label = this.getLabel();

@@ -15,7 +15,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'lib/jquery/index.js',
+            'lib/jquery/dist/jquery.js',
             'lib/hammerjs/hammer.js',
             'lib/jquery-hammerjs/jquery.hammer.js',
             'src/vendor/jshashtable-2.1_src.js',
