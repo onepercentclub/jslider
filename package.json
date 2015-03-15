@@ -1,12 +1,14 @@
 {
-  "name": "jq-slider",
+  "name": "html5-slider",
   "version": "2.1.1",
-  "description": "Jquery slider",
+  "description": "Just another slider implementation. Touch friendly.",
   "homepage": "http://abdavid.github.com/jslider/",
   "keywords": [
     "jquery",
     "dom",
-    "slider"
+    "slider",
+    "touch",
+    "html5"
   ],
   "devDependencies": {
     "grunt": "~0.4.4",
