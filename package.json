@@ -1,5 +1,5 @@
 {
-  "name": "JQSlider",
+  "name": "jq-slider",
   "version": "2.1.1",
   "description": "Jquery slider",
   "homepage": "http://abdavid.github.com/jslider/",
@@ -59,8 +59,8 @@
   "repository": [
     {
       "type": "git",
-      "url": "http://github.com/abdavid/jslider.git"
+      "url": "https://github.com/abdavid/jslider.git"
     }
   ],
-  "github": "http://github.com/abdavid/jslider"
+  "github": "https://github.com/abdavid/jslider"
 }
