@@ -1065,8 +1065,8 @@ var Hashtable = (function() {
 
     MathHelper.prcToValue = function (prc, pointer) {
         var settings = pointer.settings;
-        if (settings.hetrogeneity && settings.hetrogeneity.length > 0) {
-            var heterogeneity = settings.hetrogeneity;
+        if (settings.heterogeneity && settings.heterogeneity.length > 0) {
+            var heterogeneity = settings.heterogeneity;
             var start = 0;
             var from = settings.from;
             var value;
@@ -1099,15 +1099,15 @@ var Hashtable = (function() {
     MathHelper.valueToPrc = function (value, pointer) {
         var prc;
         var settings = pointer.settings;
-        if (settings.hetrogeneity && settings.hetrogeneity.length > 0) {
-            var hetrogeneity = settings.hetrogeneity;
+        if (settings.heterogeneity && settings.heterogeneity.length > 0) {
+            var heterogeneity = settings.heterogeneity;
             var start = 0;
             var from = settings.from;
             var v;
 
-            for (var i = 0; i <= hetrogeneity.length; i++) {
-                if (hetrogeneity[i]) {
-                    v = hetrogeneity[i].split('/');
+            for (var i = 0; i <= heterogeneity.length; i++) {
+                if (heterogeneity[i]) {
+                    v = heterogeneity[i].split('/');
                 } else {
                     v = [100, settings.to];
                 }
@@ -1579,11 +1579,11 @@ var SliderPointer = (function (_super) {
             return false;
         }
 
-        if (this.uid === Slider.POINTER_FROM && otherOrigin + max >= this.value.origin) {
+        if (this.uid === Slider.POINTER_FROM && otherOrigin + max > this.value.origin) {
             return true;
         }
 
-        return this.uid === Slider.POINTER_TO && otherOrigin - max <= this.value.origin;
+        return this.uid === Slider.POINTER_TO && otherOrigin - max < this.value.origin;
     };
 
     SliderPointer.prototype.isMinDistanceViolation = function (otherOrigin, min) {
@@ -1819,7 +1819,7 @@ var Slider = (function (_super) {
             format: { format: "#,##0.##" },
             value: '5;7',
             dimension: null,
-            hetrogeneity: null,
+            heterogeneity: null,
             distance: {
                 min: null,
                 max: null

@@ -2,6 +2,7 @@
 .DS_Store
 node_modules/
 src/js/.baseDir.ts
+src/tests/.baseDir.ts
 .idea/
 .tscache/
 lib/
