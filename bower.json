@@ -1,12 +1,16 @@
 {
   "name": "jslider",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
     "tests"
+  ],
+  "main": [
+    "dist/jquery-slider-bundled.js",
+    "dist/css/jquery-slider-all.css"
   ],
   "dependencies": {
     "jquery": "http://code.jquery.com/jquery-2.0.3.js",
