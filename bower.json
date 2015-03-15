@@ -1,6 +1,6 @@
 {
-  "name": "jslider",
-  "version": "2.1.2",
+  "name": "JQSlider",
+  "version": "2.1.1",
   "ignore": [
     "**/.*",
     "node_modules",
