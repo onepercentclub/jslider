@@ -28,7 +28,7 @@ class Slider extends SliderUXComponent
         format: { format: "#,##0.##" },
         value: '5;7',
         dimension: null,
-        hetrogeneity: null,
+		heterogeneity: null,
         distance: {
             min: null,
             max: null
