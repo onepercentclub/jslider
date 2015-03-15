@@ -31,7 +31,7 @@ interface ISliderSettings {
     limits?:any;
     single?:boolean;
     scale?:string;
-    hetrogeneity?:string;
+	heterogeneity?:string;
     step?:number;
     round?:number;
     smooth?:boolean;

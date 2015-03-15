@@ -42,9 +42,9 @@ class MathHelper
     public static prcToValue(prc:number, pointer:SliderPointer):number
     {
         var settings:ISliderSettings = pointer.settings;
-        if (settings.hetrogeneity && settings.hetrogeneity.length > 0)
+        if (settings.heterogeneity && settings.heterogeneity.length > 0)
         {
-            var heterogeneity:string = settings.hetrogeneity;
+            var heterogeneity:string = settings.heterogeneity;
             var start:number = 0;
             var from:number = settings.from;
             var value:any;
@@ -89,18 +89,18 @@ class MathHelper
     {
         var prc:any;
         var settings:ISliderSettings = pointer.settings;
-        if (settings.hetrogeneity && settings.hetrogeneity.length > 0)
+        if (settings.heterogeneity && settings.heterogeneity.length > 0)
         {
-            var hetrogeneity:string = settings.hetrogeneity;
+            var heterogeneity:string = settings.heterogeneity;
             var start:number = 0;
             var from:number = settings.from;
             var v:any;
 
-            for (var i = 0; i <= hetrogeneity.length; i++)
+            for (var i = 0; i <= heterogeneity.length; i++)
             {
-                if (hetrogeneity[i])
+                if (heterogeneity[i])
                 {
-                    v = hetrogeneity[i].split('/');
+                    v = heterogeneity[i].split('/');
                 }
                 else
                 {
