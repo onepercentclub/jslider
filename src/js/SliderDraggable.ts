@@ -15,7 +15,7 @@ class SliderDraggable extends SliderUXComponent {
     public static EVENT_UP:string = 'up';
     public static EVENT_MOVE:string = 'move';
     public static EVENT_DOWN:string = 'down';
-
+	public $scope:Slider;
     private outer:JQuery;
     private defaultIs:IInteractionType = {
         drag: false,
@@ -131,12 +131,12 @@ class SliderDraggable extends SliderUXComponent {
      * @param event {JQueryEventObject}
      * @returns {{x: number, y: number}}
      */
-    public getPageCoords(event:HammerEvent):ICoordinates
+    public getPageCoords(event:any):ICoordinates
     {
         var touch = event.gesture.touches[0];
         return {
-            x: touch.x,
-            y: touch.y
+            x: touch.pageX,
+            y: touch.pageY
         };
     }
 
@@ -156,8 +156,8 @@ class SliderDraggable extends SliderUXComponent {
         for(var eventType in this.events)
         {
             var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
-            jQuery(document).hammer().off(namespacedEvent);
-            this.$el.hammer().off(namespacedEvent);
+            //jQuery(document).hammer().off(namespacedEvent);
+            this.$el.off(namespacedEvent);
         }
     }
 
@@ -176,14 +176,14 @@ class SliderDraggable extends SliderUXComponent {
     private bind(element:JQuery, eventType:string, callback:(event:any)=>void):void
     {
         var namespacedEvent:string = this.events[eventType]; // + SliderDraggable.EVENT_NAMESPACE
-
-        element.hammer().on(namespacedEvent, callback);
+		
+        element.on(namespacedEvent, callback);
     }
 
     /**
      * @param event {Event}
      */
-    public mouseDown(event:HammerEvent):void
+    public mouseDown(event:any):void
     {
         this.is.drag = true;
         this.is.mouseup = this.is.clicked = false;

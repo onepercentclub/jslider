@@ -44,6 +44,8 @@ class Slider extends SliderUXComponent
     public sizes:ISliderSizes;
 
     public settings:ISliderSettings;
+	
+	public hammerManager:HammerManager;
 
     /**
      * @param inputNode
@@ -80,7 +82,7 @@ class Slider extends SliderUXComponent
             pointers: [],
             labels: []
         };
-
+		
         this.create({
             className: Slider.CLASSNAME,
             settings: {
@@ -198,6 +200,13 @@ class Slider extends SliderUXComponent
             this.redraw();
         });
 
+		this.hammerManager = new Hammer(this.$el.get(0), {
+			domEvents: true,
+			dragLockToAxis: true,
+			preventDefault: true,
+			dragBlockHorizontal: true
+		});
+		
         return this;
     }
 
