@@ -18,7 +18,7 @@ describe('Slider', function()
         inputNode.value = value;
         inputNode.type = 'text';
 
-        return new Slider(inputNode, settings);
+        return new Slider.Impl(inputNode, settings);
     }
 
     describe('Two pointer configuration', function()

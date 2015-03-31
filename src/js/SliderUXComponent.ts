@@ -2,98 +2,92 @@
  * Created by davidatborresen on 18.03.14.
  */
 /// <reference path="../definitions/jquery/jquery.d.ts" />
-/// <reference path="./interfaces.ts" />
+/// <reference path="./interfaces.d.ts" />
 /// <reference path="./SliderTemplate.ts" />
 
-class SliderUXComponent {
+module Slider {
 
-    public $el:JQuery;
-    public template:SliderTemplate;
-    public components:Object;
+	export class UXComponent {
 
-    private initialized:boolean = false;
+		public $el:JQuery;
+		public template:Slider.Template;
+		public components:Object;
 
-    /**
-     * @param templateParams
-     * @returns {SliderUXComponent}
-     */
-    public create(templateParams:Object = {}):SliderUXComponent
-    {
-        if(!this.template)
-        {
-            throw 'No template is defined';
-        }
+		private initialized:boolean = false;
 
-        if(this.isInitialized())
-        {
-           return this;
-        }
+		/**
+		 * @param templateParams
+		 * @returns {UXComponent}
+		 */
+		public create(templateParams:Object = {}):UXComponent {
+			if (!this.template) {
+				throw 'No template is defined';
+			}
 
-        this.$el = jQuery(this.template.render(templateParams));
+			if (this.isInitialized()) {
+				return this;
+			}
 
-        this.initialized = true;
+			this.$el = jQuery(this.template.render(templateParams));
 
-        return this;
-    }
+			this.initialized = true;
 
-    /**
-     * @param cssProps
-     * @returns {string|JQuery}
-     */
-    public css(cssProps:any):any
-    {
-        this.getAnimationFrame(()=>{
-            this.$el.css(cssProps);
-        });
-        return this.$el;
-    }
+			return this;
+		}
 
-    /**
-     * @returns {number}
-     */
-    public outerWidth():number
-    {
-        return this.$el.outerWidth();
-    }
+		/**
+		 * @param cssProps
+		 * @returns {string|JQuery}
+		 */
+		public css(cssProps:any):any {
+			this.getAnimationFrame(()=> {
+				this.$el.css(cssProps);
+			});
+			return this.$el;
+		}
 
-    /**
-     * @returns {{left: number, top: number}}
-     */
-    public offset():IOffset
-    {
-        return this.$el.offset();
-    }
+		/**
+		 * @returns {number}
+		 */
+		public outerWidth():number {
+			return this.$el.outerWidth();
+		}
 
-    public destroy():void
-    {
-        this.$el.detach();
-        this.$el.off();
-        this.$el.remove();
-    }
+		/**
+		 * @returns {{left: number, top: number}}
+		 */
+		public offset():IOffset {
+			return this.$el.offset();
+		}
 
-    /**
-     * @returns {boolean}
-     */
-    public isInitialized():boolean
-    {
-        return this.initialized;
-    }
+		public destroy():void {
+			this.$el.detach();
+			this.$el.off();
+			this.$el.remove();
+		}
 
-    /**
-     * @param callback
-     */
-    public getAnimationFrame(callback:()=>any):void
-    {
-        var animationFrame = (function(){
-            return  window.requestAnimationFrame       ||
-                window['webkitRequestAnimationFrame'] ||
-                window['mozRequestAnimationFrame']    ||
-                function( callback ){
-                    window.setTimeout(callback, 1000 / 60);
-                };
-        })();
+		/**
+		 * @returns {boolean}
+		 */
+		public isInitialized():boolean {
+			return this.initialized;
+		}
 
-        animationFrame(callback);
+		/**
+		 * @param callback
+		 */
+		public getAnimationFrame(callback:()=>any):void {
+			var animationFrame = (function () {
+				return window.requestAnimationFrame ||
+					window['webkitRequestAnimationFrame'] ||
+					window['mozRequestAnimationFrame'] ||
+					function (callback) {
+						window.setTimeout(callback, 1000 / 60);
+					};
+			})();
 
-    }
+			animationFrame(callback);
+
+		}
+	}
 }

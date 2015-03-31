@@ -2,28 +2,29 @@
  * Created by davidatborresen on 18.03.14.
  */
 
-/// <reference path="./interfaces.ts" />
+/// <reference path="./interfaces.d.ts" />
 /// <reference path="./SliderUXComponent.ts" />
 /// <reference path="./SliderTemplate.ts" />
 /// <reference path="../definitions/jquery/jquery.d.ts" />
 
-class SliderValueLabel extends SliderUXComponent {
+module Slider {
 
-    public template:SliderTemplate;
+	export class ValueLabel extends Slider.UXComponent {
 
-    private $value:JQuery;
+		public template:Slider.Template;
 
-    constructor(template:string, params:Object)
-    {
-        super();
+		private $value:JQuery;
 
-        this.template = new SliderTemplate(template);
-        this.create(params);
-        this.$value = this.$el.find('span');
-    }
+		constructor(template:string, params:Object) {
+			super();
 
-    public setValue(str:string):void
-    {
-        this.$value.html(str);
-    }
+			this.template = new Slider.Template(template);
+			this.create(params);
+			this.$value = this.$el.find('span');
+		}
+
+		public setValue(str:string):void {
+			this.$value.html(str);
+		}
+	}
 }
