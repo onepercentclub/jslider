@@ -2748,8 +2748,8 @@ var SliderDraggable = (function (_super) {
     SliderDraggable.prototype.getPageCoords = function (event) {
         var touch = event.gesture.touches[0];
         return {
-            x: touch.x,
-            y: touch.y
+            x: touch.pageX,
+            y: touch.pageY
         };
     };
 
@@ -2760,8 +2760,8 @@ var SliderDraggable = (function (_super) {
     SliderDraggable.prototype.unbind = function () {
         for (var eventType in this.events) {
             var namespacedEvent = this.events[eventType];
-            jQuery(document).hammer().off(namespacedEvent);
-            this.$el.hammer().off(namespacedEvent);
+
+            this.$el.off(namespacedEvent);
         }
     };
 
@@ -2773,7 +2773,7 @@ var SliderDraggable = (function (_super) {
     SliderDraggable.prototype.bind = function (element, eventType, callback) {
         var namespacedEvent = this.events[eventType];
 
-        element.hammer().on(namespacedEvent, callback);
+        element.on(namespacedEvent, callback);
     };
 
     SliderDraggable.prototype.mouseDown = function (event) {
@@ -3315,6 +3315,13 @@ var Slider = (function (_super) {
 
         jQuery(window).resize(function () {
             _this.redraw();
+        });
+
+        this.hammerManager = new Hammer(this.$el.get(0), {
+            domEvents: true,
+            dragLockToAxis: true,
+            preventDefault: true,
+            dragBlockHorizontal: true
         });
 
         return this;
