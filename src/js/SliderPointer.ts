@@ -101,7 +101,7 @@ class SliderPointer extends SliderDraggable
     /**
      * @param event
      */
-    public onMouseDown(event:HammerEvent):void
+    public onMouseDown(event:any):void
     {
         super.onMouseDown(event);
 
@@ -118,7 +118,7 @@ class SliderPointer extends SliderDraggable
     /**
      * @param event
      */
-    public onMouseMove(event:HammerEvent):void
+    public onMouseMove(event:any):void
     {
         super.onMouseMove(event);
 
@@ -193,7 +193,7 @@ class SliderPointer extends SliderDraggable
     /**
      * @param event
      */
-    public onMouseUp(event:HammerEvent):void
+    public onMouseUp(event:any):void
     {
         super.onMouseUp(event);
 

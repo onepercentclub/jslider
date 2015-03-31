@@ -3,7 +3,7 @@
  */
 
 /// <reference path="../definitions/jquery/jquery.d.ts" />
-/// <reference path="../definitions/hammerjs/hammerjs.d.ts" />
+/// <reference path="../definitions/hammer/hammerjs.d.ts" />
 /// <reference path="./interfaces.ts" />
 /// <reference path="./Slider.ts" />
 /// <reference path="./SliderUXComponent.ts" />
@@ -75,7 +75,7 @@ class SliderDraggable extends SliderUXComponent {
 
     private setupEvents():void
     {
-        this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
+        this.bind(jQuery(document), SliderDraggable.EVENT_MOVE, (event:any)=>
         {
             if (this.is.drag)
             {
@@ -86,7 +86,7 @@ class SliderDraggable extends SliderUXComponent {
             }
         });
 
-        this.bind(jQuery(document), SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
+        this.bind(jQuery(document), SliderDraggable.EVENT_DOWN, (event:any)=>
         {
             if(this.is.drag)
             {
@@ -95,7 +95,7 @@ class SliderDraggable extends SliderUXComponent {
             }
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_MOVE, (event:HammerEvent)=>
+        this.bind(this.$el, SliderDraggable.EVENT_MOVE, (event:any)=>
         {
             if(this.is.drag)
             {
@@ -106,17 +106,17 @@ class SliderDraggable extends SliderUXComponent {
             }
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_DOWN, (event:HammerEvent)=>
+        this.bind(this.$el, SliderDraggable.EVENT_DOWN, (event:any)=>
         {
             this.mouseDown(event);
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_UP, (event:HammerEvent)=>
+        this.bind(this.$el, SliderDraggable.EVENT_UP, (event:any)=>
         {
             this.mouseUp(event);
         });
 
-        this.bind(this.$el, SliderDraggable.EVENT_CLICK, (event:HammerEvent)=>
+        this.bind(this.$el, SliderDraggable.EVENT_CLICK, (event:any)=>
         {
             this.is.clicked = true;
 
@@ -216,7 +216,7 @@ class SliderDraggable extends SliderUXComponent {
     /**
      * @param event {MouseEvent}
      */
-    public mouseMove(event:HammerEvent):void
+    public mouseMove(event:any):void
     {
         this.is.toclick = false;
         var coords = this.getPageCoords(event);
@@ -226,7 +226,7 @@ class SliderDraggable extends SliderUXComponent {
     /**
      * @param event {MouseEvent}
      */
-    public mouseUp(event:HammerEvent):void
+    public mouseUp(event:any):void
     {
         if(!this.is.drag)
         {
@@ -259,7 +259,7 @@ class SliderDraggable extends SliderUXComponent {
     /**
      * @param event {MouseEvent}
      */
-    public onMouseDown(event:HammerEvent):void
+    public onMouseDown(event:any):void
     {
         this.css({ position: 'absolute' });
     }
@@ -269,12 +269,12 @@ class SliderDraggable extends SliderUXComponent {
      * @param x {number}
      * @param y {number}
      */
-    public onMouseMove(event:HammerEvent, x:number = null, y:number = null):void
+    public onMouseMove(event:any, x:number = null, y:number = null):void
     {}
 
     /**
      * @param event {MouseEvent}
      */
-    public onMouseUp(event:HammerEvent):void
+    public onMouseUp(event:any):void
     {}
 }
