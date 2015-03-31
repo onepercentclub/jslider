@@ -1,6 +1,6 @@
 /// <reference path="../definitions/jasmine/jasmine.d.ts" />
 /// <reference path="../definitions/jasmine-matchers/jasmine-matchers.d.ts" />
-/// <reference path="../definitions/hammerjs/hammerjs.d.ts" />
+/// <reference path="../definitions/hammer/hammerjs.d.ts" />
 /// <reference path="../definitions/jquery/jquery.d.ts" />
 /// <reference path="../js/Slider.ts" />
 /// <reference path="../js/SliderLimitLabel.ts" />
