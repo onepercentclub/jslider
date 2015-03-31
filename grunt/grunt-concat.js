@@ -2,7 +2,6 @@ module.exports = function(grunt)
 {
 
     var jsStandAlone = [
-        'lib/jquery-hammerjs/jquery.hammer.js',
         'src/vendor/jshashtable-2.1_src.js',
         'src/vendor/jquery.dependClass-0.1.js',
         'src/vendor/jquery.numberformatter-1.2.3.js',
