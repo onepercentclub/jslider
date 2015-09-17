@@ -51,7 +51,7 @@ module Slider {
 			super.initialize(config);
 
 			this.template = new Slider.Template(
-				'<div class="<%=className%>-pointer"></div>'
+				'<div class="<#=className#>-pointer"></div>'
 			);
 			this.components = {
 				label: null
@@ -70,7 +70,7 @@ module Slider {
 			var labelParams:Object;
 			if (this.uid === Slider.Impl.POINTER_TO) {
 
-				template = '<div class="<%=className%>-label <%=className%>-label-to"><span><%=to%></span><%=dimension%></div>'
+				template = '<div class="<#=className#>-label <#=className#>-label-to"><span><#=to#></span><#=dimension#></div>'
 				labelParams = {
 					className: Slider.Impl.CLASSNAME,
 					to: this.settings.to,
@@ -84,7 +84,7 @@ module Slider {
 					from: this.settings.from,
 					dimension: this.settings.dimension
 				};
-				template = '<div class="<%=className%>-label <%=className%>-label-from"><span><%=from%></span><%=dimension%></div>';
+				template = '<div class="<#=className#>-label <#=className#>-label-from"><span><#=from#></span><#=dimension#></div>';
 			}
 
 			var label = new Slider.ValueLabel(template, labelParams);

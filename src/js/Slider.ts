@@ -97,13 +97,13 @@ module Slider {
 		 */
 		public create(params?:Object):UXComponent {
 			this.template = new Slider.Template(
-				'<span class="<%=className%>">' +
-				'<div class="<%=className%>-bg">' +
+				'<span class="<#=className#>">' +
+				'<div class="<#=className#>-bg">' +
 				'<i class="l"></i><i class="f"></i><i class="r"></i>' +
 				'<i class="v"></i>' +
 				'</div>' +
 
-				(this.settings.scale ? '<div class="<%=className%>-scale"><%=scale%></div>' : '') +
+				(this.settings.scale ? '<div class="<#=className#>-scale"><#=scale#></div>' : '') +
 
 				'</span>'
 			);
@@ -204,7 +204,7 @@ module Slider {
 			var params:Object;
 			var limitLabel:Slider.LimitLabel;
 
-			template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
+			template = '<div class="<#=className#>-label"><span><#=from#></span><#=dimension#></div>';
 			params = {
 				className: Slider.Impl.CLASSNAME,
 				from: this.settings.from,
@@ -216,7 +216,7 @@ module Slider {
 			this.$el.append(limitLabel.$el);
 			this.components.limits.push(limitLabel);
 
-			template = '<div class="<%=className%>-label <%=className%>-label-to"><span><%=to%></span><%=dimension%></div>';
+			template = '<div class="<#=className#>-label <#=className#>-label-to"><span><#=to#></span><#=dimension#></div>';
 			params = {
 				className: Slider.Impl.CLASSNAME,
 				to: this.settings.to,

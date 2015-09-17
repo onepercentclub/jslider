@@ -9,7 +9,7 @@ module Slider {
 	export class LimitLabel extends Slider.UXComponent {
 
 		public template:Slider.Template = new Slider.Template(
-			'<div class="<%=className%>-value"><span></span><%=dimension%></div>'
+			'<div class="<#=className#>-value"><span></span><#=dimension#></div>'
 		);
 
 		constructor(template:string, params:Object) {

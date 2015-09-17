@@ -2437,7 +2437,7 @@ var Hashtable = (function () {
         };
 
         Template.prototype.createTemplateFn = function (template) {
-            return new Function("data", "var p=[]," + "print=function(){" + "p.push.apply(p,arguments);" + "};" + "with(data){p.push('" + template.replace(/[\r\t\n]/g, " ").split("<%").join("\t").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("\t").join("');").split("%>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
+            return new Function("data", "var p=[]," + "print=function(){" + "p.push.apply(p,arguments);" + "};" + "with(data){p.push('" + template.replace(/[\r\t\n]/g, " ").split("<#").join("\t").replace(/((^|#>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)#>/g, "',$1,'").split("\t").join("');").split("#>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
         };
         return Template;
     })();
@@ -2519,7 +2519,7 @@ var Slider;
         __extends(LimitLabel, _super);
         function LimitLabel(template, params) {
             _super.call(this);
-            this.template = new Slider.Template('<div class="<%=className%>-value"><span></span><%=dimension%></div>');
+            this.template = new Slider.Template('<div class="<#=className#>-value"><span></span><#=dimension#></div>');
             this.template = new Slider.Template(template);
             this.create(params);
         }
@@ -2794,7 +2794,7 @@ var Slider;
         Pointer.prototype.initialize = function (config) {
             _super.prototype.initialize.call(this, config);
 
-            this.template = new Slider.Template('<div class="<%=className%>-pointer"></div>');
+            this.template = new Slider.Template('<div class="<#=className#>-pointer"></div>');
             this.components = {
                 label: null
             };
@@ -2811,7 +2811,7 @@ var Slider;
             var template;
             var labelParams;
             if (this.uid === Slider.Impl.POINTER_TO) {
-                template = '<div class="<%=className%>-label <%=className%>-label-to"><span><%=to%></span><%=dimension%></div>';
+                template = '<div class="<#=className#>-label <#=className#>-label-to"><span><#=to#></span><#=dimension#></div>';
                 labelParams = {
                     className: Slider.Impl.CLASSNAME,
                     to: this.settings.to,
@@ -2824,7 +2824,7 @@ var Slider;
                     from: this.settings.from,
                     dimension: this.settings.dimension
                 };
-                template = '<div class="<%=className%>-label <%=className%>-label-from"><span><%=from%></span><%=dimension%></div>';
+                template = '<div class="<#=className#>-label <#=className#>-label-from"><span><#=from#></span><#=dimension#></div>';
             }
 
             var label = new Slider.ValueLabel(template, labelParams);
@@ -3164,7 +3164,7 @@ var Slider;
         }
         Impl.prototype.create = function (params) {
             var _this = this;
-            this.template = new Slider.Template('<span class="<%=className%>">' + '<div class="<%=className%>-bg">' + '<i class="l"></i><i class="f"></i><i class="r"></i>' + '<i class="v"></i>' + '</div>' + (this.settings.scale ? '<div class="<%=className%>-scale"><%=scale%></div>' : '') + '</span>');
+            this.template = new Slider.Template('<span class="<#=className#>">' + '<div class="<#=className#>-bg">' + '<i class="l"></i><i class="f"></i><i class="r"></i>' + '<i class="v"></i>' + '</div>' + (this.settings.scale ? '<div class="<#=className#>-scale"><#=scale#></div>' : '') + '</span>');
             _super.prototype.create.call(this, params);
 
             this.$input.after(this.$el);
@@ -3256,7 +3256,7 @@ var Slider;
             var params;
             var limitLabel;
 
-            template = '<div class="<%=className%>-label"><span><%=from%></span><%=dimension%></div>';
+            template = '<div class="<#=className#>-label"><span><#=from#></span><#=dimension#></div>';
             params = {
                 className: Slider.Impl.CLASSNAME,
                 from: this.settings.from,
@@ -3267,7 +3267,7 @@ var Slider;
             this.$el.append(limitLabel.$el);
             this.components.limits.push(limitLabel);
 
-            template = '<div class="<%=className%>-label <%=className%>-label-to"><span><%=to%></span><%=dimension%></div>';
+            template = '<div class="<#=className#>-label <#=className#>-label-to"><span><#=to#></span><#=dimension#></div>';
             params = {
                 className: Slider.Impl.CLASSNAME,
                 to: this.settings.to,

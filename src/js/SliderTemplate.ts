@@ -39,11 +39,11 @@ module Slider {
 					// Convert the template into pure JavaScript
 				template
 					.replace(/[\r\t\n]/g, " ")
-					.split("<%").join("\t")
-					.replace(/((^|%>)[^\t]*)'/g, "$1\r")
-					.replace(/\t=(.*?)%>/g, "',$1,'")
+					.split("<#").join("\t")
+					.replace(/((^|#>)[^\t]*)'/g, "$1\r")
+					.replace(/\t=(.*?)#>/g, "',$1,'")
 					.split("\t").join("');")
-					.split("%>").join("p.push('")
+					.split("#>").join("p.push('")
 					.split("\r").join("\\'")
 				+ "');}return p.join('');");
 		}
