@@ -3171,7 +3171,13 @@ var Slider;
 
             this.drawScale();
 
-            var values = this.settings.value.split(';');
+            var values = this.settings.value.split(';').map(function (value) {
+                if (value == '') {
+                    return _this.settings.from.toString();
+                }
+                return value;
+            });
+
             if (values.length == 1) {
                 this.settings.single = true;
                 this.$el.addDependClass('single');

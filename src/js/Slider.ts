@@ -113,7 +113,13 @@ module Slider {
 
 			this.drawScale();
 
-			var values:string[] = this.settings.value.split(';');
+			var values:string[] = this.settings.value.split(';').map((value:string)=> {
+				if (value == '') {
+					return this.settings.from.toString();
+				}
+				return value;
+			});
+
 			if (values.length == 1) {
 				this.settings.single = true;
 				this.$el.addDependClass('single')
