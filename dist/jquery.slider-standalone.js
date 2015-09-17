@@ -1787,7 +1787,7 @@ var Slider;
         }
         Impl.prototype.create = function (params) {
             var _this = this;
-            this.template = new Slider.Template('<span class="<#=className#>">' + '<div class="<#=className#>-bg">' + '<i class="l"></i><i class="f"></i><i class="r"></i>' + '<i class="v"></i>' + '</div>' + (this.settings.scale ? '<div class="<#=className#>-scale"><#=scale#></div>' : '') + '</span>');
+            this.template = new Slider.Template('<span class="<#=className#>">' + '<div class="<#=className#>-bg">' + '<i class="l"></i><i class="f"></i><i class="r"></i><i class="v"></i>' + '</div>' + (this.settings.scale ? '<div class="<#=className#>-scale"><#=scale#></div>' : '') + '</span>');
             _super.prototype.create.call(this, params);
 
             this.$input.after(this.$el);
@@ -1850,9 +1850,7 @@ var Slider;
                 _this.components.pointers[uid].redrawLabels();
             });
 
-            if (!this.settings.single) {
-                this.$value = this.$el.find('.v');
-            }
+            this.$value = this.$el.find('.v');
 
             jQuery.each(this.getPointers(), function (i, pointer) {
                 if (!_this.settings.single) {
@@ -2000,12 +1998,15 @@ var Slider;
         };
 
         Impl.prototype.setValueElementPosition = function () {
-            if (this.components.pointers.length == 1) {
-                return;
+            var fromPercent;
+            var toPercent;
+            if (this.components.pointers.length == 2) {
+                fromPercent = this.components.pointers[Slider.Impl.POINTER_FROM].get().prc;
+                toPercent = this.components.pointers[Slider.Impl.POINTER_TO].get().prc;
+            } else if (this.components.pointers.length == 1) {
+                fromPercent = 0;
+                toPercent = this.components.pointers[Slider.Impl.POINTER_FROM].get().prc;
             }
-
-            var fromPercent = this.components.pointers[Slider.Impl.POINTER_FROM].get().prc;
-            var toPercent = this.components.pointers[Slider.Impl.POINTER_TO].get().prc;
 
             this.$value.css({
                 left: fromPercent + '%',
