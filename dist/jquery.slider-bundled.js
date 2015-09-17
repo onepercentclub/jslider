@@ -2648,7 +2648,7 @@ var Slider;
                 _this.mouseDown(event);
             });
 
-            this.bind(this.$el, Draggable.EVENT_UP, function (event) {
+            this.bind(jQuery(document), Draggable.EVENT_UP, function (event) {
                 _this.mouseUp(event);
             });
 
