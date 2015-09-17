@@ -3206,6 +3206,8 @@ var Slider;
 
             this.createLimitLabels();
 
+            this.$value = this.$el.find('.v');
+
             values.forEach(function (value, uid) {
                 var typedValue = parseInt(value, 10);
                 var prev = parseInt(values[uid - 1], 10);
@@ -3226,8 +3228,6 @@ var Slider;
 
                 _this.components.pointers[uid].redrawLabels();
             });
-
-            this.$value = this.$el.find('.v');
 
             jQuery.each(this.getPointers(), function (i, pointer) {
                 if (!_this.settings.single) {

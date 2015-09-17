@@ -148,6 +148,8 @@ module Slider {
 
 			this.createLimitLabels();
 
+			this.$value = this.$el.find('.v');
+			
 			values.forEach((value:string, uid:number)=> {
 				var typedValue:number = parseInt(value, 10);
 				var prev:number = parseInt(values[uid - 1], 10);
@@ -169,10 +171,6 @@ module Slider {
 
 				this.components.pointers[uid].redrawLabels();
 			});
-
-			//if (!this.settings.single) {
-			this.$value = this.$el.find('.v');
-			//}
 
 			jQuery.each(this.getPointers(), (i:number, pointer:Slider.Pointer)=> {
 				if (!this.settings.single) {
