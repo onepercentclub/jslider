@@ -203,6 +203,10 @@ module Slider {
 		 * @returns {SliderLimitLabel}
 		 */
 		private createLimitLabels():void {
+			if (!this.settings.limits) {
+        			return;
+    			}
+    			
 			var template:string;
 			var params:Object;
 			var limitLabel:Slider.LimitLabel;
