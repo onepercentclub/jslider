@@ -3256,6 +3256,10 @@ var Slider;
         };
 
         Impl.prototype.createLimitLabels = function () {
+            if (!this.settings.limits) {
+                return;
+            }
+
             var template;
             var params;
             var limitLabel;
@@ -3517,7 +3521,7 @@ jQuery.fn.slider = function (action, optValue) {
     }
 
     this.each(function () {
-        var self = jQuery.slider(this, action, optValue);
+        var self = jQuery.slider(this, action);
 
         if (typeof action == "string") {
             switch (action) {

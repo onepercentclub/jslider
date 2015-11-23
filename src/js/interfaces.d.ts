@@ -84,7 +84,7 @@ interface JQuery {
 }
 
 interface JQueryStatic {
-	slider(node:HTMLInputElement, settings:ISliderSettings, force:boolean):Slider.Impl;
+	slider(node:HTMLInputElement, settings:ISliderSettings, force?:boolean):Slider.Impl;
 	addDependClass(className:string, delimiter?:string):void;
 	removeDependClass(className:string, delimiter?:string):void;
 	formatNumber(delta:number, config:Object):string;
