@@ -26,7 +26,7 @@ jQuery.fn.slider = function (action:any, optValue:any):any {
 	}
 
 	this.each(function () {
-		var self = jQuery.slider(<HTMLInputElement>this, action, optValue);
+		var self = jQuery.slider(<HTMLInputElement>this, action);
 
 		// do actions
 		if (typeof action == "string") {
