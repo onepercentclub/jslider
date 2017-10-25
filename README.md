@@ -1,3 +1,8 @@
+# Notice
+This fork of https://github.com/abdavid/jslider is also available on npm:
+`npm install html5-slider` OR
+`yarn add html5-slider`
+
 # jQuery Touch Slider plugin
 jQuery Slider is easy to use and multifunctional jQuery plugin.
 Note: As of v2.0.0 this library has a dependency of [Hammer.js](http://eightmedia.github.io/hammer.js/)
